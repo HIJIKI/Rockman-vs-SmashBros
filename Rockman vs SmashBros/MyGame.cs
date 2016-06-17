@@ -9,18 +9,20 @@ namespace Rockman_vs_SmashBros
 	/// </summary>
 	public partial class MyGame : Game
 	{
-		// 描画バッファの宣言
-		RenderTarget2D WorldBuffer;                             // ワールド描画バッファ
-		RenderTarget2D GameScreenBuffer;                        // ゲーム画面描画バッファ
-
 		// 描画用オブジェクト
 		GraphicsDeviceManager GraphicsDeviceManager;
 		SpriteBatch SpriteBatch;
 
+		// 描画バッファの宣言
+		RenderTarget2D WorldBuffer;                             // ワールド描画バッファ
+		RenderTarget2D GameScreenBuffer;                        // ゲーム画面描画バッファ
+
+		Mapchip Mapchip;                                        // マップチップテクスチャ
+
 		// テスト用
-		Texture2D map;
 		Texture2D texture;
 		Vector2 PlayerPos = new Vector2(GAME_SCREEN_SIZE_W / 2, GAME_SCREEN_SIZE_H / 2);
+		MapData MapData = new MapData("test.png", 16, 15);
 
 		/// <summary>
 		/// コンストラクタ
@@ -49,15 +51,16 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		protected override void LoadContent()
 		{
-			WorldBuffer = new RenderTarget2D(GraphicsDevice, GAME_SCREEN_SIZE_W * 2, GAME_SCREEN_SIZE_H * 2);
-			GameScreenBuffer = new RenderTarget2D(GraphicsDevice, GAME_SCREEN_SIZE_W, GAME_SCREEN_SIZE_H);
-
-			// SpriteBatch を新規作成
+			// 描画に使用する SpriteBatch を初期化
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-			// ここに画像の読み込み処理を追加
-			map = Content.Load<Texture2D>("map.png");
+			// 裏描画バッファの初期化
+			WorldBuffer = new RenderTarget2D(GraphicsDevice, MapData.Size.Width * MAP_CHIP_SIZE, MapData.Size.Height * MAP_CHIP_SIZE);
+			GameScreenBuffer = new RenderTarget2D(GraphicsDevice, GAME_SCREEN_SIZE_W, GAME_SCREEN_SIZE_H);
+
+			// 画像リソースの読み込み
 			texture = Content.Load<Texture2D>("Player.png");
+			Mapchip.HyruleCastle = Content.Load<Texture2D>("link_stage_mapchip.png");
 		}
 
 		/// <summary>
@@ -114,9 +117,9 @@ namespace Rockman_vs_SmashBros
 			// ワールドバッファの描画
 			GraphicsDevice.SetRenderTarget(WorldBuffer);
 			GraphicsDevice.Clear(Color.CornflowerBlue);
-			SpriteBatch.Begin();
-			SpriteBatch.Draw(map, Vector2.Zero, new Rectangle(0, 0, GAME_SCREEN_SIZE_W * 2, GAME_SCREEN_SIZE_H * 2), Color.White);
-			SpriteBatch.Draw(texture, PlayerPos, new Rectangle(32 * 1, 32 * 1, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, 1);
+			SpriteBatch.Begin(SpriteSortMode.FrontToBack);
+			DrawMap(MapData);
+			SpriteBatch.Draw(texture, PlayerPos, new Rectangle(32 * 1, 32 * 1, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)DrawOrder.Player / (float)DrawOrder.MAX_LAYER);
 			SpriteBatch.End();
 
 			// ゲームバッファの描画
@@ -129,7 +132,7 @@ namespace Rockman_vs_SmashBros
 			// プレイスクリーンの描画
 			GraphicsDevice.SetRenderTarget(null);
 			GraphicsDevice.Clear(Color.Black);
-			SpriteBatch.Begin(SpriteSortMode.BackToFront, null, SamplerState.PointClamp);
+			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
 			SpriteBatch.Draw(GameScreenBuffer, Vector2.Zero, new Rectangle(0, 0, GAME_SCREEN_SIZE_W, GAME_SCREEN_SIZE_H), Color.White, 0.0f, new Vector2(0, 0), (float)WindowScale, SpriteEffects.None, 1);
 			SpriteBatch.End();
 
