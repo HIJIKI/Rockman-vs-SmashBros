@@ -17,12 +17,10 @@ namespace Rockman_vs_SmashBros
 		RenderTarget2D WorldBuffer;                             // ワールド描画バッファ
 		RenderTarget2D GameScreenBuffer;                        // ゲーム画面描画バッファ
 
-		Mapchip Mapchip;                                        // マップチップテクスチャ
-
 		// テスト用
 		Texture2D texture;
-		Vector2 PlayerPos = new Vector2(GAME_SCREEN_SIZE_W / 2, GAME_SCREEN_SIZE_H / 2);
-		MapData MapData = new MapData("test.png", 16, 15);
+		Vector2 PlayerPos = new Vector2(Const.GameScreenWidth / 2, Const.GameScreenHeight / 2);
+		Map Map = new Map();
 
 		/// <summary>
 		/// コンストラクタ
@@ -31,8 +29,8 @@ namespace Rockman_vs_SmashBros
 		{
 			GraphicsDeviceManager = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
-			GraphicsDeviceManager.PreferredBackBufferWidth = GAME_SCREEN_SIZE_W * WindowScale;
-			GraphicsDeviceManager.PreferredBackBufferHeight = GAME_SCREEN_SIZE_H * WindowScale;
+			GraphicsDeviceManager.PreferredBackBufferWidth = Const.GameScreenWidth * WindowScale;
+			GraphicsDeviceManager.PreferredBackBufferHeight = Const.GameScreenHeight * WindowScale;
 		}
 
 		/// <summary>
@@ -41,6 +39,7 @@ namespace Rockman_vs_SmashBros
 		protected override void Initialize()
 		{
 			// ここに初期化ロジックを追加
+			Map.InitForTest();
 
 			// MonoGame コンポーネントを初期化
 			base.Initialize();
@@ -55,31 +54,34 @@ namespace Rockman_vs_SmashBros
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// 裏描画バッファの初期化
-			WorldBuffer = new RenderTarget2D(GraphicsDevice, MapData.Size.Width * MAP_CHIP_SIZE, MapData.Size.Height * MAP_CHIP_SIZE);
-			GameScreenBuffer = new RenderTarget2D(GraphicsDevice, GAME_SCREEN_SIZE_W, GAME_SCREEN_SIZE_H);
+			WorldBuffer = new RenderTarget2D(GraphicsDevice, Map.Size.Width * Const.MapchipTileSize, Map.Size.Height * Const.MapchipTileSize);
+			GameScreenBuffer = new RenderTarget2D(GraphicsDevice, Const.GameScreenWidth, Const.GameScreenHeight);
+
+			Map.ContentLoad(Content);
 
 			// 画像リソースの読み込み
-			texture = Content.Load<Texture2D>("Player.png");
-			Mapchip.HyruleCastle = Content.Load<Texture2D>("link_stage_mapchip.png");
+			texture = Content.Load<Texture2D>("Images/Player.png");
 		}
 
 		/// <summary>
-		/// リソースの開放
+		/// リソースの破棄
 		/// </summary>
 		protected override void UnloadContent()
 		{
 			// 確保したリソースを開放
 			WorldBuffer.Dispose();
 			GameScreenBuffer.Dispose();
-			SpriteBatch.Dispose();
+
+			Map.UnloadContent();
+
+			// テスト用
 			texture.Dispose();
 		}
 
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		protected override void Update(GameTime gameTime)
+		protected override void Update(GameTime GameTime)
 		{
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 			{
@@ -105,38 +107,37 @@ namespace Rockman_vs_SmashBros
 				PlayerPos.X += 2;
 			}
 
-			base.Update(gameTime);
+			base.Update(GameTime);
 		}
 
 		/// <summary>
 		/// 描画
 		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		protected override void Draw(GameTime gameTime)
+		protected override void Draw(GameTime GameTime)
 		{
 			// ワールドバッファの描画
 			GraphicsDevice.SetRenderTarget(WorldBuffer);
 			GraphicsDevice.Clear(Color.CornflowerBlue);
-			SpriteBatch.Begin(SpriteSortMode.FrontToBack);
-			DrawMap(MapData);
-			SpriteBatch.Draw(texture, PlayerPos, new Rectangle(32 * 1, 32 * 1, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)DrawOrder.Player / (float)DrawOrder.MAX_LAYER);
+			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
+			Map.Draw(GameTime, SpriteBatch);
+			SpriteBatch.Draw(texture, PlayerPos, new Rectangle(32 * 1, 32 * 1, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX);
 			SpriteBatch.End();
 
 			// ゲームバッファの描画
 			GraphicsDevice.SetRenderTarget(GameScreenBuffer);
 			GraphicsDevice.Clear(Color.CornflowerBlue);
-			SpriteBatch.Begin();
-			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle((int)PlayerPos.X - GAME_SCREEN_SIZE_W / 2, (int)PlayerPos.Y - GAME_SCREEN_SIZE_H / 2, GAME_SCREEN_SIZE_W, GAME_SCREEN_SIZE_H), Color.White);
+			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
+			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle((int)PlayerPos.X - Const.GameScreenWidth / 2, (int)PlayerPos.Y - Const.GameScreenHeight / 2, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
 			SpriteBatch.End();
 
 			// プレイスクリーンの描画
 			GraphicsDevice.SetRenderTarget(null);
 			GraphicsDevice.Clear(Color.Black);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
-			SpriteBatch.Draw(GameScreenBuffer, Vector2.Zero, new Rectangle(0, 0, GAME_SCREEN_SIZE_W, GAME_SCREEN_SIZE_H), Color.White, 0.0f, new Vector2(0, 0), (float)WindowScale, SpriteEffects.None, 1);
+			SpriteBatch.Draw(GameScreenBuffer, Vector2.Zero, new Rectangle(0, 0, Const.GameScreenWidth, Const.GameScreenHeight), Color.White, 0.0f, new Vector2(0, 0), (float)WindowScale, SpriteEffects.None, 1);
 			SpriteBatch.End();
 
-			base.Draw(gameTime);
+			base.Draw(GameTime);
 		}
 	}
 }
