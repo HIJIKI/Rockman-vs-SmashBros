@@ -32,12 +32,4 @@ namespace Rockman_vs_SmashBros
 		}
 	}
 
-	/// <summary>
-	/// Mapchip 構造体
-	/// </summary>
-	/// マップチップのテクスチャを読み込んでおく。
-	public struct Mapchip
-	{
-		public Texture2D HyruleCastle;
-	}
 }

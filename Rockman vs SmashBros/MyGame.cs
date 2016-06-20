@@ -90,6 +90,8 @@ namespace Rockman_vs_SmashBros
 
 			// ここに計算処理を追加
 
+			Map.Update(GameTime);
+
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
 			{
 				PlayerPos.Y -= 2;
@@ -127,7 +129,7 @@ namespace Rockman_vs_SmashBros
 			GraphicsDevice.SetRenderTarget(GameScreenBuffer);
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
-			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle((int)PlayerPos.X - Const.GameScreenWidth / 2, (int)PlayerPos.Y - Const.GameScreenHeight / 2, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
+			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle(0, 0, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
 			SpriteBatch.End();
 
 			// プレイスクリーンの描画
