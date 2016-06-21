@@ -1,6 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Design;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Storage;
 
 namespace Rockman_vs_SmashBros
 {
@@ -21,6 +26,7 @@ namespace Rockman_vs_SmashBros
 		Texture2D texture;
 		Vector2 PlayerPos = new Vector2(Const.GameScreenWidth / 2, Const.GameScreenHeight / 2);
 		Map Map = new Map();
+		Camera Camera = new Camera();
 
 		/// <summary>
 		/// コンストラクタ
@@ -90,8 +96,6 @@ namespace Rockman_vs_SmashBros
 
 			// ここに計算処理を追加
 
-			Map.Update(GameTime);
-
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
 			{
 				PlayerPos.Y -= 2;
@@ -108,6 +112,9 @@ namespace Rockman_vs_SmashBros
 			{
 				PlayerPos.X += 2;
 			}
+
+			Map.Update(GameTime);
+			Camera.Update(GameTime, PlayerPos, new Size(WorldBuffer.Width, WorldBuffer.Height));
 
 			base.Update(GameTime);
 		}
@@ -129,7 +136,7 @@ namespace Rockman_vs_SmashBros
 			GraphicsDevice.SetRenderTarget(GameScreenBuffer);
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
-			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle(0, 0, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
+			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle(Camera.Position.X, Camera.Position.Y, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
 			SpriteBatch.End();
 
 			// プレイスクリーンの描画

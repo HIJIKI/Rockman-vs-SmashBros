@@ -1,4 +1,11 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Design;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Storage;
 
 namespace Rockman_vs_SmashBros
 {
@@ -16,20 +23,4 @@ namespace Rockman_vs_SmashBros
 			this.Height = Height;
 		}
 	}
-
-	/// <summary>
-	/// Position 構造体
-	/// </summary>
-	/// 座標の管理に使用する。
-	public struct Position
-	{
-		public int X;
-		public int Y;
-		public Position(int X, int Y)
-		{
-			this.X = X;
-			this.Y = Y;
-		}
-	}
-
 }
