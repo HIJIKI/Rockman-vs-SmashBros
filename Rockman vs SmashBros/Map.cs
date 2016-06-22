@@ -122,7 +122,7 @@ namespace Rockman_vs_SmashBros
 				{ 0,0,0,0,0,0,0,0,0,0,0,1,2,2,2 }
 			};
 			*/
-
+			/*
 			UpperLayer[5, 0].IsAnimation = true;
 			UpperLayer[5, 1].IsAnimation = true;
 			UpperLayer[4, 2].IsAnimation = true;
@@ -143,12 +143,13 @@ namespace Rockman_vs_SmashBros
 			UpperLayer[9, 12].IsAnimation = true;
 			UpperLayer[9, 13].IsAnimation = true;
 			UpperLayer[8, 14].IsAnimation = true;
+			*/
 
 			for (int x = 0; x < BGLayer.GetLength(0); x++)
 			{
 				for (int y = 0; y < BGLayer.GetLength(1); y++)
 				{
-					BGLayer[x, y].Index = 200;
+					BGLayer[x, y].Index = 1;
 				}
 			}
 
@@ -189,7 +190,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public void ContentLoad(ContentManager Content)
 		{
-			Texture = Content.Load<Texture2D>("Images/mario_stage_mapchip.png");
+			Texture = Content.Load<Texture2D>("Image/mario_stage_mapchip.png");
 		}
 
 		/// <summary>

@@ -47,7 +47,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public void Update(GameTime GameTime, Vector2 PlayerPos, Size WorldSize)
+		public void Update(GameTime GameTime, Point PlayerPos, Size WorldSize)
 		{
 			Position.X = (int)PlayerPos.X - Const.GameScreenWidth / 2;
 			if (Position.X < 0)

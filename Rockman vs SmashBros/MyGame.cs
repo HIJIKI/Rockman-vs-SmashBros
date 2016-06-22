@@ -17,16 +17,19 @@ namespace Rockman_vs_SmashBros
 		// 描画用オブジェクト
 		GraphicsDeviceManager GraphicsDeviceManager;
 		SpriteBatch SpriteBatch;
+		SpriteFont Font;
 
 		// 描画バッファの宣言
 		RenderTarget2D WorldBuffer;                             // ワールド描画バッファ
 		RenderTarget2D GameScreenBuffer;                        // ゲーム画面描画バッファ
 
-		// テスト用
-		Texture2D texture;
-		Vector2 PlayerPos = new Vector2(Const.GameScreenWidth / 2, Const.GameScreenHeight / 2);
+		// 各クラスをインスタンス化
+		Player Player = new Player();
 		Map Map = new Map();
 		Camera Camera = new Camera();
+
+		// Test
+		KeyboardState OldKeyState;
 
 		/// <summary>
 		/// コンストラクタ
@@ -35,8 +38,8 @@ namespace Rockman_vs_SmashBros
 		{
 			GraphicsDeviceManager = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
-			GraphicsDeviceManager.PreferredBackBufferWidth = Const.GameScreenWidth * WindowScale;
-			GraphicsDeviceManager.PreferredBackBufferHeight = Const.GameScreenHeight * WindowScale;
+			GraphicsDeviceManager.PreferredBackBufferWidth = Const.GameScreenWidth * Global.WindowScale;
+			GraphicsDeviceManager.PreferredBackBufferHeight = Const.GameScreenHeight * Global.WindowScale;
 		}
 
 		/// <summary>
@@ -45,6 +48,8 @@ namespace Rockman_vs_SmashBros
 		protected override void Initialize()
 		{
 			// ここに初期化ロジックを追加
+			Player.Initialize();
+			Map.Initialize();
 			Map.InitForTest();
 
 			// MonoGame コンポーネントを初期化
@@ -63,10 +68,12 @@ namespace Rockman_vs_SmashBros
 			WorldBuffer = new RenderTarget2D(GraphicsDevice, Map.Size.Width * Const.MapchipTileSize, Map.Size.Height * Const.MapchipTileSize);
 			GameScreenBuffer = new RenderTarget2D(GraphicsDevice, Const.GameScreenWidth, Const.GameScreenHeight);
 
+			// 各オブジェクトのリソース読み込み
+			Player.ContentLoad(Content);
 			Map.ContentLoad(Content);
 
-			// 画像リソースの読み込み
-			texture = Content.Load<Texture2D>("Images/Player.png");
+			// テストフォント
+			Font = Content.Load<SpriteFont>("Font/TestFont");
 		}
 
 		/// <summary>
@@ -78,10 +85,8 @@ namespace Rockman_vs_SmashBros
 			WorldBuffer.Dispose();
 			GameScreenBuffer.Dispose();
 
+			Player.UnloadContent();
 			Map.UnloadContent();
-
-			// テスト用
-			texture.Dispose();
 		}
 
 		/// <summary>
@@ -89,32 +94,25 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		protected override void Update(GameTime GameTime)
 		{
+			KeyboardState NewKeyState = Keyboard.GetState();
+
+			// ESC が押されたらゲームを終了
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 			{
 				Exit();
 			}
 
-			// ここに計算処理を追加
-
-			if (Keyboard.GetState().IsKeyDown(Keys.W))
+			// デバッグモードトグル
+			if (NewKeyState.IsKeyDown(Keys.F11) && OldKeyState.IsKeyUp(Keys.F11))
 			{
-				PlayerPos.Y -= 2;
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.A))
-			{
-				PlayerPos.X -= 2;
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.S))
-			{
-				PlayerPos.Y += 2;
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.D))
-			{
-				PlayerPos.X += 2;
+				Global.Debug = !Global.Debug;
 			}
 
+			Player.Update(GameTime);
 			Map.Update(GameTime);
-			Camera.Update(GameTime, PlayerPos, new Size(WorldBuffer.Width, WorldBuffer.Height));
+			Camera.Update(GameTime, Player.Position, new Size(WorldBuffer.Width, WorldBuffer.Height));
+
+			OldKeyState = NewKeyState;
 
 			base.Update(GameTime);
 		}
@@ -128,22 +126,37 @@ namespace Rockman_vs_SmashBros
 			GraphicsDevice.SetRenderTarget(WorldBuffer);
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
+
 			Map.Draw(GameTime, SpriteBatch);
-			SpriteBatch.Draw(texture, PlayerPos, new Rectangle(32 * 1, 32 * 1, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX);
+			Player.Draw(GameTime, SpriteBatch);
+
 			SpriteBatch.End();
 
 			// ゲームバッファの描画
 			GraphicsDevice.SetRenderTarget(GameScreenBuffer);
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
+
 			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle(Camera.Position.X, Camera.Position.Y, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
+
 			SpriteBatch.End();
+
+			if (Global.Debug)
+			{
+				SpriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp);
+				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 20), Color.Gray, true);
+				SpriteBatch.DrawString(Font, "PlayerWorldPosition: " + Player.Position, new Vector2(0, 0), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+				SpriteBatch.DrawString(Font, "PlayerScreenPosition: " + (Player.Position-Camera.Position), new Vector2(0, 10), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+				SpriteBatch.End();
+			}
 
 			// プレイスクリーンの描画
 			GraphicsDevice.SetRenderTarget(null);
 			GraphicsDevice.Clear(Color.Black);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
-			SpriteBatch.Draw(GameScreenBuffer, Vector2.Zero, new Rectangle(0, 0, Const.GameScreenWidth, Const.GameScreenHeight), Color.White, 0.0f, new Vector2(0, 0), (float)WindowScale, SpriteEffects.None, 1);
+
+			SpriteBatch.Draw(GameScreenBuffer, Vector2.Zero, new Rectangle(0, 0, Const.GameScreenWidth, Const.GameScreenHeight), Color.White, 0.0f, new Vector2(0, 0), (float)Global.WindowScale, SpriteEffects.None, 1);
+
 			SpriteBatch.End();
 
 			base.Draw(GameTime);
