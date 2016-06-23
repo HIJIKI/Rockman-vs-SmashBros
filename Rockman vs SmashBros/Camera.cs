@@ -15,7 +15,7 @@ namespace Rockman_vs_SmashBros
 	class Camera
 	{
 		// メンバーの宣言
-		public Point Position;                                      // カメラの座標
+		public Vector2 Position;                                      // カメラの座標
 
 		/// <summary>
 		/// コンストラクタ
@@ -33,7 +33,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// リソースの確保
 		/// </summary>
-		public void ContentLoad(ContentManager Content)
+		public void LoadContent(ContentManager Content)
 		{
 		}
 
@@ -47,9 +47,9 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public void Update(GameTime GameTime, Point PlayerPos, Size WorldSize)
+		public void Update(GameTime GameTime, Vector2 PlayerPosition, Size WorldSize)
 		{
-			Position.X = (int)PlayerPos.X - Const.GameScreenWidth / 2;
+			Position.X = (int)PlayerPosition.X - Const.GameScreenWidth / 2;
 			if (Position.X < 0)
 			{
 				Position.X = 0;
@@ -59,7 +59,7 @@ namespace Rockman_vs_SmashBros
 				Position.X = WorldSize.Width - Const.GameScreenWidth;
 			}
 
-			Position.Y = (int)PlayerPos.Y - Const.GameScreenHeight / 2;
+			Position.Y = (int)PlayerPosition.Y - Const.GameScreenHeight / 2;
 			if (Position.Y < 0)
 			{
 				Position.Y = 0;

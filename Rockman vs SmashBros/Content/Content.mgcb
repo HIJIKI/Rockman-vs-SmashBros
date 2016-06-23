@@ -13,11 +13,9 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin TestFont.bmp
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter= 
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:TestFont.bmp
+#begin Font/myfont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=NoChange
+/build:Font/myfont.spritefont
 

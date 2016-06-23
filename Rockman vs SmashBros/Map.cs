@@ -188,7 +188,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// リソースの確保
 		/// </summary>
-		public void ContentLoad(ContentManager Content)
+		public void LoadContent(ContentManager Content)
 		{
 			Texture = Content.Load<Texture2D>("Image/mario_stage_mapchip.png");
 		}
