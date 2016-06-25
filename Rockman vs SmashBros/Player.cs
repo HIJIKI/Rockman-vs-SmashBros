@@ -13,7 +13,7 @@ namespace Rockman_vs_SmashBros
 	{
 		#region メンバーの宣言
 		public Texture2D Texture;                                           // テクスチャ
-		public Point DrawOffset;                                            // ワールド座標に対する相対的な描画座標
+		public Vector2 DrawOffset;                                            // ワールド座標に対する相対的な描画座標
 		#endregion
 
 		/// <summary>
@@ -26,12 +26,14 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public new void Initialize()
 		{
-			IsLive = true;
+			IsAlive = true;
+			IsNoclip = false;
 			Position.X = Const.GameScreenWidth / 2;
 			Position.Y = Const.GameScreenHeight / 2;
+			MoveDistance = Vector2.Zero;
 			DrawOffset.X = -15;
 			DrawOffset.Y = -31;
-			Collision = new Rectangle(-8, -23, 16, 24);
+			RelativeCollision = new Rectangle(-7, -23, 14, 24);
 		}
 
 		/// <summary>
@@ -53,28 +55,45 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public new void Update(GameTime GameTime)
+		public new void Update(GameTime GameTime, Map Map)
 		{
-			int Speed = 2;
-			MoveDistance = Vector2.Zero;
+			float Speed = 1.75f;
+			MoveDistance.X = 0;
+			/*
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
 			{
 				MoveDistance.Y -= Speed;
 			}
-			if (Keyboard.GetState().IsKeyDown(Keys.A))
-			{
-				MoveDistance.X -= Speed;
-			}
 			if (Keyboard.GetState().IsKeyDown(Keys.S))
 			{
 				MoveDistance.Y += Speed;
+			}
+			//*/
+			if (Keyboard.GetState().IsKeyDown(Keys.A))
+			{
+				MoveDistance.X -= Speed;
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.D))
 			{
 				MoveDistance.X += Speed;
 			}
 
-			base.Update(GameTime);
+			if (IsInAir)
+			{
+				MoveDistance.Y += 0.25f;
+			}
+
+			if (Position.Y > Map.Size.Height * Const.MapchipTileSize)
+			{
+				Initialize();
+			}
+
+			if (Keyboard.GetState().IsKeyDown(Keys.Space))
+			{
+				MoveDistance.Y = -4.25f;
+			}
+
+			base.Update(GameTime, Map);
 		}
 
 		/// <summary>
@@ -83,7 +102,7 @@ namespace Rockman_vs_SmashBros
 		public new void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
 			// 描画
-			SpriteBatch.Draw(Texture, new Vector2(Position.X + DrawOffset.X, Position.Y + DrawOffset.Y), new Rectangle(32, 32, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX);
+			SpriteBatch.Draw(Texture, new Vector2((int)Position.X + (int)DrawOffset.X, (int)Position.Y + (int)DrawOffset.Y), new Rectangle(32, 32, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX);
 
 			base.Draw(GameTime, SpriteBatch);
 		}

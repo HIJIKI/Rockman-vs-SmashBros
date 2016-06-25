@@ -58,10 +58,17 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Fill">矩形を塗りつぶすか</param>
 		public static void DrawRectangle(this SpriteBatch SpriteBatch, Rectangle Rectangle, Color Color, bool Fill = false)
 		{
+			// 縦横いずれかのサイズが 1 未満の場合は描画しない
+			if (Rectangle.Width < 1 || Rectangle.Height < 1)
+			{
+				return;
+			}
+			// 塗りつぶす場合
 			if (Fill)
 			{
 				Primitives2D.FillRectangle(SpriteBatch, Rectangle, Color);
 			}
+			// 塗りつぶさない場合
 			else
 			{
 				// Primitives2D クラスの DrawRectangle メソッドで Width, Height ともに +1 ドットずれる問題を回避

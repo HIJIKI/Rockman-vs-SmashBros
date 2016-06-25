@@ -28,9 +28,9 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public void Initialize(Vector2 Position, Rectangle Collision)
 		{
-			IsLive = true;
+			IsAlive = true;
 			this.Position = Position;
-			this.Collision = Collision;
+			//this.Collision = Collision;
 		}
 
 		/// <summary>
@@ -52,12 +52,6 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public void Update(GameTime GameTime, Player Player)
 		{
-			Rectangle EnemyCollision = new Rectangle(Collision.X + (int)Position.X, Collision.Y + (int)Position.Y, Collision.Width, Collision.Height);
-			Rectangle PlayerCollision = new Rectangle(Player.Collision.X + (int)Player.Position.X, Player.Collision.Y + (int)Player.Position.Y, Player.Collision.Width, Player.Collision.Height);
-			if (EnemyCollision.Intersects(PlayerCollision))
-			{
-				Destroy(this);
-			}
 		}
 
 		/// <summary>
