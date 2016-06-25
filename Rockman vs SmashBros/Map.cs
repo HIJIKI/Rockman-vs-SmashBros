@@ -279,7 +279,7 @@ namespace Rockman_vs_SmashBros
 					{
 						if (CollisionLayer[x, y] == 1)
 						{
-							SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Lime * 0.2f);
+							SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Green);
 							SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Lime * 0.2f, true);
 						}
 					}

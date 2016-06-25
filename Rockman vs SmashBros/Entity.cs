@@ -136,57 +136,56 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Map">地形判定を行う場合の対象となるマップ</param>
 		private void MoveX(Map Map)
 		{
-			// 移動先のX座標
-			float NewPositionX = Position.X + MoveDistance.X;
+			// 移動量を反映
+			Position.X += MoveDistance.X;
+
+			// 描画座標、当たり判定を更新
+			UpdateDrawPosition();
+			UpdateAbsoluteCollision();
 
 			// 地形判定を行う場合
 			if (!IsNoclip)
 			{
-				// 描画座標、当たり判定を更新
-				UpdateDrawPosition();
-				UpdateAbsoluteCollision();
-
-				// 移動先の仮当たり判定
-				Rectangle ProvisionalCollision = new Rectangle(AbsoluteCollision.X + (int)MoveDistance.X, AbsoluteCollision.Y, AbsoluteCollision.Width, AbsoluteCollision.Height);
-
 				// 右側地形判定
 				if (MoveDistance.X > 0)
 				{
-					Point RightTop = new Point(ProvisionalCollision.X + ProvisionalCollision.Width - 1, ProvisionalCollision.Y);
-					Point RightBotom = new Point(ProvisionalCollision.X + ProvisionalCollision.Width - 1, ProvisionalCollision.Y + ProvisionalCollision.Height - 1);
+					Point RightTop = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y);
+					Point RightBotom = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
 					if (PointToCollisionIndex(Map, RightTop) != 0 ||
 						PointToCollisionIndex(Map, RightBotom) != 0)
 					{
 						// 接触した地形にギリギリ接触しない位置に移動する
-						int FitX = ((ProvisionalCollision.X + ProvisionalCollision.Width - 1) / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
-						NewPositionX = FitX + (DrawPosition.X - (AbsoluteCollision.X + AbsoluteCollision.Width - 1));
+						int FitX = ((AbsoluteCollision.X + AbsoluteCollision.Width - 1) / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
+						int NewPositionX = FitX + (DrawPosition.X - (AbsoluteCollision.X + AbsoluteCollision.Width - 1));
+						Position.X = NewPositionX;
 						MoveDistance.X = 0;
+
+						// 描画座標、当たり判定を更新
+						UpdateDrawPosition();
+						UpdateAbsoluteCollision();
 					}
 
 				}
 				// 左側地形判定
 				else if (MoveDistance.X < 0)
 				{
-					Point LeftTop = new Point(ProvisionalCollision.X, ProvisionalCollision.Y);
-					Point LeftBottom = new Point(ProvisionalCollision.X, ProvisionalCollision.Y + ProvisionalCollision.Height - 1);
+					Point LeftTop = new Point(AbsoluteCollision.X, AbsoluteCollision.Y);
+					Point LeftBottom = new Point(AbsoluteCollision.X, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
 					if (PointToCollisionIndex(Map, LeftTop) != 0 ||
 						PointToCollisionIndex(Map, LeftBottom) != 0)
 					{
 						// 接触した地形にギリギリ接触しない位置に移動する
-						int FitX = (ProvisionalCollision.X) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
-						NewPositionX = FitX + (DrawPosition.X - AbsoluteCollision.X);
+						int FitX = (AbsoluteCollision.X) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
+						int NewPositionX = FitX + (DrawPosition.X - AbsoluteCollision.X);
+						Position.X = NewPositionX;
 						MoveDistance.X = 0;
+
+						// 描画座標、当たり判定を更新
+						UpdateDrawPosition();
+						UpdateAbsoluteCollision();
 					}
-
 				}
-
 			}
-			// 移動量を反映
-			Position.X = NewPositionX;
-
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -195,57 +194,56 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Map">地形判定を行う場合の対象となるマップ</param>
 		private void MoveY(Map Map)
 		{
-			// 移動先のX座標
-			float NewPositionY = Position.Y + MoveDistance.Y;
-
-			// 地形判定を行う場合
-			if (!IsNoclip)
-			{
-				// 描画座標、当たり判定を更新
-				UpdateDrawPosition();
-				UpdateAbsoluteCollision();
-
-				// 移動先の仮当たり判定
-				Rectangle ProvisionalCollision = new Rectangle(AbsoluteCollision.X, AbsoluteCollision.Y + (int)MoveDistance.Y, AbsoluteCollision.Width, AbsoluteCollision.Height);
-
-				// 下側地形判定
-				if (MoveDistance.Y > 0)
-				{
-					Point LeftBottom = new Point(ProvisionalCollision.X, ProvisionalCollision.Y + ProvisionalCollision.Height - 1);
-					Point RightBottom = new Point(ProvisionalCollision.X + ProvisionalCollision.Width - 1, ProvisionalCollision.Y + ProvisionalCollision.Height - 1);
-					if (PointToCollisionIndex(Map, LeftBottom) != 0 ||
-						PointToCollisionIndex(Map, RightBottom) != 0)
-					{
-						// 接触した地形にギリギリ接触しない位置に移動する
-						int FitY = ((ProvisionalCollision.Y + ProvisionalCollision.Height - 1) / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
-						NewPositionY = FitY + (DrawPosition.Y - (AbsoluteCollision.Y + AbsoluteCollision.Height - 1));
-						MoveDistance.Y = 0;
-						IsInAir = false;
-					}
-				}
-				// 上側地形判定
-				else if (MoveDistance.Y < 0)
-				{
-					Point LeftTop = new Point(ProvisionalCollision.X, ProvisionalCollision.Y);
-					Point RightTop = new Point(ProvisionalCollision.X + ProvisionalCollision.Width - 1, ProvisionalCollision.Y);
-					if (PointToCollisionIndex(Map, LeftTop) != 0 ||
-						PointToCollisionIndex(Map, RightTop) != 0)
-					{
-						// 接触した地形にギリギリ接触しない位置に移動する
-						int FitY = (ProvisionalCollision.Y) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
-						NewPositionY = FitY + (DrawPosition.Y - AbsoluteCollision.Y);
-						MoveDistance.Y = 0;
-					}
-
-				}
-
-			}
 			// 移動量を反映
-			Position.Y = NewPositionY;
+			Position.Y += MoveDistance.Y;
 
 			// 描画座標、当たり判定を更新
 			UpdateDrawPosition();
 			UpdateAbsoluteCollision();
+
+			// 地形判定を行う場合
+			if (!IsNoclip)
+			{
+				// 下側地形判定
+				if (MoveDistance.Y > 0)
+				{
+					Point LeftBottom = new Point(AbsoluteCollision.X, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
+					Point RightBotom = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
+					if (PointToCollisionIndex(Map, LeftBottom) != 0 ||
+						PointToCollisionIndex(Map, RightBotom) != 0)
+					{
+						// 接触した地形にギリギリ接触しない位置に移動する
+						int FitY = ((AbsoluteCollision.Y + AbsoluteCollision.Height - 1) / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
+						int NewPositionY = FitY + (DrawPosition.Y - (AbsoluteCollision.Y + AbsoluteCollision.Height - 1));
+						Position.Y = NewPositionY;
+						MoveDistance.Y = 0;
+
+						// 描画座標、当たり判定を更新
+						UpdateDrawPosition();
+						UpdateAbsoluteCollision();
+					}
+
+				}
+				// 上側地形判定
+				else if (MoveDistance.Y < 0)
+				{
+					Point LeftTop = new Point(AbsoluteCollision.X, AbsoluteCollision.Y);
+					Point RightTop = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y);
+					if (PointToCollisionIndex(Map, LeftTop) != 0 ||
+						PointToCollisionIndex(Map, RightTop) != 0)
+					{
+						// 接触した地形にギリギリ接触しない位置に移動する
+						int FitY = (AbsoluteCollision.Y) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
+						int NewPositionY = FitY + (DrawPosition.Y - AbsoluteCollision.Y);
+						Position.Y = NewPositionY;
+						MoveDistance.Y = 0;
+
+						// 描画座標、当たり判定を更新
+						UpdateDrawPosition();
+						UpdateAbsoluteCollision();
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -260,7 +258,7 @@ namespace Rockman_vs_SmashBros
 				PointToCollisionIndex(Map, RightBottom) != 0)
 			{
 				IsInAir = false;
-				//MoveDistance.Y = 0;
+				MoveDistance.Y = 0;
 			}
 			else
 			{

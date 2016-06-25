@@ -32,9 +32,7 @@ namespace Rockman_vs_SmashBros
 		Map Map = new Map();
 		Camera Camera = new Camera();
 		Enemy[] Enemies = new Enemy[10];
-
-		// Test
-		KeyboardState OldKeyState;
+		Controller Controller = new Controller();
 
 		/// <summary>
 		/// コンストラクタ
@@ -57,17 +55,6 @@ namespace Rockman_vs_SmashBros
 			Player.Initialize();
 			Map.Initialize();
 			Map.InitForTest();
-
-			/*
-			for (int i = 0; i < Enemies.Length; i++)
-			{
-				System.Random Random = new System.Random(System.Environment.TickCount+i);
-				Vector2 Position = new Vector2(Random.Next(Const.GameScreenWidth * 2), Random.Next(Const.GameScreenHeight * 2));
-				Rectangle Collision = new Rectangle(0, 0, Random.Next(64), Random.Next(64));
-				Enemies[i] = new Enemy();
-				Enemies[i].Initialize(Position, Collision);
-			}
-			//*/
 
 			// MonoGame コンポーネントを初期化
 			base.Initialize();
@@ -111,8 +98,6 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		protected override void Update(GameTime GameTime)
 		{
-			KeyboardState NewKeyState = Keyboard.GetState();
-
 			// ESC が押されたらゲームを終了
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 			{
@@ -120,13 +105,15 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// デバッグモードトグル
-			if (NewKeyState.IsKeyDown(Keys.F11) && OldKeyState.IsKeyUp(Keys.F11))
+			if (Controller.IsButtonPressed(Controller.Buttons.Select))
 			{
 				Global.Debug = !Global.Debug;
 			}
 
+			Controller.Update(GameTime);
+
 			Map.Update(GameTime);
-			Player.Update(GameTime, Map);
+			Player.Update(GameTime, Map, Controller);
 			Camera.Update(GameTime, Player.Position, new Size(WorldBuffer.Width, WorldBuffer.Height));
 
 			/*
@@ -135,8 +122,6 @@ namespace Rockman_vs_SmashBros
 				Enemy.Update(GameTime, Player);
 			}
 			//*/
-
-			OldKeyState = NewKeyState;
 
 			base.Update(GameTime);
 		}
@@ -169,6 +154,8 @@ namespace Rockman_vs_SmashBros
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp);
 
 			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle((int)Camera.Position.X, (int)Camera.Position.Y, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
+
+			Controller.Draw(GameTime, SpriteBatch);
 
 			SpriteBatch.End();
 

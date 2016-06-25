@@ -12,8 +12,8 @@ namespace Rockman_vs_SmashBros
 	class Player : Entity
 	{
 		#region メンバーの宣言
-		public Texture2D Texture;                                           // テクスチャ
-		public Vector2 DrawOffset;                                            // ワールド座標に対する相対的な描画座標
+		public Texture2D Texture;									// テクスチャ
+		public Vector2 DrawOffset;                                  // ワールド座標に対する相対的な描画座標
 		#endregion
 
 		/// <summary>
@@ -55,9 +55,9 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public new void Update(GameTime GameTime, Map Map)
+		public new void Update(GameTime GameTime, Map Map, Controller Controller)
 		{
-			float Speed = 1.75f;
+			float Speed = 2;
 			MoveDistance.X = 0;
 			/*
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
@@ -88,7 +88,7 @@ namespace Rockman_vs_SmashBros
 				Initialize();
 			}
 
-			if (Keyboard.GetState().IsKeyDown(Keys.Space))
+			if (Controller.IsButtonPressed(Controller.Buttons.A))
 			{
 				MoveDistance.Y = -4.25f;
 			}
