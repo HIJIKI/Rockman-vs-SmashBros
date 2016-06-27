@@ -41,7 +41,8 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Const.cs" />
     <Compile Include="Controller.cs" />
-    <Compile Include="Enemy.cs" />
+    <Compile Include="EntityCreate.cs" />
+    <Compile Include="Entity\Enemy\Enemy1.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Library\Primitives2DWrapper.cs" />
     <Compile Include="Library\Primitives2D.cs" />
@@ -49,7 +50,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="Struct.cs" />
     <Compile Include="Global.cs" />
-    <Compile Include="MyGame.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -68,6 +69,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
+    <Content Include="Content\Image\hairaru_hei.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Image\link_stage_mapchip.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

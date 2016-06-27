@@ -13,9 +13,9 @@ namespace Rockman_vs_SmashBros
 		[STAThread]
 		static void Main()
 		{
-			using (var Game = new MyGame())
+			using (var Main = new Main())
 			{
-				Game.Run();
+				Main.Run();
 			}
 		}
 	}

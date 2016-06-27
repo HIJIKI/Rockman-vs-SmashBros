@@ -6,38 +6,41 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Storage;
+using System.Collections.Generic;
+using System;
 
 namespace Rockman_vs_SmashBros
 {
 	/// <summary>
 	/// ゲームクラス
 	/// </summary>
-	public partial class MyGame : Game
+	public class Main : Game
 	{
-		/// <summary>
-		/// メンバーの宣言
-		/// </summary>
+		#region メンバーの宣言
 
 		// 描画用オブジェクト
 		GraphicsDeviceManager GraphicsDeviceManager;
 		SpriteBatch SpriteBatch;
-		SpriteFont Font;
+		public static SpriteFont Font;
 
 		// 描画バッファの宣言
 		RenderTarget2D WorldBuffer;                             // ワールド描画バッファ
 		RenderTarget2D GameScreenBuffer;                        // ゲーム画面描画バッファ
 
-		// 各クラスをインスタンス化
-		Player Player = new Player();
-		Map Map = new Map();
-		Camera Camera = new Camera();
-		Enemy[] Enemies = new Enemy[10];
-		Controller Controller = new Controller();
+		// 各メンバーを宣言
+		public static Player Player = new Player();
+		public static Map Map = new Map();
+		public static Camera Camera = new Camera();
+		public static List<Entity> Entities = new List<Entity>();
+
+		public static Controller Controller = new Controller();
+
+		#endregion
 
 		/// <summary>
 		/// コンストラクタ
 		/// </summary>
-		public MyGame()
+		public Main()
 		{
 			GraphicsDeviceManager = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
@@ -72,9 +75,10 @@ namespace Rockman_vs_SmashBros
 			WorldBuffer = new RenderTarget2D(GraphicsDevice, Map.Size.Width * Const.MapchipTileSize, Map.Size.Height * Const.MapchipTileSize);
 			GameScreenBuffer = new RenderTarget2D(GraphicsDevice, Const.GameScreenWidth, Const.GameScreenHeight);
 
-			// 各オブジェクトのリソース読み込み
+			// 画像リソースの読み込み
 			Player.LoadContent(Content);
 			Map.LoadContent(Content);
+			Enemy1.LoadContent(Content);
 
 			// テストフォント
 			Font = Content.Load<SpriteFont>("Font/myfont");
@@ -91,6 +95,7 @@ namespace Rockman_vs_SmashBros
 
 			Player.UnloadContent();
 			Map.UnloadContent();
+			Enemy1.UnloadContent();
 		}
 
 		/// <summary>
@@ -110,18 +115,32 @@ namespace Rockman_vs_SmashBros
 				Global.Debug = !Global.Debug;
 			}
 
+			// コントローラ入力状態を更新
 			Controller.Update(GameTime);
 
+			// マップを更新
 			Map.Update(GameTime);
-			Player.Update(GameTime, Map, Controller);
-			Camera.Update(GameTime, Player.Position, new Size(WorldBuffer.Width, WorldBuffer.Height));
 
-			/*
-			foreach (var Enemy in Enemies)
+			// プレイヤーを更新
+			Player.Update(GameTime);
+
+			// エンティティを追加(テスト)
+			if (Controller.IsButtonPressed(Controller.Buttons.B))
 			{
-				Enemy.Update(GameTime, Player);
+				Entity.Create("Enemy1", new Point(128, 64));
 			}
-			//*/
+
+			// エンティティを更新
+			for (int i = 0; i < Entities.Count; i++)
+			{
+				Entities[i].Update(GameTime);
+			}
+
+			// 不要になったエンティティを削除
+			Entities.RemoveAll(E => !E.IsAlive);
+
+			// カメラを更新
+			Camera.Update(GameTime, Player.DrawPosition, new Size(WorldBuffer.Width, WorldBuffer.Height));
 
 			base.Update(GameTime);
 		}
@@ -139,12 +158,13 @@ namespace Rockman_vs_SmashBros
 			Map.Draw(GameTime, SpriteBatch);
 			Player.Draw(GameTime, SpriteBatch);
 
-			/*
-			foreach (var Enemy in Enemies)
+			for (int i = 0; i < Entities.Count; i++)
 			{
-				Enemy.Draw(GameTime, SpriteBatch);
+				if (Entities[i] != null)
+				{
+					Entities[i].Draw(GameTime, SpriteBatch);
+				}
 			}
-			//*/
 
 			SpriteBatch.End();
 
@@ -153,7 +173,7 @@ namespace Rockman_vs_SmashBros
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp);
 
-			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle((int)Camera.Position.X, (int)Camera.Position.Y, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
+			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle(Camera.Position.X, Camera.Position.Y, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
 
 			Controller.Draw(GameTime, SpriteBatch);
 
@@ -162,38 +182,24 @@ namespace Rockman_vs_SmashBros
 			if (Global.Debug)
 			{
 				SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 49), new Color(Color.Black, 0.5f), true);
+				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 57), new Color(Color.Black, 0.5f), true);
 				Vector2 Position = new Vector2(1, 1);
 				SpriteBatch.DrawString(Font, "GameTime: " + GameTime.TotalGameTime, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.WorldPosition: " + Player.Position, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.WorldPosition(Draw): " + Player.DrawPosition, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
-				SpriteBatch.DrawString(Font, "Player.ScreenPosition: " + (Player.Position - Camera.Position), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
+				SpriteBatch.DrawString(Font, "Player.ScreenPosition: " + (Player.Position - Camera.Position.ToVector2()), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.IsInAir: " + Player.IsInAir.ToString(), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "CameraPosition: " + (Camera.Position), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
+				SpriteBatch.DrawString(Font, "AllEntities: " + Entities.Count, Position, Color.Pink, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.End();
-				//*/
 			}
 
 			// プレイスクリーンの描画
 			GraphicsDevice.SetRenderTarget(null);
 			GraphicsDevice.Clear(Color.Black);
 			SpriteBatch.Begin(SpriteSortMode.FrontToBack, null, SamplerState.PointClamp);
-
 			SpriteBatch.Draw(GameScreenBuffer, Vector2.Zero, new Rectangle(0, 0, Const.GameScreenWidth, Const.GameScreenHeight), Color.White, 0.0f, new Vector2(0, 0), (float)Global.WindowScale, SpriteEffects.None, 1);
-
 			SpriteBatch.End();
-
-			//*/
-
-			/*
-			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-			// Finds the center of the string in coordinates inside the text rectangle
-			string Text = "ロックマン";
-			Vector2 textMiddlePoint = Font.MeasureString(Text) / 2;
-			Vector2 position = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
-			SpriteBatch.DrawString(Font, Text, position, Color.White, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
-			SpriteBatch.End();
-			*/
 
 			base.Draw(GameTime);
 		}

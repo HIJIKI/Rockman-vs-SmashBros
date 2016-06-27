@@ -13,9 +13,15 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Entity クラス
 	/// </summary>
-	class Entity
+	public partial class Entity
 	{
 		#region メンバーの宣言
+		public enum Types											// エンティティの種類構造体
+		{
+			Player,
+			Enemy
+		}
+		public Types Type;											// エンティティの種類
 		public bool IsAlive;                                        // 生存フラグ
 		public bool IsNoclip;                                       // 地形を貫通するかどうか
 		public bool IsInAir;                                        // 空中にいるかどうか
@@ -24,6 +30,8 @@ namespace Rockman_vs_SmashBros
 		public Vector2 MoveDistance;                                // 現在のフレームで移動する量
 		public Rectangle RelativeCollision;                         // 当たり判定 (相対)
 		public Rectangle AbsoluteCollision;                         // 当たり判定 (絶対)
+		public bool IsFromMap;                                      // マップにより作成されたかどうか
+		public Point FromMapPosition;								// マップにより作成された場合に、その座標を保持
 		#endregion
 
 		/// <summary>
@@ -34,39 +42,28 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 初期化
 		/// </summary>
-		public void Initialize() { }
-
-		/// <summary>
-		/// リソースの確保
-		/// </summary>
-		public void LoadConten(ContentManager Content)
-		{
-		}
-
-		/// <summary>
-		/// リソースの破棄
-		/// </summary>
-		public void UnloadContent()
-		{
-		}
+		public virtual void Initialize() { }
 
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public void Update(GameTime GameTime, Map Map)
+		public virtual void Update(GameTime GameTime)
 		{
 			if (IsAlive)
 			{
-				MoveX(Map);
-				MoveY(Map);
-				CheckInAir(Map);
+				MoveX(Main.Map);
+				MoveY(Main.Map);
+				if (!IsInAir)
+				{
+					CheckInAir(Main.Map);
+				}
 			}
 		}
 
 		/// <summary>
 		/// 描画
 		/// </summary>
-		public void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
+		public virtual void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
 			if (IsAlive)
 			{
@@ -78,6 +75,7 @@ namespace Rockman_vs_SmashBros
 					SpriteBatch.DrawRectangle(new Rectangle(AbsoluteCollision.X, AbsoluteCollision.Y, AbsoluteCollision.Width, AbsoluteCollision.Height), Color.Blue * 0.2f, true);
 					SpriteBatch.DrawRectangle(new Rectangle(AbsoluteCollision.X, AbsoluteCollision.Y, AbsoluteCollision.Width, AbsoluteCollision.Height), Color.Blue);
 					SpriteBatch.DrawPixel(DrawPosition.ToVector2(), Color.Red);
+					SpriteBatch.DrawString(Main.Font, Position.ToString(), new Vector2(DrawPosition.X, DrawPosition.Y - 8), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 				}
 			}
 		}
@@ -85,7 +83,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// エンティティを削除
 		/// </summary>
-		public void Destroy(Entity Entity)
+		public virtual void Destroy(Entity Entity)
 		{
 			IsAlive = false;
 		}
@@ -247,6 +245,7 @@ namespace Rockman_vs_SmashBros
 							int NewPositionY = FitY + (DrawPosition.Y - HitCheckPosition.Y);
 							Position.Y = NewPositionY;
 							MoveDistance.Y = 0;
+							IsInAir = false;
 							// 描画座標、当たり判定を更新
 							UpdateDrawPosition();
 							UpdateAbsoluteCollision();
@@ -292,17 +291,28 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Map">地形判定を行う場合の対象となるマップ</param>
 		private void CheckInAir(Map Map)
 		{
-			Point LeftBottom = new Point(AbsoluteCollision.X, AbsoluteCollision.Y + AbsoluteCollision.Height);
-			Point RightBottom = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height);
-			if (PointToCollisionIndex(Map, LeftBottom) != 0 ||
-				PointToCollisionIndex(Map, RightBottom) != 0)
+			IsInAir = true;
+			// 描画座標、当たり判定を更新
+			UpdateDrawPosition();
+			UpdateAbsoluteCollision();
+			// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+			int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
+			for (int i = 0; i < SplitNumber; i++)
 			{
-				IsInAir = false;
-				MoveDistance.Y = 0;
-			}
-			else
-			{
-				IsInAir = true;
+				Point HitCheckPosition;
+				if (i == SplitNumber - 1)
+				{
+					HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height);
+				}
+				else
+				{
+					HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y + AbsoluteCollision.Height);
+				}
+				// 判定実行
+				if (PointToCollisionIndex(Map, HitCheckPosition) != 0)
+				{
+					IsInAir = false;
+				}
 			}
 		}
 

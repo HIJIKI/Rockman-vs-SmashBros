@@ -27,6 +27,7 @@ namespace Rockman_vs_SmashBros
 		{
 			BGLayer,                                                    // 背景レイヤー
 			LowerLayer,                                                 // 下層レイヤー
+			Enemy,                                                      // エネミー
 			Player,                                                     // プレイヤー
 			UpperLayer,                                                 // 上層レイヤー
 			MAX                                                         // レイヤーの最大数

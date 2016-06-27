@@ -12,10 +12,13 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Camera クラス
 	/// </summary>
-	class Camera
+	public class Camera
 	{
-		// メンバーの宣言
-		public Vector2 Position;                                      // カメラの座標
+		#region メンバーの宣言
+		public Point Position;                                      // カメラの座標
+		public Point ViewMap;                                       // 見えているマップの範囲(マス数)
+		public Point OldViewMap;                                    // 1フレーム前の見えているマップの範囲(マス数)
+		#endregion
 
 		/// <summary>
 		/// コンストラクタ
@@ -47,9 +50,11 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public void Update(GameTime GameTime, Vector2 PlayerPosition, Size WorldSize)
+		/// <param name="PlayerDrawPosition">プレイヤーの描画座標</param>
+		public void Update(GameTime GameTime, Point PlayerDrawPosition, Size WorldSize)
 		{
-			Position.X = (int)PlayerPosition.X - Const.GameScreenWidth / 2;
+			// カメラ座標を更新
+			Position.X = PlayerDrawPosition.X - Const.GameScreenWidth / 2;
 			if (Position.X < 0)
 			{
 				Position.X = 0;
@@ -59,7 +64,7 @@ namespace Rockman_vs_SmashBros
 				Position.X = WorldSize.Width - Const.GameScreenWidth;
 			}
 
-			Position.Y = (int)PlayerPosition.Y - Const.GameScreenHeight / 2;
+			Position.Y = PlayerDrawPosition.Y - Const.GameScreenHeight / 2;
 			if (Position.Y < 0)
 			{
 				Position.Y = 0;
@@ -68,6 +73,11 @@ namespace Rockman_vs_SmashBros
 			{
 				Position.Y = WorldSize.Height - Const.GameScreenHeight;
 			}
+
+			// 見えている範囲を検出
+			OldViewMap = ViewMap;
+			ViewMap.X = Position.X / Const.MapchipTileSize;
+			ViewMap.Y = Position.Y / Const.MapchipTileSize;
 		}
 
 		/// <summary>

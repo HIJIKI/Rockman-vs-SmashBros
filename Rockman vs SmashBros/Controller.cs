@@ -12,7 +12,7 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Controller クラス
 	/// </summary>
-	class Controller
+	public class Controller
 	{
 		#region メンバーの宣言
 

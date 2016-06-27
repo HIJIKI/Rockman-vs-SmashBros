@@ -6,16 +6,18 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Storage;
+using System.Collections.Generic;
 
 namespace Rockman_vs_SmashBros
 {
 	/// <summary>
 	/// Map クラス
 	/// </summary>
-	class Map
+	public class Map
 	{
-		// メンバーの宣言
-		public Texture2D Texture;                                   // マップチップ画像
+		#region メンバーの宣言 
+
+		public static Texture2D Texture;                            // マップチップ画像
 		public Size Size;                                           // マップの縦横マス数
 		public AnimationTile[] AnimationTiles;                      // アニメーションタイルのデータ
 		public Tile[,] BGLayer;                                     // 背景レイヤー
@@ -50,6 +52,8 @@ namespace Rockman_vs_SmashBros
 				this.CurrentlyFrame = 0;
 			}
 		}
+
+		#endregion
 
 		/// <summary>
 		/// コンストラクタ
@@ -199,6 +203,10 @@ namespace Rockman_vs_SmashBros
 				}
 			}
 
+			//EntityLayer[2, 12] = "Enemy1";
+			EntityLayer[18, 14] = "Enemy1";
+			EntityLayer[23, 16] = "Enemy1";
+
 			// アニメーションタイルの定義
 			AnimationTiles = new AnimationTile[12];
 			AnimationTiles[0] = new AnimationTile(new int[] { 16, 64, 112, 64 }, 16);
@@ -225,15 +233,15 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// リソースの確保
 		/// </summary>
-		public void LoadContent(ContentManager Content)
+		public static void LoadContent(ContentManager Content)
 		{
 			Texture = Content.Load<Texture2D>("Image/link_stage_mapchip.png");
 		}
-		
+
 		/// <summary>
 		/// リソースの破棄
 		/// </summary>
-		public void UnloadContent()
+		public static void UnloadContent()
 		{
 			Texture.Dispose();
 		}
@@ -243,7 +251,42 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public void Update(GameTime GameTime)
 		{
-			// アニメーションタイルの管理
+			// 画面に入ったマスに配置されているエンティティを作成
+			Point ViewMap = Main.Camera.ViewMap;
+			Point OldViewMap = Main.Camera.OldViewMap;
+			if (ViewMap != OldViewMap)
+			{
+				// 1フレーム前に描画されていたマップ範囲
+				Rectangle OldViewMapRange = new Rectangle(OldViewMap.X, OldViewMap.Y, (Const.GameScreenWidth / Const.MapchipTileSize) + 1, (Const.GameScreenHeight / Const.MapchipTileSize) + 1);
+
+				// 新たに画面に入った範囲か確認する
+				for (int x = ViewMap.X; x < ViewMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
+				{
+					for (int y = ViewMap.Y; y < ViewMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
+					{
+						// 画面外を読んでしまわないようにする
+						if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
+						{
+							if (!OldViewMapRange.Contains(x, y))
+							{
+								if (EntityLayer[x, y] != "" && EntityLayer[x, y] != null)
+								{
+									string EntityName = EntityLayer[x, y];
+									Point SpawnPosition = new Point(x * Const.MapchipTileSize + Const.MapchipTileSize / 2, y * Const.MapchipTileSize + (Const.MapchipTileSize - 1));
+									// このマスより生成されたエンティティがいなければ作成する
+									if (!Main.Entities.Exists(E => E.IsFromMap && E.FromMapPosition == new Point(x, y)))
+									{
+										Entity.Create(EntityName, SpawnPosition, true, new Point(x, y));
+									}
+								}
+							}
+
+						}
+					}
+				}
+			}
+
+			// タイルアニメーションの管理
 			for (int i = 0; i < AnimationTiles.Length; i++)
 			{
 				if (FrameCounter % AnimationTiles[i].Interval == 0)
