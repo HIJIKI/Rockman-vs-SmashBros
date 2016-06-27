@@ -87,6 +87,7 @@ namespace Rockman_vs_SmashBros
 				Destroy(this);
 			}
 
+			/*
 			if (Main.Controller.IsButtonPressed(Controller.Buttons.A))
 			{
 				MoveDistance.Y = -4.25f;

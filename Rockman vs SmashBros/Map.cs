@@ -306,24 +306,30 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
-			for (int x = 0; x < Size.Width; x++)
+			Point ViewMap = Main.Camera.ViewMap;
+			Point OldViewMap = Main.Camera.OldViewMap;
+			for (int x = ViewMap.X; x < ViewMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 			{
-				for (int y = 0; y < Size.Height; y++)
+				for (int y = ViewMap.Y; y < ViewMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 				{
-					Point Position = new Point(x * Const.MapchipTileSize, y * Const.MapchipTileSize);
-
-					//各レイヤーを描画
-					DrawTile(SpriteBatch, BGLayer[x, y], Position, (float)Const.DrawOrder.BGLayer / (float)Const.DrawOrder.MAX);
-					DrawTile(SpriteBatch, LowerLayer[x, y], Position, (float)Const.DrawOrder.LowerLayer / (float)Const.DrawOrder.MAX);
-					DrawTile(SpriteBatch, UpperLayer[x, y], Position, (float)Const.DrawOrder.UpperLayer / (float)Const.DrawOrder.MAX);
-
-					// デバッグ描画 (地形判定)
-					if (Global.Debug)
+					// 画面外を読んでしまわないようにする
+					if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
 					{
-						if (CollisionLayer[x, y] == 1)
+						Point Position = new Point(x * Const.MapchipTileSize, y * Const.MapchipTileSize);
+
+						//各レイヤーを描画
+						DrawTile(SpriteBatch, BGLayer[x, y], Position, (float)Const.DrawOrder.BGLayer / (float)Const.DrawOrder.MAX);
+						DrawTile(SpriteBatch, LowerLayer[x, y], Position, (float)Const.DrawOrder.LowerLayer / (float)Const.DrawOrder.MAX);
+						DrawTile(SpriteBatch, UpperLayer[x, y], Position, (float)Const.DrawOrder.UpperLayer / (float)Const.DrawOrder.MAX);
+
+						// デバッグ描画 (地形判定)
+						if (Global.Debug)
 						{
-							SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Green);
-							SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Lime * 0.2f, true);
+							if (CollisionLayer[x, y] == 1)
+							{
+								SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Green);
+								SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Lime * 0.2f, true);
+							}
 						}
 					}
 				}
