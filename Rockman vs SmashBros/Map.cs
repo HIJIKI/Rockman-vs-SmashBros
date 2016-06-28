@@ -26,6 +26,7 @@ namespace Rockman_vs_SmashBros
 		public int[,] CollisionLayer;                               // 地形判定レイヤー
 		public string[,] EntityLayer;                               // エンティティレイヤー
 		public int FrameCounter;                                    // フレームカウンター
+		public EdgeData TopEdge, BottomEdge, LeftEdge, RightEdge;	// 各マップ端のデータ
 
 		// タイル1枚のデータ構造体
 		public struct Tile
@@ -51,6 +52,14 @@ namespace Rockman_vs_SmashBros
 				this.Interval = Interval;
 				this.CurrentlyFrame = 0;
 			}
+		}
+
+		// マップの端でどういう挙動をさせるかのデータ構造体
+		public struct EdgeData
+		{
+			public bool IsWall;                                         // 端を壁として扱うかどうか
+			public string ChangeMapName;                                    // 端に触れた時に移動するマップ名
+			public Point ChangeMapOffset;									// 移動先のマップが現在のマップから見て何マスずれているか
 		}
 
 		#endregion
@@ -203,9 +212,11 @@ namespace Rockman_vs_SmashBros
 				}
 			}
 
-			//EntityLayer[2, 12] = "Enemy1";
+			/*
+			EntityLayer[2, 12] = "Enemy1";
 			EntityLayer[18, 14] = "Enemy1";
 			EntityLayer[23, 16] = "Enemy1";
+			//*/
 
 			// アニメーションタイルの定義
 			AnimationTiles = new AnimationTile[12];
@@ -221,6 +232,12 @@ namespace Rockman_vs_SmashBros
 			AnimationTiles[9] = new AnimationTile(new int[] { 161, 163, 165 }, 12);
 			AnimationTiles[10] = new AnimationTile(new int[] { 176, 178, 180 }, 12);
 			AnimationTiles[11] = new AnimationTile(new int[] { 177, 179, 181 }, 12);
+
+			TopEdge.IsWall = true;
+			BottomEdge.IsWall = true;
+			LeftEdge.IsWall = true;
+			RightEdge.IsWall = true;
+
 		}
 
 		/// <summary>

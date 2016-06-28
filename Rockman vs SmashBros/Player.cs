@@ -63,7 +63,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public override void Update(GameTime GameTime)
 		{
-			float Speed = 1.25f;
+			float Speed = 2.0f;
 			MoveDistance.X = 0;
 			/*
 			if (Keyboard.GetState().IsKeyDown(Keys.W))
