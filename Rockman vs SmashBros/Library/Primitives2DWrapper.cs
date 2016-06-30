@@ -13,7 +13,7 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Primitives2DWrapper クラス
 	/// </summary>
-	static class Primitives2DWrapper
+	public static class Primitives2DWrapper
 	{
 
 		/// <summary>

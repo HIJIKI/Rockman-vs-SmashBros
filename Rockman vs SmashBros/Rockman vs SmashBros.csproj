@@ -41,7 +41,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Const.cs" />
     <Compile Include="Controller.cs" />
-    <Compile Include="EntityCreate.cs" />
+    <Compile Include="EntityManager.cs" />
     <Compile Include="Entity\Enemy\Enemy1.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Library\Primitives2DWrapper.cs" />

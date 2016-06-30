@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Storage;
 namespace Rockman_vs_SmashBros
 {
 	/// <summary>
-	/// Entity クラス
+	/// Entity クラスの Manager
 	/// </summary>
 	public partial class Entity
 	{
@@ -26,10 +26,20 @@ namespace Rockman_vs_SmashBros
 				Main.Entities.Add(new Enemy1(Position, IsFromMap, FromMapPosition));
 			}
 		}
-
 		public static void Create(string EntityName, Point Position)
 		{
 			Create(EntityName, Position, false, new Point());
+		}
+
+		/// <summary>
+		/// 全てのエンティティを削除
+		/// </summary>
+		public static void DestroyAll()
+		{
+			while (Main.Entities.Count > 0)
+			{
+				Main.Entities.RemoveAt(0);
+			}
 		}
 
 	}

@@ -25,6 +25,7 @@ namespace Rockman_vs_SmashBros
 		public bool IsAlive;                                        // 生存フラグ
 		public bool IsNoclip;                                       // 地形を貫通するかどうか
 		public bool IsInAir;                                        // 空中にいるかどうか
+		public bool IsStop;											// 更新停止フラグ
 		public Vector2 Position;                                    // 内部座標
 		public Point DrawPosition;                                  // 描画座標
 		public Vector2 MoveDistance;                                // 現在のフレームで移動する量
@@ -49,7 +50,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public virtual void Update(GameTime GameTime)
 		{
-			if (IsAlive)
+			if (IsAlive && !IsStop)
 			{
 				MoveY(Main.Map);
 				MoveX(Main.Map);
@@ -58,6 +59,10 @@ namespace Rockman_vs_SmashBros
 					CheckInAir(Main.Map);
 				}
 			}
+
+			// 描画座標、当たり判定を更新
+			UpdateDrawPosition();
+			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -70,8 +75,6 @@ namespace Rockman_vs_SmashBros
 				// デバッグ描画
 				if (Global.Debug)
 				{
-					UpdateDrawPosition();
-					UpdateAbsoluteCollision();
 					SpriteBatch.DrawRectangle(new Rectangle(AbsoluteCollision.X, AbsoluteCollision.Y, AbsoluteCollision.Width, AbsoluteCollision.Height), Color.Blue * 0.2f, true);
 					SpriteBatch.DrawRectangle(new Rectangle(AbsoluteCollision.X, AbsoluteCollision.Y, AbsoluteCollision.Width, AbsoluteCollision.Height), Color.Blue);
 					SpriteBatch.DrawPixel(DrawPosition.ToVector2(), Color.Red);
@@ -139,6 +142,8 @@ namespace Rockman_vs_SmashBros
 			// 描画座標、当たり判定を更新
 			UpdateDrawPosition();
 			UpdateAbsoluteCollision();
+			// 現在のセクション
+			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
 
 			// 地形判定を行う場合
 			if (!IsNoclip)
@@ -146,11 +151,11 @@ namespace Rockman_vs_SmashBros
 				// 右側地形判定
 				if (MoveDistance.X > 0)
 				{
-					// マップからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (Map.RightEdge.IsWall && AbsoluteCollision.X + AbsoluteCollision.Width - 1 > Const.MapchipTileSize * Map.Size.Width - 1)
+					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+					if (CurrentlySection.RightIsWall && AbsoluteCollision.X + AbsoluteCollision.Width > Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width)
 					{
-						int FitX = Const.MapchipTileSize * Map.Size.Width - 1;
-						int NewPositionX = FitX + (DrawPosition.X - (AbsoluteCollision.X + AbsoluteCollision.Width - 1));
+						int FitX = Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width - 1;
+						int NewPositionX = FitX - (RelativeCollision.Width - 1 + RelativeCollision.X);
 						Position.X = NewPositionX;
 						MoveDistance.X = 0;
 						// 描画座標、当たり判定を更新
@@ -177,7 +182,7 @@ namespace Rockman_vs_SmashBros
 							{
 								// 接触していた地形にギリギリ接触しない位置に押し戻す
 								int FitX = (HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
-								int NewPositionX = FitX + (DrawPosition.X - HitCheckPosition.X);
+								int NewPositionX = FitX - (RelativeCollision.Width - 1 + RelativeCollision.X);
 								Position.X = NewPositionX;
 								MoveDistance.X = 0;
 								// 描画座標、当たり判定を更新
@@ -190,11 +195,11 @@ namespace Rockman_vs_SmashBros
 				// 左側地形判定
 				else if (MoveDistance.X < 0)
 				{
-					// マップからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (Map.LeftEdge.IsWall && AbsoluteCollision.X < 0)
+					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+					if (CurrentlySection.LeftIsWall && AbsoluteCollision.X < Const.MapchipTileSize * CurrentlySection.Area.X)
 					{
-						int FitX = 0;
-						int NewPositionX = FitX + (DrawPosition.X - AbsoluteCollision.X);
+						int FitX = Const.MapchipTileSize * CurrentlySection.Area.X;
+						int NewPositionX = FitX - RelativeCollision.X;
 						Position.X = NewPositionX;
 						MoveDistance.X = 0;
 						// 描画座標、当たり判定を更新
@@ -221,7 +226,7 @@ namespace Rockman_vs_SmashBros
 							{
 								// 接触していた地形にギリギリ接触しない位置に押し戻す
 								int FitX = (AbsoluteCollision.X) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
-								int NewPositionX = FitX + (DrawPosition.X - HitCheckPosition.X);
+								int NewPositionX = FitX - RelativeCollision.X;
 								Position.X = NewPositionX;
 								MoveDistance.X = 0;
 								// 描画座標、当たり判定を更新
@@ -245,6 +250,8 @@ namespace Rockman_vs_SmashBros
 			// 描画座標、当たり判定を更新
 			UpdateDrawPosition();
 			UpdateAbsoluteCollision();
+			// 現在のセクション
+			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
 
 			// 地形判定を行う場合
 			if (!IsNoclip)
@@ -252,11 +259,11 @@ namespace Rockman_vs_SmashBros
 				// 下側地形判定
 				if (MoveDistance.Y > 0)
 				{
-					// マップからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (Map.BottomEdge.IsWall && AbsoluteCollision.Y + AbsoluteCollision.Height - 1 > Const.MapchipTileSize * Map.Size.Height - 1)
+					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+					if (CurrentlySection.BottomIsWall && AbsoluteCollision.Y + AbsoluteCollision.Height > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
 					{
-						int FitY = Const.MapchipTileSize * Map.Size.Height - 1;
-						int NewPositionY = FitY + (DrawPosition.Y - (AbsoluteCollision.Y + AbsoluteCollision.Height - 1));
+						int FitY = Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1;
+						int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
 						Position.Y = NewPositionY;
 						MoveDistance.Y = 0;
 						IsInAir = false;
@@ -284,7 +291,7 @@ namespace Rockman_vs_SmashBros
 							{
 								// 接触した地形にギリギリ接触しない位置に移動する
 								int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
-								int NewPositionY = FitY + (DrawPosition.Y - HitCheckPosition.Y);
+								int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
 								Position.Y = NewPositionY;
 								MoveDistance.Y = 0;
 								IsInAir = false;
@@ -298,11 +305,11 @@ namespace Rockman_vs_SmashBros
 				// 上側地形判定
 				else if (MoveDistance.Y < 0)
 				{
-					// マップからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (Map.TopEdge.IsWall && AbsoluteCollision.Y < 0)
+					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+					if (CurrentlySection.TopIsWall && AbsoluteCollision.Y < Const.MapchipTileSize * CurrentlySection.Area.Y)
 					{
-						int FitY = 0;
-						int NewPositionY = FitY + (DrawPosition.Y - AbsoluteCollision.Y);
+						int FitY = Const.MapchipTileSize * CurrentlySection.Area.Y;
+						int NewPositionY = FitY - RelativeCollision.Y;
 						Position.Y = NewPositionY;
 						MoveDistance.Y = 0;
 						// 描画座標、当たり判定を更新
@@ -329,7 +336,7 @@ namespace Rockman_vs_SmashBros
 							{
 								// 接触した地形にギリギリ接触しない位置に移動する
 								int FitY = HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
-								int NewPositionY = FitY + (DrawPosition.Y - HitCheckPosition.Y);
+								int NewPositionY = FitY - RelativeCollision.Y;
 								Position.Y = NewPositionY;
 								MoveDistance.Y = 0;
 								// 描画座標、当たり判定を更新
@@ -352,8 +359,11 @@ namespace Rockman_vs_SmashBros
 			// 描画座標、当たり判定を更新
 			UpdateDrawPosition();
 			UpdateAbsoluteCollision();
-			// マップの端が壁属性であれば着地していることにする
-			if (Map.BottomEdge.IsWall && AbsoluteCollision.Y + AbsoluteCollision.Height > Const.MapchipTileSize * Map.Size.Height - 1)
+			// 現在のセクション
+			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+
+			// セクションの端が壁属性であれば着地していることにする
+			if (CurrentlySection.BottomIsWall && AbsoluteCollision.Y + AbsoluteCollision.Height > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1)
 			{
 				IsInAir = false;
 			}

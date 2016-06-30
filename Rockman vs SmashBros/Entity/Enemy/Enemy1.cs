@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Storage;
+using System;
 
 namespace Rockman_vs_SmashBros
 {
@@ -68,31 +69,30 @@ namespace Rockman_vs_SmashBros
 			float Speed = 0.5f;
 			MoveDistance.X = 0;
 
-			if (Main.Player.Position.X > Position.X)
+			// 左右移動
+			if (Math.Abs(Main.Player.Position.X - Position.X) > 16)
 			{
-				MoveDistance.X += Speed;
-			}
-			else
-			{
-				MoveDistance.X -= Speed;
+				if (Main.Player.Position.X > Position.X)
+				{
+					MoveDistance.X += Speed;
+				}
+				else
+				{
+					MoveDistance.X -= Speed;
+				}
 			}
 
+			// 重力付加
 			if (IsInAir)
 			{
 				MoveDistance.Y += 0.25f;
 			}
 
+			// 落下時にデスポーン
 			if (Position.Y > Main.Map.Size.Height * Const.MapchipTileSize)
 			{
 				Destroy(this);
 			}
-
-			/*
-			if (Main.Controller.IsButtonPressed(Controller.Buttons.A))
-			{
-				MoveDistance.Y = -4.25f;
-			}
-			//*/
 
 			base.Update(GameTime);
 		}

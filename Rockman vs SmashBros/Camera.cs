@@ -16,8 +16,12 @@ namespace Rockman_vs_SmashBros
 	{
 		#region メンバーの宣言
 		public Point Position;                                      // カメラの座標
+		public Vector2 ScrollSourcePosition;                        // スクロール元の座標
+		public Vector2 ScrollDestinationPosition;                   // スクロール先の座標
 		public Point ViewMap;                                       // 見えているマップの範囲(マス数)
 		public Point OldViewMap;                                    // 1フレーム前の見えているマップの範囲(マス数)
+		public bool InChangeSection;                                // 別のセクションに移動中かどうか
+		public int ChangeSectionFrame;                              // セクションの移動中のフレームカウンター
 		#endregion
 
 		/// <summary>
@@ -51,27 +55,36 @@ namespace Rockman_vs_SmashBros
 		/// フレームの更新
 		/// </summary>
 		/// <param name="PlayerDrawPosition">プレイヤーの描画座標</param>
-		public void Update(GameTime GameTime, Point PlayerDrawPosition, Size WorldSize)
+		public void Update(GameTime GameTime, Point PlayerDrawPosition)
 		{
-			// カメラ座標を更新
-			Position.X = PlayerDrawPosition.X - Const.GameScreenWidth / 2;
-			if (Position.X < 0)
+			if (!InChangeSection)
 			{
-				Position.X = 0;
-			}
-			else if (Position.X + Const.GameScreenWidth > WorldSize.Width)
-			{
-				Position.X = WorldSize.Width - Const.GameScreenWidth;
-			}
+				// カメラをプレイヤーに追従
+				Rectangle CurrentlySectionArea = Main.Map.Sections[Main.Map.CurrentlySectionID].Area;
+				Position.X = PlayerDrawPosition.X - Const.GameScreenWidth / 2;
+				if (Position.X < Const.MapchipTileSize * CurrentlySectionArea.X)
+				{
+					Position.X = Const.MapchipTileSize * CurrentlySectionArea.X;
+				}
+				else if (Position.X + Const.GameScreenWidth > Const.MapchipTileSize * CurrentlySectionArea.X + Const.MapchipTileSize * CurrentlySectionArea.Width)
+				{
+					Position.X = Const.MapchipTileSize * CurrentlySectionArea.X + Const.MapchipTileSize * CurrentlySectionArea.Width - Const.GameScreenWidth;
+				}
 
-			Position.Y = PlayerDrawPosition.Y - Const.GameScreenHeight / 2;
-			if (Position.Y < 0)
-			{
-				Position.Y = 0;
+				Position.Y = PlayerDrawPosition.Y - Const.GameScreenHeight / 2;
+				if (Position.Y < Const.MapchipTileSize * CurrentlySectionArea.Y)
+				{
+					Position.Y = Const.MapchipTileSize * CurrentlySectionArea.Y;
+				}
+				else if (Position.Y + Const.GameScreenHeight > Const.MapchipTileSize * CurrentlySectionArea.Y + Const.MapchipTileSize * CurrentlySectionArea.Height)
+				{
+					Position.Y = Const.MapchipTileSize * CurrentlySectionArea.Y + Const.MapchipTileSize * CurrentlySectionArea.Height - Const.GameScreenHeight;
+				}
 			}
-			else if (Position.Y + Const.GameScreenHeight > WorldSize.Height)
+			// セクション移動中の処理
+			else
 			{
-				Position.Y = WorldSize.Height - Const.GameScreenHeight;
+				ChangeSectionCalc();
 			}
 
 			// 見えている範囲を検出
@@ -86,6 +99,61 @@ namespace Rockman_vs_SmashBros
 		public void Draw(GameTime GameTime)
 		{
 		}
+
+		/// <summary>
+		/// セクション移動開始時の処理
+		/// </summary>
+		public void StartChangeSection(Point PlayerDrawPosition)
+		{
+			ScrollSourcePosition = Position.ToVector2();
+
+			// 移動後の座標を移動先セクション内に収める
+			Rectangle CurrentlySectionArea = Main.Map.Sections[Main.Map.CurrentlySectionID].Area;
+			ScrollDestinationPosition.X = PlayerDrawPosition.X - Const.GameScreenWidth / 2;
+			if (ScrollDestinationPosition.X < Const.MapchipTileSize * CurrentlySectionArea.X)
+			{
+				ScrollDestinationPosition.X = Const.MapchipTileSize * CurrentlySectionArea.X;
+			}
+			else if (ScrollDestinationPosition.X + Const.GameScreenWidth > Const.MapchipTileSize * CurrentlySectionArea.X + Const.MapchipTileSize * CurrentlySectionArea.Width)
+			{
+				ScrollDestinationPosition.X = Const.MapchipTileSize * CurrentlySectionArea.X + Const.MapchipTileSize * CurrentlySectionArea.Width - Const.GameScreenWidth;
+			}
+
+			ScrollDestinationPosition.Y = PlayerDrawPosition.Y - Const.GameScreenHeight / 2;
+			if (ScrollDestinationPosition.Y < Const.MapchipTileSize * CurrentlySectionArea.Y)
+			{
+				ScrollDestinationPosition.Y = Const.MapchipTileSize * CurrentlySectionArea.Y;
+			}
+			else if (ScrollDestinationPosition.Y + Const.GameScreenHeight > Const.MapchipTileSize * CurrentlySectionArea.Y + Const.MapchipTileSize * CurrentlySectionArea.Height)
+			{
+				ScrollDestinationPosition.Y = Const.MapchipTileSize * CurrentlySectionArea.Y + Const.MapchipTileSize * CurrentlySectionArea.Height - Const.GameScreenHeight;
+			}
+
+			ChangeSectionFrame = 0;
+			InChangeSection = true;
+		}
+
+		#region プライベート関数
+
+		/// <summary>
+		/// セクション移動中の処理
+		/// </summary>
+		private void ChangeSectionCalc()
+		{
+			Vector2 Source = ScrollSourcePosition;
+			Vector2 Destination = ScrollDestinationPosition;
+			Position.X = (int)(Source.X + (Destination.X - Source.X) / Global.ChangeSectionDuration * ChangeSectionFrame);
+			Position.Y = (int)(Source.Y + (Destination.Y - Source.Y) / Global.ChangeSectionDuration * ChangeSectionFrame);
+
+			ChangeSectionFrame++;
+			if (ChangeSectionFrame > Global.ChangeSectionDuration)
+			{
+				InChangeSection = false;
+				Position = Destination.ToPoint();
+			}
+		}
+
+		#endregion
 
 	}
 }
