@@ -22,6 +22,13 @@ namespace Rockman_vs_SmashBros
 		public Vector2 ChangeSectionSourcePosition;                 // セクションの移動中の元の座標
 		public Vector2 ChangeSectionDestinationPosition;            // セクションの移動中の先の座標
 		public int ChangeSectionFrame;                              // セクションの移動中のフレームカウンター
+
+		public enum Statuses										// プレイヤーの状態
+		{
+			Neutral,
+			Jump,
+			Ladder
+		}
 		#endregion
 
 		/// <summary>
@@ -40,7 +47,7 @@ namespace Rockman_vs_SmashBros
 			IsAlive = true;
 			IsNoclip = false;
 			Position.X = 32;
-			Position.Y = 90;
+			Position.Y = 640;
 			MoveDistance = Vector2.Zero;
 			DrawOffset.X = -15;
 			DrawOffset.Y = -31;
@@ -92,7 +99,7 @@ namespace Rockman_vs_SmashBros
 				// 重力付加
 				if (IsInAir)
 				{
-					MoveDistance.Y += 0.25f;
+					MoveDistance.Y += Global.Gravity;
 				}
 
 				// ジャンプ

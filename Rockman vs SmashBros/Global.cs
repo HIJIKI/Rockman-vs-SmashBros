@@ -7,6 +7,5 @@
 		public static float Gravity = 0.25f;                        // 重力
 
 		public const int ChangeSectionDuration = 128;               // セクションの移動にかけるフレーム数
-		public static int test;
 	}
 }

@@ -25,12 +25,13 @@ namespace Rockman_vs_SmashBros
 		public bool IsAlive;                                        // 生存フラグ
 		public bool IsNoclip;                                       // 地形を貫通するかどうか
 		public bool IsInAir;                                        // 空中にいるかどうか
-		public bool IsStop;											// 更新停止フラグ
+		public bool IsStop;                                         // 更新停止フラグ
 		public Vector2 Position;                                    // 内部座標
 		public Point DrawPosition;                                  // 描画座標
 		public Vector2 MoveDistance;                                // 現在のフレームで移動する量
 		public Rectangle RelativeCollision;                         // 当たり判定 (相対)
 		public Rectangle AbsoluteCollision;                         // 当たり判定 (絶対)
+		public Rectangle OldAbsoluteCollision;                      // 1フレーム前の当たり判定 (絶対)
 		public bool IsFromMap;                                      // マップにより作成されたかどうか
 		public Point FromMapPosition;                               // マップにより作成された場合に、その座標を保持
 		#endregion
@@ -61,6 +62,7 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// 描画座標、当たり判定を更新
+			OldAbsoluteCollision = AbsoluteCollision;
 			UpdateDrawPosition();
 			UpdateAbsoluteCollision();
 		}
@@ -178,7 +180,7 @@ namespace Rockman_vs_SmashBros
 								HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + Const.MapchipTileSize * i);
 							}
 							// 判定実行
-							if (PointToCollisionIndex(Map, HitCheckPosition) != 0)
+							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
 							{
 								// 接触していた地形にギリギリ接触しない位置に押し戻す
 								int FitX = (HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
@@ -222,7 +224,7 @@ namespace Rockman_vs_SmashBros
 								HitCheckPosition = new Point(AbsoluteCollision.X, AbsoluteCollision.Y + Const.MapchipTileSize * i);
 							}
 							// 判定実行
-							if (PointToCollisionIndex(Map, HitCheckPosition) != 0)
+							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
 							{
 								// 接触していた地形にギリギリ接触しない位置に押し戻す
 								int FitX = (AbsoluteCollision.X) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
@@ -286,8 +288,9 @@ namespace Rockman_vs_SmashBros
 							{
 								HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
 							}
-							// 判定実行
-							if (PointToCollisionIndex(Map, HitCheckPosition) != 0)
+							// 地形判定実行, 梯子の上辺だった場合も着地したことにする
+							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall ||
+								Map.CheckPointLadderTop(HitCheckPosition) && OldAbsoluteCollision.Y + OldAbsoluteCollision.Height - 1 < HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize)
 							{
 								// 接触した地形にギリギリ接触しない位置に移動する
 								int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
@@ -332,7 +335,7 @@ namespace Rockman_vs_SmashBros
 								HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y);
 							}
 							// 判定実行
-							if (PointToCollisionIndex(Map, HitCheckPosition) != 0)
+							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
 							{
 								// 接触した地形にギリギリ接触しない位置に移動する
 								int FitY = HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
@@ -362,30 +365,34 @@ namespace Rockman_vs_SmashBros
 			// 現在のセクション
 			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
 
-			// セクションの端が壁属性であれば着地していることにする
-			if (CurrentlySection.BottomIsWall && AbsoluteCollision.Y + AbsoluteCollision.Height > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1)
+			if (!IsNoclip)
 			{
-				IsInAir = false;
-			}
-			else
-			{
-				// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
-				int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
-				for (int i = 0; i < SplitNumber; i++)
+				// セクションの端が壁属性であれば着地していることにする
+				if (CurrentlySection.BottomIsWall && AbsoluteCollision.Y + AbsoluteCollision.Height > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1)
 				{
-					Point HitCheckPosition;
-					if (i == SplitNumber - 1)
+					IsInAir = false;
+				}
+				else
+				{
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
 					{
-						HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height);
-					}
-					else
-					{
-						HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y + AbsoluteCollision.Height);
-					}
-					// 判定実行
-					if (PointToCollisionIndex(Map, HitCheckPosition) != 0)
-					{
-						IsInAir = false;
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y + AbsoluteCollision.Height);
+						}
+						// 地形判定実行
+						if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall ||
+							Map.CheckPointLadderTop(HitCheckPosition))
+						{
+							IsInAir = false;
+						}
 					}
 				}
 			}
@@ -405,22 +412,6 @@ namespace Rockman_vs_SmashBros
 		private void UpdateDrawPosition()
 		{
 			DrawPosition = Position.ToPoint();
-		}
-
-		/// <summary>
-		/// Map 上における指定した座標の当たり判定IDを返す
-		/// </summary>
-		/// <param name="Point">当たり判定IDを取得したい Map 上のワールド座標</param>
-		/// <returns>指定した座標の当たり判定ID。マップ外を取得しようとした場合は常に 0 を返す。</returns>
-		private int PointToCollisionIndex(Map Map, Point WorldPosition)
-		{
-			int CollisionIndex = 0;
-			Point MapPosition = new Point(WorldPosition.X / Const.MapchipTileSize, WorldPosition.Y / Const.MapchipTileSize);
-			if (MapPosition.X >= 0 && MapPosition.X < Map.Size.Width && MapPosition.Y >= 0 && MapPosition.Y < Map.Size.Height)
-			{
-				CollisionIndex = Map.CollisionLayer[MapPosition.X, MapPosition.Y];
-			}
-			return CollisionIndex;
 		}
 
 		#endregion
