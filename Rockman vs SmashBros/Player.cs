@@ -54,7 +54,7 @@ namespace Rockman_vs_SmashBros
 			Position.X = 17 * Const.MapchipTileSize;
 			Position.Y = 5 * Const.MapchipTileSize;
 			MoveDistance = Vector2.Zero;
-			OriginPosition.X = 15;
+			OriginPosition.X = 16;
 			OriginPosition.Y = 31;
 			RelativeCollision = new Rectangle(-7, -23, 15, 24);
 			FaceToRight = true;
@@ -176,6 +176,11 @@ namespace Rockman_vs_SmashBros
 			{
 				Status = Statuses.Neutral;
 				// スライディング開始
+				if (false)
+				{
+					Status = Statuses.Sliding;
+					return;
+				}
 				// ジャンプ開始
 				if (Main.Controller.IsButtonPressed(Controller.Buttons.A))
 				{
@@ -186,47 +191,40 @@ namespace Rockman_vs_SmashBros
 				// ハシゴに捕まる
 				else if (Main.Controller.IsButtonDown(Controller.Buttons.Up) && CheckGrabLadder(Map))
 				{
-					int NewPosX = DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2;
-					int NewPosY = DrawPosition.Y;
-					SetPosition(new Vector2(NewPosX, NewPosY));
-					MoveDistance = Vector2.Zero;
-					Status = Statuses.Ladder;
-					IsInAir = true;
+					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y);
+					GrabLadder(NewPosition);
 					return;
 				}
 				// 足元のハシゴに捕まる
 				else if (Main.Controller.IsButtonDown(Controller.Buttons.Down) && CheckBottomLadder(Map))
 				{
-					int NewPosX = DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2;
-					int NewPosY = DrawPosition.Y + 9;
-					SetPosition(new Vector2(NewPosX, NewPosY));
-					MoveDistance = Vector2.Zero;
-					Status = Statuses.Ladder;
-					IsInAir = true;
+					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y + 9);
+					GrabLadder(NewPosition);
 					return;
 				}
 			}
 			// 接地していない場合
 			else
 			{
+				Status = Statuses.Jump;
 				// 重力付加
 				MoveDistance.Y += Global.Gravity;
-				Status = Statuses.Jump;
+				// ショートジャンプ
+				if (MoveDistance.Y < 0 && Main.Controller.IsButtonUp(Controller.Buttons.A))
+				{
+					MoveDistance.Y = 0;
+				}
 				// はしごに捕まる
 				if ((Main.Controller.IsButtonDown(Controller.Buttons.Up) || Main.Controller.IsButtonDown(Controller.Buttons.Down)) && CheckGrabLadder(Map))
 				{
-					int NewPosX = DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2;
-					int NewPosY = DrawPosition.Y;
-					SetPosition(new Vector2(NewPosX, NewPosY));
-					MoveDistance = Vector2.Zero;
-					Status = Statuses.Ladder;
-					IsInAir = true;
+					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y);
+					GrabLadder(NewPosition);
 					return;
 				}
 			}
 
 			// 左右移動
-			float Speed = 1.6f;
+			float Speed = 1.25f;
 			MoveDistance.X = 0;
 			if (Keyboard.GetState().IsKeyDown(Keys.A))
 			{
@@ -293,14 +291,6 @@ namespace Rockman_vs_SmashBros
 				SetPosY(NewPosY);
 				MoveDistance.Y = 0;
 				IsInAir = false;
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.A))
-			{
-				FaceToRight = false;
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.D))
-			{
-				FaceToRight = true;
 			}
 		}
 
@@ -406,6 +396,18 @@ namespace Rockman_vs_SmashBros
 				return true;
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// はしごに捕まる
+		/// </summary>
+		/// <param name="AfterPosition">はしごを掴んだあとの座標</param>
+		private void GrabLadder(Vector2 AfterPosition)
+		{
+			SetPosition(AfterPosition);
+			MoveDistance = Vector2.Zero;
+			Status = Statuses.Ladder;
+			IsInAir = true;
 		}
 
 		/// <summary>
