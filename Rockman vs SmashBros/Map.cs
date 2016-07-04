@@ -306,8 +306,8 @@ namespace Rockman_vs_SmashBros
 			#endregion
 
 			EntityLayer[9, 3] = "Enemy1";
-			EntityLayer[20, 11] = "Enemy1";
-			EntityLayer[25, 11] = "Enemy1";
+			//EntityLayer[20, 11] = "Enemy1";
+			//EntityLayer[25, 11] = "Enemy1";
 			EntityLayer[21, 24] = "Enemy1";
 			EntityLayer[26, 33] = "Enemy1";
 			EntityLayer[21, 41] = "Enemy1";
@@ -317,7 +317,7 @@ namespace Rockman_vs_SmashBros
 			Sections.Add(new Section(new Rectangle(16, 0, 16, 15), false, false, false, true));
 			Sections.Add(new Section(new Rectangle(16, 15, 16, 30), false, true, false, true));
 			Sections.Add(new Section(new Rectangle(0, 30, 16, 15), false, true, true, false));
-			CurrentlySectionID = 3;
+			CurrentlySectionID = 1;
 			//*/
 
 			for (int x = 0; x < Size.Width; x++)

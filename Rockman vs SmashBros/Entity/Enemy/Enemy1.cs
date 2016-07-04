@@ -17,7 +17,8 @@ namespace Rockman_vs_SmashBros
 	{
 		#region メンバーの宣言
 		public static Texture2D Texture;                            // テクスチャ
-		public Point DrawOffset;                                  // ワールド座標に対する相対的な描画座標
+		public Point OriginPosition;                                // ワールド座標に対する相対的な描画座標
+		private bool FaceToRight;                                   // 右を向いているかどうか
 		#endregion
 
 		/// <summary>
@@ -40,8 +41,8 @@ namespace Rockman_vs_SmashBros
 			IsAlive = true;
 			IsNoclip = false;
 			MoveDistance = Vector2.Zero;
-			DrawOffset.X = -15;
-			DrawOffset.Y = -29;
+			OriginPosition.X = 15;
+			OriginPosition.Y = 29;
 			RelativeCollision = new Rectangle(-7, -23, 14, 24);
 		}
 
@@ -75,10 +76,12 @@ namespace Rockman_vs_SmashBros
 				if (Main.Player.Position.X > Position.X)
 				{
 					MoveDistance.X += Speed;
+					FaceToRight = true;
 				}
 				else
 				{
 					MoveDistance.X -= Speed;
+					FaceToRight = false;
 				}
 			}
 
@@ -103,7 +106,13 @@ namespace Rockman_vs_SmashBros
 		public override void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
 			// 描画
-			SpriteBatch.Draw(Texture, new Vector2(DrawPosition.X + DrawOffset.X, DrawPosition.Y + DrawOffset.Y), new Rectangle(0, 0, 32, 32), Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX);
+			Vector2 position = DrawPosition.ToVector2();
+			Rectangle sourceRectangle = new Rectangle(0, 0, 32, 32);
+			Vector2 origin = FaceToRight ? OriginPosition.ToVector2() : new Vector2(32 - OriginPosition.X, OriginPosition.Y);
+			SpriteEffects SpriteEffect = FaceToRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+			float layerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
+
+			SpriteBatch.Draw(Texture, position, sourceRectangle, Color.White, 0.0f, origin, 1.0f, SpriteEffect, layerDepth);
 
 			base.Draw(GameTime, SpriteBatch);
 		}
