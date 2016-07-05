@@ -55,8 +55,8 @@ namespace Rockman_vs_SmashBros
 		{
 			IsAlive = true;
 			IsNoclip = false;
-			Position.X = 17 * Const.MapchipTileSize;
-			Position.Y = 5 * Const.MapchipTileSize;
+			Position.X = 2 * Const.MapchipTileSize;
+			Position.Y = 10 * Const.MapchipTileSize;
 			MoveDistance = Vector2.Zero;
 			OriginPosition.X = 16;
 			OriginPosition.Y = 30;

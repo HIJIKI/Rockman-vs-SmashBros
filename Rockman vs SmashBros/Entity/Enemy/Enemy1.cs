@@ -42,7 +42,7 @@ namespace Rockman_vs_SmashBros
 			IsNoclip = false;
 			MoveDistance = Vector2.Zero;
 			OriginPosition.X = 15;
-			OriginPosition.Y = 29;
+			OriginPosition.Y = 28;
 			RelativeCollision = new Rectangle(-7, -23, 14, 24);
 		}
 

@@ -153,92 +153,76 @@ namespace Rockman_vs_SmashBros
 				// 右側地形判定
 				if (MoveDistance.X > 0)
 				{
-					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (CurrentlySection.RightIsWall && AbsoluteCollision.X + AbsoluteCollision.Width > Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width)
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Height / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
 					{
-						int FitX = Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width - 1;
-						int NewPositionX = FitX - (RelativeCollision.Width - 1 + RelativeCollision.X);
-						Position.X = NewPositionX;
-						MoveDistance.X = 0;
-						// 描画座標、当たり判定を更新
-						UpdateDrawPosition();
-						UpdateAbsoluteCollision();
-					}
-					else
-					{
-						// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
-						int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Height / Const.MapchipTileSize) + 1;
-						for (int i = 0; i < SplitNumber; i++)
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
 						{
-							Point HitCheckPosition;
-							if (i == SplitNumber - 1)
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
-							}
-							else
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + Const.MapchipTileSize * i);
-							}
-							// 判定実行
-							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
-							{
-								// 接触していた地形にギリギリ接触しない位置に押し戻す
-								int FitX = (HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
-								int NewPositionX = FitX - (RelativeCollision.Width - 1 + RelativeCollision.X);
-								Position.X = NewPositionX;
-								MoveDistance.X = 0;
-								// 描画座標、当たり判定を更新
-								UpdateDrawPosition();
-								UpdateAbsoluteCollision();
-							}
+							HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Bottom - 1);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Y + Const.MapchipTileSize * i);
+						}
+						// 判定実行
+						if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
+						{
+							// 接触していた地形にギリギリ接触しない位置に押し戻す
+							int FitX = (HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
+							int NewPositionX = FitX - (RelativeCollision.Width - 1 + RelativeCollision.X);
+							Position.X = NewPositionX;
+							MoveDistance.X = 0;
 						}
 					}
 				}
 				// 左側地形判定
 				else if (MoveDistance.X < 0)
 				{
-					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (CurrentlySection.LeftIsWall && AbsoluteCollision.X < Const.MapchipTileSize * CurrentlySection.Area.X)
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Height / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
 					{
-						int FitX = Const.MapchipTileSize * CurrentlySection.Area.X;
-						int NewPositionX = FitX - RelativeCollision.X;
-						Position.X = NewPositionX;
-						MoveDistance.X = 0;
-						// 描画座標、当たり判定を更新
-						UpdateDrawPosition();
-						UpdateAbsoluteCollision();
-					}
-					else
-					{
-						// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
-						int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Height / Const.MapchipTileSize) + 1;
-						for (int i = 0; i < SplitNumber; i++)
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
 						{
-							Point HitCheckPosition;
-							if (i == SplitNumber - 1)
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
-							}
-							else
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X, AbsoluteCollision.Y + Const.MapchipTileSize * i);
-							}
-							// 判定実行
-							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
-							{
-								// 接触していた地形にギリギリ接触しない位置に押し戻す
-								int FitX = (AbsoluteCollision.X) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
-								int NewPositionX = FitX - RelativeCollision.X;
-								Position.X = NewPositionX;
-								MoveDistance.X = 0;
-								// 描画座標、当たり判定を更新
-								UpdateDrawPosition();
-								UpdateAbsoluteCollision();
-							}
+							HitCheckPosition = new Point(AbsoluteCollision.X, AbsoluteCollision.Bottom - 1);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.X, AbsoluteCollision.Y + Const.MapchipTileSize * i);
+						}
+						// 判定実行
+						if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
+						{
+							// 接触していた地形にギリギリ接触しない位置に押し戻す
+							int FitX = (AbsoluteCollision.X) / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
+							int NewPositionX = FitX - RelativeCollision.X;
+							Position.X = NewPositionX;
+							MoveDistance.X = 0;
 						}
 					}
 				}
+				// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+				if (CurrentlySection.RightIsWall && AbsoluteCollision.Right > Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width)
+				{
+					int FitX = Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width - 1;
+					int NewPositionX = FitX - (RelativeCollision.Width - 1 + RelativeCollision.X);
+					Position.X = NewPositionX;
+					MoveDistance.X = 0;
+				}
+				else if (CurrentlySection.LeftIsWall && AbsoluteCollision.X < Const.MapchipTileSize * CurrentlySection.Area.X)
+				{
+					int FitX = Const.MapchipTileSize * CurrentlySection.Area.X;
+					int NewPositionX = FitX - RelativeCollision.X;
+					Position.X = NewPositionX;
+					MoveDistance.X = 0;
+				}
 			}
+			// 描画座標、当たり判定を更新
+			UpdateDrawPosition();
+			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -261,96 +245,90 @@ namespace Rockman_vs_SmashBros
 				// 下側地形判定
 				if (MoveDistance.Y > 0)
 				{
-					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (CurrentlySection.BottomIsWall && AbsoluteCollision.Y + AbsoluteCollision.Height > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
 					{
-						int FitY = Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1;
-						int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
-						Position.Y = NewPositionY;
-						MoveDistance.Y = 0;
-						IsInAir = false;
-						// 描画座標、当たり判定を更新
-						UpdateDrawPosition();
-						UpdateAbsoluteCollision();
-					}
-					else
-					{
-						// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
-						int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
-						for (int i = 0; i < SplitNumber; i++)
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
 						{
-							Point HitCheckPosition;
-							if (i == SplitNumber - 1)
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
-							}
-							else
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y + AbsoluteCollision.Height - 1);
-							}
-							// 地形判定実行, 梯子の上辺だった場合も着地したことにする
-							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall ||
-								Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.OneWay && OldAbsoluteCollision.Y + OldAbsoluteCollision.Height - 1 < HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize ||
-								Map.CheckPointLadderTop(HitCheckPosition) && OldAbsoluteCollision.Y + OldAbsoluteCollision.Height - 1 < HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize)
-							{
-								// 接触した地形にギリギリ接触しない位置に移動する
-								int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
-								int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
-								Position.Y = NewPositionY;
-								MoveDistance.Y = 0;
-								IsInAir = false;
-								// 描画座標、当たり判定を更新
-								UpdateDrawPosition();
-								UpdateAbsoluteCollision();
-							}
+							HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Bottom - 1);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Bottom - 1);
+						}
+						// 地形判定実行, 梯子の上辺だった場合も着地したことにする
+						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
+						if (Index == Map.CollisionTypes.Wall ||
+							Index == Map.CollisionTypes.OneWay && OldAbsoluteCollision.Bottom - 1 < HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize ||
+							Map.CheckPointLadderTop(HitCheckPosition) && OldAbsoluteCollision.Bottom - 1 < HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize)
+						{
+							// 接触した地形にギリギリ接触しない位置に移動する
+							int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
+							int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+							Position.Y = NewPositionY;
+							MoveDistance.Y = 0;
+							IsInAir = false;
 						}
 					}
 				}
 				// 上側地形判定
 				else if (MoveDistance.Y < 0)
 				{
-					// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
-					if (CurrentlySection.TopIsWall && AbsoluteCollision.Y < Const.MapchipTileSize * CurrentlySection.Area.Y)
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
 					{
-						int FitY = Const.MapchipTileSize * CurrentlySection.Area.Y;
-						int NewPositionY = FitY - RelativeCollision.Y;
-						Position.Y = NewPositionY;
-						MoveDistance.Y = 0;
-						// 描画座標、当たり判定を更新
-						UpdateDrawPosition();
-						UpdateAbsoluteCollision();
-					}
-					else
-					{
-						// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
-						int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
-						for (int i = 0; i < SplitNumber; i++)
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
 						{
-							Point HitCheckPosition;
-							if (i == SplitNumber - 1)
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y);
-							}
-							else
-							{
-								HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y);
-							}
-							// 判定実行
-							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall)
-							{
-								// 接触した地形にギリギリ接触しない位置に移動する
-								int FitY = HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
-								int NewPositionY = FitY - RelativeCollision.Y;
-								Position.Y = NewPositionY;
-								MoveDistance.Y = 0;
-								// 描画座標、当たり判定を更新
-								UpdateDrawPosition();
-								UpdateAbsoluteCollision();
-							}
+							HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Y);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y);
+						}
+						// 判定実行
+						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
+						if (Index == Map.CollisionTypes.Wall ||
+							Index == Map.CollisionTypes.LeftSlope1of4 ||
+							Index == Map.CollisionTypes.LeftSlope2of4 ||
+							Index == Map.CollisionTypes.LeftSlope3of4 ||
+							Index == Map.CollisionTypes.LeftSlope4of4 ||
+							Index == Map.CollisionTypes.RightSlope1of4 ||
+							Index == Map.CollisionTypes.RightSlope2of4 ||
+							Index == Map.CollisionTypes.RightSlope3of4 ||
+							Index == Map.CollisionTypes.RightSlope4of4)
+						{
+							// 接触した地形にギリギリ接触しない位置に移動する
+							int FitY = HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
+							int NewPositionY = FitY - RelativeCollision.Y;
+							Position.Y = NewPositionY;
+							MoveDistance.Y = 0;
 						}
 					}
 				}
+				// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+				if (CurrentlySection.BottomIsWall && AbsoluteCollision.Bottom > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
+				{
+					int FitY = Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1;
+					int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+					Position.Y = NewPositionY;
+					MoveDistance.Y = 0;
+					IsInAir = false;
+				}
+				else if (CurrentlySection.TopIsWall && AbsoluteCollision.Y < Const.MapchipTileSize * CurrentlySection.Area.Y)
+				{
+					int FitY = Const.MapchipTileSize * CurrentlySection.Area.Y;
+					int NewPositionY = FitY - RelativeCollision.Y;
+					Position.Y = NewPositionY;
+					MoveDistance.Y = 0;
+				}
 			}
+			// 描画座標、当たり判定を更新
+			UpdateDrawPosition();
+			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -369,7 +347,7 @@ namespace Rockman_vs_SmashBros
 			if (!IsNoclip)
 			{
 				// セクションの端が壁属性であれば着地していることにする
-				if (CurrentlySection.BottomIsWall && AbsoluteCollision.Y + AbsoluteCollision.Height > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1)
+				if (CurrentlySection.BottomIsWall && AbsoluteCollision.Bottom >= Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
 				{
 					IsInAir = false;
 				}
@@ -382,11 +360,11 @@ namespace Rockman_vs_SmashBros
 						Point HitCheckPosition;
 						if (i == SplitNumber - 1)
 						{
-							HitCheckPosition = new Point(AbsoluteCollision.X + AbsoluteCollision.Width - 1, AbsoluteCollision.Y + AbsoluteCollision.Height);
+							HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Bottom);
 						}
 						else
 						{
-							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Y + AbsoluteCollision.Height);
+							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Bottom);
 						}
 						// 地形判定実行
 						if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall ||
