@@ -290,6 +290,7 @@ namespace Rockman_vs_SmashBros
 							}
 							// 地形判定実行, 梯子の上辺だった場合も着地したことにする
 							if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall ||
+								Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.OneWay && OldAbsoluteCollision.Y + OldAbsoluteCollision.Height - 1 < HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize ||
 								Map.CheckPointLadderTop(HitCheckPosition) && OldAbsoluteCollision.Y + OldAbsoluteCollision.Height - 1 < HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize)
 							{
 								// 接触した地形にギリギリ接触しない位置に移動する
@@ -389,6 +390,7 @@ namespace Rockman_vs_SmashBros
 						}
 						// 地形判定実行
 						if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall ||
+							Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.OneWay ||
 							Map.CheckPointLadderTop(HitCheckPosition))
 						{
 							IsInAir = false;

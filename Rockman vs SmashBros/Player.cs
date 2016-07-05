@@ -26,6 +26,10 @@ namespace Rockman_vs_SmashBros
 		private bool FaceToRight;                                   // 右を向いているかどうか
 		private bool IsLadderBend;                                  // はしご掴み中に登りかけかどうか
 		private Statuses Status;                                    // プレイヤーの状態
+		private float WalkSpeed;                                    // プレイヤーの歩行速度
+		private float JumpSpeed;                                    // プレイヤーのジャンプの初速
+		private float LadderSpeed;                                  // プレイヤーのはしご昇降速度
+		private float SlidingSpeed;									// プレイヤーのスライディング速度
 
 		public enum Statuses                                        // 各プレイヤーの状態
 		{
@@ -55,8 +59,12 @@ namespace Rockman_vs_SmashBros
 			Position.Y = 5 * Const.MapchipTileSize;
 			MoveDistance = Vector2.Zero;
 			OriginPosition.X = 16;
-			OriginPosition.Y = 31;
+			OriginPosition.Y = 30;
 			RelativeCollision = new Rectangle(-7, -23, 15, 24);
+			WalkSpeed = 1.35f;
+			JumpSpeed = -4.8f;
+			LadderSpeed = 1.3f;
+			SlidingSpeed = 2.5f;
 			FaceToRight = true;
 		}
 
@@ -185,7 +193,7 @@ namespace Rockman_vs_SmashBros
 				if (Main.Controller.IsButtonPressed(Controller.Buttons.A))
 				{
 					Status = Statuses.Jump;
-					MoveDistance.Y = -5;
+					MoveDistance.Y = JumpSpeed;
 					IsInAir = true;
 				}
 				// ハシゴに捕まる
@@ -224,16 +232,15 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// 左右移動
-			float Speed = 1.25f;
 			MoveDistance.X = 0;
 			if (Keyboard.GetState().IsKeyDown(Keys.A))
 			{
-				MoveDistance.X -= Speed;
+				MoveDistance.X -= WalkSpeed;
 				FaceToRight = false;
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.D))
 			{
-				MoveDistance.X += Speed;
+				MoveDistance.X += WalkSpeed;
 				FaceToRight = true;
 			}
 		}
@@ -245,15 +252,14 @@ namespace Rockman_vs_SmashBros
 		{
 			// 昇降移動
 			MoveDistance = Vector2.Zero;
-			float Speed = 1.25f;
 			IsLadderBend = false;
 			if (Main.Controller.IsButtonDown(Controller.Buttons.Up))
 			{
-				MoveDistance.Y = -Speed;
+				MoveDistance.Y = -LadderSpeed;
 			}
 			else if (Main.Controller.IsButtonDown(Controller.Buttons.Down))
 			{
-				MoveDistance.Y = Speed;
+				MoveDistance.Y = LadderSpeed;
 			}
 			// ジャンプが押されたらはしごを離す
 			else if (Main.Controller.IsButtonPressed(Controller.Buttons.A))
