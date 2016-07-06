@@ -34,6 +34,7 @@ namespace Rockman_vs_SmashBros
 		public Rectangle OldAbsoluteCollision;                      // 1フレーム前の当たり判定 (絶対)
 		public bool IsFromMap;                                      // マップにより作成されたかどうか
 		public Point FromMapPosition;                               // マップにより作成された場合に、その座標を保持
+		public bool IsIgnoreGravity;                                // このエンティティが重力を無視するかどうか
 		#endregion
 
 		/// <summary>
@@ -55,7 +56,14 @@ namespace Rockman_vs_SmashBros
 			{
 				MoveY(Main.Map);
 				MoveX(Main.Map);
-				if (!IsInAir)
+				if (IsInAir)
+				{
+					if (!IsIgnoreGravity)
+					{
+						MoveDistance.Y += Global.Gravity;
+					}
+				}
+				else
 				{
 					CheckInAir(Main.Map);
 				}
@@ -176,6 +184,37 @@ namespace Rockman_vs_SmashBros
 							MoveDistance.X = 0;
 						}
 					}
+					// 重力に従うエンティティが接地中に移動した場合、足元のスロープに移動後の高さを合わせる
+					if (!IsInAir && !IsIgnoreGravity)
+					{
+						// 描画座標、当たり判定を更新
+						UpdateDrawPosition();
+						UpdateAbsoluteCollision();
+						Point HitCheckPosition = new Point(AbsoluteCollision.Left, AbsoluteCollision.Bottom + 2);
+						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
+						if (Map.IsSlope(Index, "right"))
+						{
+							Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
+							int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);
+							if (HitCheckPositionInTile.Y >= FloorY)
+							{
+								int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) + FloorY - 1;
+								int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+								Position.Y = NewPositionY;
+								MoveDistance.Y = 0;
+								IsInAir = false;
+							}
+						}
+						// スロープから降りる時
+						else if (Index == Map.CollisionTypes.Wall)
+						{
+							int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
+							int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+							Position.Y = NewPositionY;
+							MoveDistance.Y = 0;
+							IsInAir = false;
+						}
+					}
 				}
 				// 左側地形判定
 				else if (MoveDistance.X < 0)
@@ -203,7 +242,42 @@ namespace Rockman_vs_SmashBros
 							MoveDistance.X = 0;
 						}
 					}
+					// 重力に従うエンティティが接地中に移動した場合、足元のスロープに移動後の高さを合わせる
+					if (!IsInAir && !IsIgnoreGravity)
+					{
+						// 描画座標、当たり判定を更新
+						UpdateDrawPosition();
+						UpdateAbsoluteCollision();
+						Point HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Bottom + 2);
+						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
+						if (Map.IsSlope(Index, "left"))
+						{
+							Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
+							int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);
+							if (HitCheckPositionInTile.Y >= FloorY)
+							{
+								int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) + FloorY - 1;
+								int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+								Position.Y = NewPositionY;
+								MoveDistance.Y = 0;
+								IsInAir = false;
+							}
+						}
+						// スロープから降りる時
+						else if (Index == Map.CollisionTypes.Wall)
+						{
+							int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) - 1;
+							int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+							Position.Y = NewPositionY;
+							MoveDistance.Y = 0;
+							IsInAir = false;
+						}
+					}
+
 				}
+				// 描画座標、当たり判定を更新
+				UpdateDrawPosition();
+				UpdateAbsoluteCollision();
 				// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
 				if (CurrentlySection.RightIsWall && AbsoluteCollision.Right > Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width)
 				{
@@ -292,14 +366,7 @@ namespace Rockman_vs_SmashBros
 						// 判定実行
 						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
 						if (Index == Map.CollisionTypes.Wall ||
-							Index == Map.CollisionTypes.LeftSlope1of4 ||
-							Index == Map.CollisionTypes.LeftSlope2of4 ||
-							Index == Map.CollisionTypes.LeftSlope3of4 ||
-							Index == Map.CollisionTypes.LeftSlope4of4 ||
-							Index == Map.CollisionTypes.RightSlope1of4 ||
-							Index == Map.CollisionTypes.RightSlope2of4 ||
-							Index == Map.CollisionTypes.RightSlope3of4 ||
-							Index == Map.CollisionTypes.RightSlope4of4)
+							Map.IsSlope(Index))
 						{
 							// 接触した地形にギリギリ接触しない位置に移動する
 							int FitY = HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize + (Const.MapchipTileSize);
@@ -309,6 +376,9 @@ namespace Rockman_vs_SmashBros
 						}
 					}
 				}
+				// 描画座標、当たり判定を更新
+				UpdateDrawPosition();
+				UpdateAbsoluteCollision();
 				// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
 				if (CurrentlySection.BottomIsWall && AbsoluteCollision.Bottom > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
 				{
@@ -343,14 +413,7 @@ namespace Rockman_vs_SmashBros
 							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Bottom - 1);
 						}
 						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
-						if (Index == Map.CollisionTypes.LeftSlope1of4 ||
-							Index == Map.CollisionTypes.LeftSlope2of4 ||
-							Index == Map.CollisionTypes.LeftSlope3of4 ||
-							Index == Map.CollisionTypes.LeftSlope4of4 ||
-							Index == Map.CollisionTypes.RightSlope1of4 ||
-							Index == Map.CollisionTypes.RightSlope2of4 ||
-							Index == Map.CollisionTypes.RightSlope3of4 ||
-							Index == Map.CollisionTypes.RightSlope4of4)
+						if (Map.IsSlope(Index))
 						{
 							Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
 							int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);
@@ -415,14 +478,7 @@ namespace Rockman_vs_SmashBros
 							IsInAir = false;
 						}
 						// スロープとの当たり判定
-						else if (Index == Map.CollisionTypes.LeftSlope1of4 ||
-								Index == Map.CollisionTypes.LeftSlope2of4 ||
-								Index == Map.CollisionTypes.LeftSlope3of4 ||
-								Index == Map.CollisionTypes.LeftSlope4of4 ||
-								Index == Map.CollisionTypes.RightSlope1of4 ||
-								Index == Map.CollisionTypes.RightSlope2of4 ||
-								Index == Map.CollisionTypes.RightSlope3of4 ||
-								Index == Map.CollisionTypes.RightSlope4of4)
+						else if (Map.IsSlope(Index))
 						{
 							Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
 							int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);

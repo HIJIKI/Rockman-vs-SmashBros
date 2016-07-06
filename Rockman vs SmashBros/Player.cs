@@ -29,7 +29,7 @@ namespace Rockman_vs_SmashBros
 		private float WalkSpeed;                                    // プレイヤーの歩行速度
 		private float JumpSpeed;                                    // プレイヤーのジャンプの初速
 		private float LadderSpeed;                                  // プレイヤーのはしご昇降速度
-		private float SlidingSpeed;									// プレイヤーのスライディング速度
+		private float SlidingSpeed;                                 // プレイヤーのスライディング速度
 
 		public enum Statuses                                        // 各プレイヤーの状態
 		{
@@ -123,7 +123,6 @@ namespace Rockman_vs_SmashBros
 				{
 					LadderOperation(Main.Map);
 				}
-
 			}
 
 			// ベースを更新
@@ -215,8 +214,6 @@ namespace Rockman_vs_SmashBros
 			else
 			{
 				Status = Statuses.Jump;
-				// 重力付加
-				MoveDistance.Y += Global.Gravity;
 				// ショートジャンプ
 				if (MoveDistance.Y < 0 && Main.Controller.IsButtonUp(Controller.Buttons.A))
 				{
