@@ -56,7 +56,7 @@ namespace Rockman_vs_SmashBros
 			// ここに初期化ロジックを追加
 			Player.Initialize();
 			Map.Initialize();
-			Map.InitForTest();
+			Map.InitForTest2();
 			Map.SpawnAllEntities();
 
 			// MonoGame コンポーネントを初期化

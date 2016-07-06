@@ -325,6 +325,46 @@ namespace Rockman_vs_SmashBros
 					Position.Y = NewPositionY;
 					MoveDistance.Y = 0;
 				}
+				// スロープにめり込んでいた場合押し出す
+				{
+					// 描画座標、当たり判定を更新
+					UpdateDrawPosition();
+					UpdateAbsoluteCollision();
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
+					{
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Bottom - 1);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Bottom - 1);
+						}
+						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
+						if (Index == Map.CollisionTypes.LeftSlope1of4 ||
+							Index == Map.CollisionTypes.LeftSlope2of4 ||
+							Index == Map.CollisionTypes.LeftSlope3of4 ||
+							Index == Map.CollisionTypes.LeftSlope4of4 ||
+							Index == Map.CollisionTypes.RightSlope1of4 ||
+							Index == Map.CollisionTypes.RightSlope2of4 ||
+							Index == Map.CollisionTypes.RightSlope3of4 ||
+							Index == Map.CollisionTypes.RightSlope4of4)
+						{
+							Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
+							int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);
+							if (HitCheckPositionInTile.Y >= FloorY)
+							{
+								int FitY = (HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize) + FloorY - 1;
+								int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+								Position.Y = NewPositionY;
+								MoveDistance.Y = 0;
+								IsInAir = false;
+							}
+						}
+					}
+				}
 			}
 			// 描画座標、当たり判定を更新
 			UpdateDrawPosition();
@@ -367,11 +407,29 @@ namespace Rockman_vs_SmashBros
 							HitCheckPosition = new Point(AbsoluteCollision.X + Const.MapchipTileSize * i, AbsoluteCollision.Bottom);
 						}
 						// 地形判定実行
-						if (Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.Wall ||
-							Map.PointToCollisionIndex(HitCheckPosition) == Map.CollisionTypes.OneWay ||
+						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
+						if (Index == Map.CollisionTypes.Wall ||
+							Index == Map.CollisionTypes.OneWay ||
 							Map.CheckPointLadderTop(HitCheckPosition))
 						{
 							IsInAir = false;
+						}
+						// スロープとの当たり判定
+						else if (Index == Map.CollisionTypes.LeftSlope1of4 ||
+								Index == Map.CollisionTypes.LeftSlope2of4 ||
+								Index == Map.CollisionTypes.LeftSlope3of4 ||
+								Index == Map.CollisionTypes.LeftSlope4of4 ||
+								Index == Map.CollisionTypes.RightSlope1of4 ||
+								Index == Map.CollisionTypes.RightSlope2of4 ||
+								Index == Map.CollisionTypes.RightSlope3of4 ||
+								Index == Map.CollisionTypes.RightSlope4of4)
+						{
+							Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
+							int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);
+							if (HitCheckPositionInTile.Y >= FloorY)
+							{
+								IsInAir = false;
+							}
 						}
 					}
 				}

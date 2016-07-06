@@ -77,18 +77,18 @@ namespace Rockman_vs_SmashBros
 		// 当たり判定の属性
 		public enum CollisionTypes
 		{
-			Air,													// 空気
-			Wall,													// 壁
-			Ladder,													// 梯子
-			OneWay,													// 一方通行床
-			LeftSlope1of4,											// 左スロープ 1/4
-			LeftSlope2of4,											// 左スロープ 2/4
-			LeftSlope3of4,											// 左スロープ 3/4
-			LeftSlope4of4,											// 左スロープ 4/4
-			RightSlope1of4,											// 右スロープ 1/4
-			RightSlope2of4,											// 右スロープ 2/4
-			RightSlope3of4,											// 右スロープ 3/4
-			RightSlope4of4											// 右スロープ 4/4
+			Air,                                                    // 空気
+			Wall,                                                   // 壁
+			Ladder,                                                 // 梯子
+			OneWay,                                                 // 一方通行床
+			LeftSlope1of4,                                          // 左スロープ 1/4
+			LeftSlope2of4,                                          // 左スロープ 2/4
+			LeftSlope3of4,                                          // 左スロープ 3/4
+			LeftSlope4of4,                                          // 左スロープ 4/4
+			RightSlope1of4,                                         // 右スロープ 1/4
+			RightSlope2of4,                                         // 右スロープ 2/4
+			RightSlope3of4,                                         // 右スロープ 3/4
+			RightSlope4of4,                                          // 右スロープ 4/4[
 		}
 
 		#endregion
@@ -639,6 +639,28 @@ namespace Rockman_vs_SmashBros
 				CollisionIndex = (CollisionTypes)CollisionLayer[MapPosition.X, MapPosition.Y];
 			}
 			return CollisionIndex;
+		}
+
+		/// <summary>
+		/// 指定したスロープ上のX座標の床のタイル内での相対位置を返す
+		/// </summary>
+		public int GetSlopeFloorY(CollisionTypes SlopeType, int PositionX)
+		{
+			int Result = 0;
+			int[] FloorY = new int[0];
+			if (SlopeType == CollisionTypes.LeftSlope1of4) { FloorY = new int[] { 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 12, 12, 11 }; }
+			if (SlopeType == CollisionTypes.LeftSlope2of4) { FloorY = new int[] { 11, 11, 11, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8 }; }
+			if (SlopeType == CollisionTypes.LeftSlope3of4) { FloorY = new int[] { 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4 }; }
+			if (SlopeType == CollisionTypes.LeftSlope4of4) { FloorY = new int[] { 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0 }; }
+			if (SlopeType == CollisionTypes.RightSlope1of4) { FloorY = new int[] { 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4 }; }
+			if (SlopeType == CollisionTypes.RightSlope2of4) { FloorY = new int[] { 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7 }; }
+			if (SlopeType == CollisionTypes.RightSlope3of4) { FloorY = new int[] { 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11 }; }
+			if (SlopeType == CollisionTypes.RightSlope4of4) { FloorY = new int[] { 11, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15 }; }
+			if (PositionX >= 0 && PositionX < FloorY.Length)
+			{
+				Result = FloorY[PositionX];
+			}
+			return Result;
 		}
 
 		/// <summary>
