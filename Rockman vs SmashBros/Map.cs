@@ -705,32 +705,32 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public int GetSlopeFloorY(CollisionTypes SlopeType, int PositionX)
 		{
-			int Result = 0;
-			int[] FloorY = new int[0];
+			byte Result = 0;
+			byte[] FloorY = new byte[0];
 			// 1マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of1) { FloorY = new int[16] { 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of1) { FloorY = new int[16] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }; }
+			if (SlopeType == CollisionTypes.LeftSlope1of1) { FloorY = new byte[16] { 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 }; }
+			if (SlopeType == CollisionTypes.RightSlope1of1) { FloorY = new byte[16] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }; }
 			// 2マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of2) { FloorY = new int[16] { 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8 }; }
-			if (SlopeType == CollisionTypes.LeftSlope2of2) { FloorY = new int[16] { 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of2) { FloorY = new int[16] { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; }
-			if (SlopeType == CollisionTypes.RightSlope2of2) { FloorY = new int[16] { 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15 }; }
+			if (SlopeType == CollisionTypes.LeftSlope1of2) { FloorY = new byte[16] { 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8 }; }
+			if (SlopeType == CollisionTypes.LeftSlope2of2) { FloorY = new byte[16] { 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0 }; }
+			if (SlopeType == CollisionTypes.RightSlope1of2) { FloorY = new byte[16] { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; }
+			if (SlopeType == CollisionTypes.RightSlope2of2) { FloorY = new byte[16] { 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15 }; }
 			// 3マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of3) { FloorY = new int[16] { 15, 15, 14, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10 }; }
-			if (SlopeType == CollisionTypes.LeftSlope2of3) { FloorY = new int[16] { 10, 10, 9, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 5, 5 }; }
-			if (SlopeType == CollisionTypes.LeftSlope3of3) { FloorY = new int[16] { 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of3) { FloorY = new int[16] { 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5 }; }
-			if (SlopeType == CollisionTypes.RightSlope2of3) { FloorY = new int[16] { 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10 }; }
-			if (SlopeType == CollisionTypes.RightSlope3of3) { FloorY = new int[16] { 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 15, 15 }; }
+			if (SlopeType == CollisionTypes.LeftSlope1of3) { FloorY = new byte[16] { 15, 15, 14, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10 }; }
+			if (SlopeType == CollisionTypes.LeftSlope2of3) { FloorY = new byte[16] { 10, 10, 9, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 5, 5 }; }
+			if (SlopeType == CollisionTypes.LeftSlope3of3) { FloorY = new byte[16] { 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0 }; }
+			if (SlopeType == CollisionTypes.RightSlope1of3) { FloorY = new byte[16] { 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5 }; }
+			if (SlopeType == CollisionTypes.RightSlope2of3) { FloorY = new byte[16] { 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10 }; }
+			if (SlopeType == CollisionTypes.RightSlope3of3) { FloorY = new byte[16] { 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 15, 15 }; }
 			// 4マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of4) { FloorY = new int[16] { 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 12, 12, 11 }; }
-			if (SlopeType == CollisionTypes.LeftSlope2of4) { FloorY = new int[16] { 11, 11, 11, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8 }; }
-			if (SlopeType == CollisionTypes.LeftSlope3of4) { FloorY = new int[16] { 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4 }; }
-			if (SlopeType == CollisionTypes.LeftSlope4of4) { FloorY = new int[16] { 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of4) { FloorY = new int[16] { 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4 }; }
-			if (SlopeType == CollisionTypes.RightSlope2of4) { FloorY = new int[16] { 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7 }; }
-			if (SlopeType == CollisionTypes.RightSlope3of4) { FloorY = new int[16] { 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11 }; }
-			if (SlopeType == CollisionTypes.RightSlope4of4) { FloorY = new int[16] { 11, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15 }; }
+			if (SlopeType == CollisionTypes.LeftSlope1of4) { FloorY = new byte[16] { 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 12, 12, 11 }; }
+			if (SlopeType == CollisionTypes.LeftSlope2of4) { FloorY = new byte[16] { 11, 11, 11, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8 }; }
+			if (SlopeType == CollisionTypes.LeftSlope3of4) { FloorY = new byte[16] { 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4 }; }
+			if (SlopeType == CollisionTypes.LeftSlope4of4) { FloorY = new byte[16] { 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0 }; }
+			if (SlopeType == CollisionTypes.RightSlope1of4) { FloorY = new byte[16] { 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4 }; }
+			if (SlopeType == CollisionTypes.RightSlope2of4) { FloorY = new byte[16] { 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7 }; }
+			if (SlopeType == CollisionTypes.RightSlope3of4) { FloorY = new byte[16] { 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11 }; }
+			if (SlopeType == CollisionTypes.RightSlope4of4) { FloorY = new byte[16] { 11, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15 }; }
 			if (PositionX >= 0 && PositionX < FloorY.Length)
 			{
 				Result = FloorY[PositionX];
