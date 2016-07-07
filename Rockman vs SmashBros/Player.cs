@@ -55,8 +55,8 @@ namespace Rockman_vs_SmashBros
 		{
 			IsAlive = true;
 			IsNoclip = false;
-			Position.X = 2 * Const.MapchipTileSize;
-			Position.Y = 10 * Const.MapchipTileSize;
+			Position.X = 17 * Const.MapchipTileSize;
+			Position.Y = 5 * Const.MapchipTileSize;
 			MoveDistance = Vector2.Zero;
 			OriginPosition.X = 16;
 			OriginPosition.Y = 30;
@@ -96,12 +96,23 @@ namespace Rockman_vs_SmashBros
 				Initialize();
 			}
 
-			// カメラの中央にリセット
-			if (Main.Controller.IsButtonPressed(Controller.Buttons.Start))
+			if (Global.Debug)
 			{
-				Position = Main.Camera.Position.ToVector2();
-				Position.X += Const.GameScreenWidth / 2;
-				Position.Y += Const.GameScreenHeight / 2;
+				// マウスクリックでリスポーン
+				MouseState MouseState = Mouse.GetState();
+				if (MouseState.LeftButton == ButtonState.Pressed)
+				{
+					Rectangle ScreenArea = new Rectangle(0, 0, Const.GameScreenWidth * Global.WindowScale, Const.GameScreenHeight * Global.WindowScale);
+					Point ClickPoint = new Point(MouseState.X, MouseState.Y);
+					if (ScreenArea.Contains(ClickPoint))
+					{
+						MoveDistance = Vector2.Zero;
+						IsInAir = true;
+						RidingEntity = null;
+						Vector2 NewPosition = new Vector2(Main.Camera.Position.X + MouseState.X / Global.WindowScale, Main.Camera.Position.Y + MouseState.Y / Global.WindowScale);
+						SetPosition(NewPosition);
+					}
+				}
 			}
 			#endregion
 

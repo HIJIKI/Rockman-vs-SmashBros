@@ -17,7 +17,7 @@ namespace Rockman_vs_SmashBros
 	{
 		#region メンバーの宣言
 		public static Texture2D Texture;                            // テクスチャ
-		public Point OriginPosition;                                // ワールド座標に対する相対的な描画座標
+		public Point OriginPosition;                                // 描画時に中心として扱うテクスチャ上の座標
 		private bool FaceToRight;                                   // 右を向いているかどうか
 		#endregion
 
@@ -39,7 +39,6 @@ namespace Rockman_vs_SmashBros
 		public override void Initialize()
 		{
 			IsAlive = true;
-			IsNoclip = false;
 			MoveDistance = Vector2.Zero;
 			OriginPosition.X = 15;
 			OriginPosition.Y = 28;

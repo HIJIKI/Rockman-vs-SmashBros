@@ -56,7 +56,7 @@ namespace Rockman_vs_SmashBros
 			// ここに初期化ロジックを追加
 			Player.Initialize();
 			Map.Initialize();
-			Map.InitForTest2();
+			Map.InitForTest();
 			Map.SpawnAllEntities();
 
 			// MonoGame コンポーネントを初期化
@@ -121,19 +121,25 @@ namespace Rockman_vs_SmashBros
 			// マップを更新
 			Map.Update(GameTime);
 
+			// Platform エンティティを更新
+			foreach(Entity Entity in Entities)
+			{
+				if (Entity.Type == Entity.Types.Platform)
+				{
+					Entity.Update(GameTime);
+				}
+			}
+
 			// プレイヤーを更新
 			Player.Update(GameTime);
 
-			// エンティティを追加(テスト)
-			if (Controller.IsButtonPressed(Controller.Buttons.B))
+			// Platform 以外のエンティティを更新
+			foreach (Entity Entity in Entities)
 			{
-				Entity.Create("Enemy1", new Point(128, 64));
-			}
-
-			// エンティティを更新
-			for (int i = 0; i < Entities.Count; i++)
-			{
-				Entities[i].Update(GameTime);
+				if (Entity.Type != Entity.Types.Platform)
+				{
+					Entity.Update(GameTime);
+				}
 			}
 
 			// 不要になったエンティティを削除
@@ -182,13 +188,14 @@ namespace Rockman_vs_SmashBros
 			if (Global.Debug)
 			{
 				SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 8*7), new Color(Color.Black, 0.5f), true);
+				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 8*8), new Color(Color.Black, 0.5f), true);
 				Vector2 Position = new Vector2(1, 1);
 				SpriteBatch.DrawString(Font, "GameTime: " + GameTime.TotalGameTime, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.WorldPosition: " + Player.Position, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.WorldPosition(Draw): " + Player.DrawPosition, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.ScreenPosition: " + (Player.Position - Camera.Position.ToVector2()), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.IsInAir: " + Player.IsInAir.ToString(), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
+				SpriteBatch.DrawString(Font, "Player.RidingEntity: " + Player.GetRidingEntityString(), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "CameraPosition: " + (Camera.Position), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "AllEntities: " + Entities.Count, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.End();

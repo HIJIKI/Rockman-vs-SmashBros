@@ -25,6 +25,14 @@ namespace Rockman_vs_SmashBros
 			{
 				Main.Entities.Add(new Enemy1(Position, IsFromMap, FromMapPosition));
 			}
+			if (EntityName == "Platform1")
+			{
+				Main.Entities.Add(new Platform1(Position, IsFromMap, FromMapPosition));
+			}
+			if (EntityName == "Platform2")
+			{
+				Main.Entities.Add(new Platform2(Position, IsFromMap, FromMapPosition));
+			}
 		}
 		public static void Create(string EntityName, Point Position)
 		{

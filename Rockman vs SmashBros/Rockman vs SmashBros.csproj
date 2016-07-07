@@ -44,6 +44,8 @@
     <Compile Include="EntityManager.cs" />
     <Compile Include="Entity\Enemy\Enemy1.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Entity\Gimmick\Platform2.cs" />
+    <Compile Include="Entity\Gimmick\Platform1.cs" />
     <Compile Include="Library\Primitives2DWrapper.cs" />
     <Compile Include="Library\Primitives2D.cs" />
     <Compile Include="Map.cs" />

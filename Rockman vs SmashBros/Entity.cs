@@ -19,7 +19,8 @@ namespace Rockman_vs_SmashBros
 		public enum Types                                           // エンティティの種類構造体
 		{
 			Player,
-			Enemy
+			Enemy,
+			Platform
 		}
 		public Types Type;                                          // エンティティの種類
 		public bool IsAlive;                                        // 生存フラグ
@@ -35,6 +36,7 @@ namespace Rockman_vs_SmashBros
 		public bool IsFromMap;                                      // マップにより作成されたかどうか
 		public Point FromMapPosition;                               // マップにより作成された場合に、その座標を保持
 		public bool IsIgnoreGravity;                                // このエンティティが重力を無視するかどうか
+		public Entity RidingEntity;                                 // このエンティティが乗っているエンティティ
 		#endregion
 
 		/// <summary>
@@ -54,10 +56,20 @@ namespace Rockman_vs_SmashBros
 		{
 			if (IsAlive && !IsStop)
 			{
+				// エンティティに乗っている場合は Y座標を合わせて Xの移動量を吸収
+				if (RidingEntity != null)
+				{
+					int FitY = RidingEntity.AbsoluteCollision.Top - 1;
+					int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+					SetPosY(NewPositionY);
+					MoveDistance.X += RidingEntity.MoveDistance.X;
+				}
+
 				MoveY(Main.Map);
 				MoveX(Main.Map);
 				if (IsInAir)
 				{
+					RidingEntity = null;
 					if (!IsIgnoreGravity)
 					{
 						MoveDistance.Y += Global.Gravity;
@@ -137,6 +149,19 @@ namespace Rockman_vs_SmashBros
 			// 描画座標、当たり判定を更新
 			UpdateDrawPosition();
 			UpdateAbsoluteCollision();
+		}
+
+		/// <summary>
+		/// 乗っているエンティティを文字列で取得
+		/// </summary>
+		public string GetRidingEntityString()
+		{
+			string Result = "null";
+			if (RidingEntity != null)
+			{
+				Result = RidingEntity.ToString();
+			}
+			return Result;
 		}
 
 		#region プライベート関数
@@ -345,6 +370,30 @@ namespace Rockman_vs_SmashBros
 							MoveDistance.Y = 0;
 							IsInAir = false;
 						}
+						// Platform エンティティとの当たり判定
+						else if (RidingEntity == null)
+						{
+							// Platform が Platform に乗ることはない
+							if (Type != Types.Platform)
+							{
+								foreach (Entity Entity in Main.Entities)
+								{
+									// エンティティの属性が Platform の場合
+									if (Entity.Type == Types.Platform && Entity.AbsoluteCollision.Contains(HitCheckPosition) && Entity != this &&
+										OldAbsoluteCollision.Bottom - 1 <= Entity.AbsoluteCollision.Top)
+									{
+										// 接触したエンティティにギリギリ接触しない位置に移動する
+										int FitY = Entity.AbsoluteCollision.Top - 1;
+										int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+										Position.Y = NewPositionY;
+										MoveDistance.Y = 0;
+										IsInAir = false;
+										RidingEntity = Entity;
+										break;
+									}
+								}
+							}
+						}
 					}
 				}
 				// 上側地形判定
@@ -441,6 +490,7 @@ namespace Rockman_vs_SmashBros
 		private void CheckInAir(Map Map)
 		{
 			IsInAir = true;
+			RidingEntity = null;
 			// 描画座標、当たり判定を更新
 			UpdateDrawPosition();
 			UpdateAbsoluteCollision();
@@ -485,6 +535,24 @@ namespace Rockman_vs_SmashBros
 							if (HitCheckPositionInTile.Y >= FloorY)
 							{
 								IsInAir = false;
+							}
+						}
+						// Platform エンティティとの当たり判定
+						else
+						{
+							// Platform が Platform に乗ることはない
+							if (Type != Types.Platform)
+							{
+								foreach (Entity Entity in Main.Entities)
+								{
+									// エンティティの属性が Platform の場合
+									if (Entity.Type == Types.Platform && Entity.AbsoluteCollision.Contains(HitCheckPosition) && Entity != this)
+									{
+										IsInAir = false;
+										RidingEntity = Entity;
+										break;
+									}
+								}
 							}
 						}
 					}
