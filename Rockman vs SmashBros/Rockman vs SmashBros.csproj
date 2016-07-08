@@ -42,6 +42,7 @@
     <Compile Include="Const.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="EntityManager.cs" />
+    <Compile Include="Entity\Enemy\HyruleSoldier.cs" />
     <Compile Include="Entity\Enemy\Enemy1.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Entity\Gimmick\Platform2.cs" />
@@ -71,13 +72,13 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
-    <Content Include="Content\Image\hairaru_hei.png">
+    <Content Include="Content\Image\CollisionTypes.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Image\HyruleSoldier.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Image\link_stage_mapchip.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\Image\map.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Image\Player.png">
@@ -95,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Font\" />
+    <Folder Include="Entity\Bullet\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

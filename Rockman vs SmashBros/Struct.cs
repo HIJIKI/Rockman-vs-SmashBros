@@ -23,4 +23,19 @@ namespace Rockman_vs_SmashBros
 			this.Height = Height;
 		}
 	}
+
+	/// <summary>
+	/// Sprite 構造体
+	/// </summary>
+	/// テクスチャの一部を切り抜いた範囲や描画の中心を管理する。
+	public struct Sprite
+	{
+		public Rectangle SourceRectangle;
+		public Vector2 Origin;
+		public Sprite(Rectangle SourceRectangle, Vector2 Origin)
+		{
+			this.SourceRectangle = SourceRectangle;
+			this.Origin = Origin;
+		}
+	}
 }

@@ -18,7 +18,7 @@ namespace Rockman_vs_SmashBros
 		#region メンバーの宣言
 		public static Texture2D Texture;                            // テクスチャ
 		public Point OriginPosition;                                // 描画時に中心として扱うテクスチャ上の座標
-		private bool FaceToRight;                                   // 右を向いているかどうか
+		private bool IsFaceToLeft;                                  // 左を向いているかどうか
 		#endregion
 
 		/// <summary>
@@ -50,7 +50,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void LoadContent(ContentManager Content)
 		{
-			Texture = Content.Load<Texture2D>("Image/hairaru_hei.png");
+			Texture = Content.Load<Texture2D>("Image/HyruleSoldier.png");
 		}
 
 		/// <summary>
@@ -75,12 +75,12 @@ namespace Rockman_vs_SmashBros
 				if (Main.Player.Position.X > Position.X)
 				{
 					MoveDistance.X += Speed;
-					FaceToRight = true;
+					IsFaceToLeft = true;
 				}
 				else
 				{
 					MoveDistance.X -= Speed;
-					FaceToRight = false;
+					IsFaceToLeft = false;
 				}
 			}
 
@@ -93,7 +93,7 @@ namespace Rockman_vs_SmashBros
 			// 落下時にデスポーン
 			if (Position.Y > Main.Map.Size.Height * Const.MapchipTileSize)
 			{
-				Destroy(this);
+				Destroy();
 			}
 
 			base.Update(GameTime);
@@ -105,10 +105,10 @@ namespace Rockman_vs_SmashBros
 		public override void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
 			// 描画
-			Vector2 position = DrawPosition.ToVector2();
+			Vector2 position = GetDrawPosition().ToVector2();
 			Rectangle sourceRectangle = new Rectangle(0, 0, 32, 32);
-			Vector2 origin = FaceToRight ? OriginPosition.ToVector2() : new Vector2(32 - OriginPosition.X, OriginPosition.Y);
-			SpriteEffects SpriteEffect = FaceToRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+			Vector2 origin = IsFaceToLeft ? OriginPosition.ToVector2() : new Vector2(32 - OriginPosition.X, OriginPosition.Y);
+			SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 			float layerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
 
 			SpriteBatch.Draw(Texture, position, sourceRectangle, Color.White, 0.0f, origin, 1.0f, SpriteEffect, layerDepth);

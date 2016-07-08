@@ -18,6 +18,7 @@ namespace Rockman_vs_SmashBros
 		#region メンバーの宣言 
 
 		public static Texture2D Texture;                            // マップチップ画像
+		public static Texture2D CollisionTexture;					// マップの当たり判定チップ画像
 		public Size Size;                                           // マップの縦横マス数
 		public AnimationTile[] AnimationTiles;                      // アニメーションタイルのデータ
 		public List<Section> Sections = new List<Section>();        // マップ内セクションのデータ
@@ -326,22 +327,22 @@ namespace Rockman_vs_SmashBros
 			};
 			#endregion
 
-			EntityLayer[9, 3] = "Enemy1";
+			EntityLayer[9, 3] = "HyruleSoldier";
 			//EntityLayer[20, 11] = "Enemy1";
 			//EntityLayer[25, 11] = "Enemy1";
-			EntityLayer[21, 24] = "Enemy1";
-			EntityLayer[26, 33] = "Enemy1";
-			EntityLayer[21, 41] = "Enemy1";
+			EntityLayer[21, 24] = "HyruleSoldier";
+			EntityLayer[26, 33] = "HyruleSoldier";
+			EntityLayer[21, 41] = "HyruleSoldier";
 			//EntityLayer[7, 41] = "Enemy1";
 
-			EntityLayer[19, 7] = "Platform1";
-			EntityLayer[24, 10] = "Platform2";
+			EntityLayer[19, 8] = "Platform1";
+			EntityLayer[25, 10] = "Platform2";
 
 			Sections.Add(new Section(new Rectangle(0, 0, 16, 15), false, true, true, false));
 			Sections.Add(new Section(new Rectangle(16, 0, 16, 15), false, false, false, true));
 			Sections.Add(new Section(new Rectangle(16, 15, 16, 30), false, true, false, true));
 			Sections.Add(new Section(new Rectangle(0, 30, 16, 15), false, true, true, false));
-			CurrentlySectionID = 1;
+			CurrentlySectionID = 0;
 			//*/
 
 			for (int x = 0; x < Size.Width; x++)
@@ -506,6 +507,7 @@ namespace Rockman_vs_SmashBros
 		public static void LoadContent(ContentManager Content)
 		{
 			Texture = Content.Load<Texture2D>("Image/link_stage_mapchip.png");
+			CollisionTexture = Content.Load<Texture2D>("Image/CollisionTypes.png");
 		}
 
 		/// <summary>
@@ -514,6 +516,7 @@ namespace Rockman_vs_SmashBros
 		public static void UnloadContent()
 		{
 			Texture.Dispose();
+			CollisionTexture.Dispose();
 		}
 
 		/// <summary>
@@ -598,15 +601,10 @@ namespace Rockman_vs_SmashBros
 						// デバッグ描画 (地形判定)
 						if (Global.Debug)
 						{
-							if (CollisionLayer[x, y] == (int)CollisionTypes.Wall)
+							if (CollisionLayer[x, y] != (int)CollisionTypes.Air)
 							{
-								SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Green);
-								SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Lime * 0.2f, true);
-							}
-							if (CollisionLayer[x, y] == (int)CollisionTypes.Ladder)
-							{
-								SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Orange);
-								SpriteBatch.DrawRectangle(new Rectangle(Const.MapchipTileSize * x, Const.MapchipTileSize * y, Const.MapchipTileSize, Const.MapchipTileSize), Color.Yellow * 0.2f, true);
+								int Index = (int)CollisionLayer[x, y];
+								DrawCollision(SpriteBatch, Index, Position);
 							}
 						}
 					}
@@ -797,6 +795,24 @@ namespace Rockman_vs_SmashBros
 
 			// マップチップを描画
 			SpriteBatch.Draw(Texture, new Vector2(Position.X, Position.Y), SourceRect, Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, DrawOrder);
+		}
+
+		/// <summary>
+		/// 当たり判定チップを描画
+		/// </summary>
+		/// <param name="SpriteBatch">描画に使用する SpriteBatch</param>
+		/// <param name="Index">描画対象の当たり判定ID</param>
+		/// <param name="Position">描画する座標</param>
+		/// <param name="DrawOrder">描画震度</param>
+		private void DrawCollision(SpriteBatch SpriteBatch, int Index, Point Position)
+		{
+			// マップチップのIndexをRectangleに変換
+			Size MapchipSize = new Size(CollisionTexture.Width / Const.MapchipTileSize, Texture.Height / Const.MapchipTileSize);             //マップチップの縦横枚数
+			Rectangle SourceRect = new Rectangle((Index % MapchipSize.Width) * Const.MapchipTileSize, (Index / MapchipSize.Width) * Const.MapchipTileSize, Const.MapchipTileSize, Const.MapchipTileSize);
+
+			// マップチップを描画
+			float Alpha = 1f;
+			SpriteBatch.Draw(CollisionTexture, new Vector2(Position.X, Position.Y), SourceRect, Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.CollisionLayer / (float)Const.DrawOrder.MAX);
 		}
 
 		#endregion

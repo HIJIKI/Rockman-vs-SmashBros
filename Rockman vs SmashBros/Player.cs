@@ -18,20 +18,21 @@ namespace Rockman_vs_SmashBros
 	{
 		#region メンバーの宣言
 		public static Texture2D Texture;                            // テクスチャ
-		public Point OriginPosition;                                // 描画時に中心として扱うテクスチャ上の座標
+		public Point OriginPosition;                                // 右向き時の描画で中心として扱うテクスチャ上の座標
 		public bool InChangeSection;                                // 別のセクションに移動中かどうか
 		public Vector2 ChangeSectionSourcePosition;                 // セクションの移動中の元の座標
 		public Vector2 ChangeSectionDestinationPosition;            // セクションの移動中の先の座標
 		public int ChangeSectionFrame;                              // セクションの移動中のフレームカウンター
-		private bool FaceToRight;                                   // 右を向いているかどうか
+		private bool IsFaceToLeft;                                  // 左を向いているかどうか
 		private bool IsLadderBend;                                  // はしご掴み中に登りかけかどうか
-		private Statuses Status;                                    // プレイヤーの状態
 		private float WalkSpeed;                                    // プレイヤーの歩行速度
 		private float JumpSpeed;                                    // プレイヤーのジャンプの初速
 		private float LadderSpeed;                                  // プレイヤーのはしご昇降速度
 		private float SlidingSpeed;                                 // プレイヤーのスライディング速度
+		private Rectangle Collision;                                // 右向き時の相対当たり判定
 
-		public enum Statuses                                        // 各プレイヤーの状態
+		private Statuses Status;                                    // プレイヤーの状態
+		private enum Statuses                                       // 各プレイヤーの状態
 		{
 			Neutral,
 			Jump,
@@ -46,6 +47,7 @@ namespace Rockman_vs_SmashBros
 		public Player()
 		{
 			Type = Types.Player;
+			Health = 28;
 		}
 
 		/// <summary>
@@ -55,17 +57,16 @@ namespace Rockman_vs_SmashBros
 		{
 			IsAlive = true;
 			IsNoclip = false;
-			Position.X = 17 * Const.MapchipTileSize;
-			Position.Y = 5 * Const.MapchipTileSize;
+			Position.X = 3 * Const.MapchipTileSize;
+			Position.Y = 4 * Const.MapchipTileSize;
 			MoveDistance = Vector2.Zero;
-			OriginPosition.X = 16;
+			OriginPosition.X = 15;
 			OriginPosition.Y = 30;
-			RelativeCollision = new Rectangle(-7, -23, 15, 24);
+			Collision = new Rectangle(-7, -23, 15, 24);
 			WalkSpeed = 1.35f;
 			JumpSpeed = -4.8f;
 			LadderSpeed = 1.3f;
 			SlidingSpeed = 2.5f;
-			FaceToRight = true;
 		}
 
 		/// <summary>
@@ -109,7 +110,7 @@ namespace Rockman_vs_SmashBros
 						MoveDistance = Vector2.Zero;
 						IsInAir = true;
 						RidingEntity = null;
-						Vector2 NewPosition = new Vector2(Main.Camera.Position.X + MouseState.X / Global.WindowScale, Main.Camera.Position.Y + MouseState.Y / Global.WindowScale);
+						Vector2 NewPosition = new Vector2(Main.Camera.Position.X + MouseState.X / Global.WindowScale, Main.Camera.Position.Y + MouseState.Y / Global.WindowScale + RelativeCollision.Height / 2);
 						SetPosition(NewPosition);
 					}
 				}
@@ -139,6 +140,8 @@ namespace Rockman_vs_SmashBros
 			// ベースを更新
 			base.Update(GameTime);
 
+			CollisionManager();
+
 			// セクション移動管理
 			if (!InChangeSection)
 			{
@@ -157,32 +160,52 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public override void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
-			// 描画
-			Vector2 position = DrawPosition.ToVector2();
-			Rectangle sourceRectangle = new Rectangle(32, 32, 32, 32);
-			Vector2 origin = FaceToRight ? OriginPosition.ToVector2() : new Vector2(32 - OriginPosition.X, OriginPosition.Y);
-			SpriteEffects SpriteEffect = FaceToRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-			float layerDepth = (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX;
-
-			if (Status == Statuses.Ladder)
+			if (IsAlive)
 			{
-				sourceRectangle = new Rectangle(9 * 32, 32, 32, 32);
-				if (IsLadderBend)
+				// 描画
+				Vector2 position = GetDrawPosition().ToVector2();
+				Rectangle sourceRectangle = new Rectangle(32, 32, 32, 32);
+				Vector2 origin = IsFaceToLeft ? new Vector2(31 - OriginPosition.X, OriginPosition.Y) : OriginPosition.ToVector2();
+				SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+				float layerDepth = (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX;
+
+				if (Status == Statuses.Ladder)
 				{
-					sourceRectangle = new Rectangle(11 * 32, 32, 32, 32);
+					sourceRectangle = new Rectangle(9 * 32, 32, 32, 32);
+					if (IsLadderBend)
+					{
+						sourceRectangle = new Rectangle(11 * 32, 32, 32, 32);
+					}
 				}
-			}
-			else if (Status == Statuses.Jump)
-			{
-				sourceRectangle = new Rectangle(7 * 32, 32, 32, 32);
-			}
+				else if (Status == Statuses.Jump)
+				{
+					sourceRectangle = new Rectangle(7 * 32, 32, 32, 32);
+				}
 
-			SpriteBatch.Draw(Texture, position, sourceRectangle, Color.White, 0.0f, origin, 1.0f, SpriteEffect, layerDepth);
+				SpriteBatch.Draw(Texture, position, sourceRectangle, Color.White, 0.0f, origin, 1.0f, SpriteEffect, layerDepth);
+			}
 
 			base.Draw(GameTime, SpriteBatch);
 		}
 
 		#region プライベート関数
+
+		/// <summary>
+		/// 当たり判定の管理
+		/// </summary>
+		private void CollisionManager()
+		{
+			Rectangle NewCollision;
+			if (IsFaceToLeft)
+			{
+				NewCollision = new Rectangle(1 - (Collision.X + Collision.Width), Collision.Y, Collision.Width, Collision.Height);
+			}
+			else
+			{
+				NewCollision = Collision;
+			}
+			RelativeCollision = NewCollision;
+		}
 
 		/// <summary>
 		/// 通常の処理
@@ -209,6 +232,7 @@ namespace Rockman_vs_SmashBros
 				// ハシゴに捕まる
 				else if (Main.Controller.IsButtonDown(Controller.Buttons.Up) && CheckGrabLadder(Map))
 				{
+					Point DrawPosition = GetDrawPosition();
 					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y);
 					GrabLadder(NewPosition);
 					return;
@@ -216,6 +240,7 @@ namespace Rockman_vs_SmashBros
 				// 足元のハシゴに捕まる
 				else if (Main.Controller.IsButtonDown(Controller.Buttons.Down) && CheckBottomLadder(Map))
 				{
+					Point DrawPosition = GetDrawPosition();
 					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y + 9);
 					GrabLadder(NewPosition);
 					return;
@@ -233,6 +258,7 @@ namespace Rockman_vs_SmashBros
 				// はしごに捕まる
 				if ((Main.Controller.IsButtonDown(Controller.Buttons.Up) || Main.Controller.IsButtonDown(Controller.Buttons.Down)) && CheckGrabLadder(Map))
 				{
+					Point DrawPosition = GetDrawPosition();
 					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y);
 					GrabLadder(NewPosition);
 					return;
@@ -244,12 +270,12 @@ namespace Rockman_vs_SmashBros
 			if (Keyboard.GetState().IsKeyDown(Keys.A))
 			{
 				MoveDistance.X -= WalkSpeed;
-				FaceToRight = false;
+				IsFaceToLeft = true;
 			}
 			if (Keyboard.GetState().IsKeyDown(Keys.D))
 			{
 				MoveDistance.X += WalkSpeed;
-				FaceToRight = true;
+				IsFaceToLeft = false;
 			}
 		}
 
@@ -286,6 +312,7 @@ namespace Rockman_vs_SmashBros
 				Status = Statuses.Neutral;
 			}
 			// 登りかけかどうかを調べる
+			Point DrawPosition = GetDrawPosition();
 			Point LadderBendCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 16);
 			Point LadderBendCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
 			if (Map.PointToCollisionIndex(LadderBendCheckPoint) != Map.CollisionTypes.Ladder &&
@@ -294,6 +321,7 @@ namespace Rockman_vs_SmashBros
 				IsLadderBend = true;
 			}
 			// はしごを登り切る
+			DrawPosition = GetDrawPosition();
 			Point LadderFinishCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 9);
 			Point LadderFinishCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
 			if (MoveDistance.Y < 0 &&
@@ -322,6 +350,7 @@ namespace Rockman_vs_SmashBros
 			{
 				if (i != CurrentlySectionID)
 				{
+					Rectangle AbsoluteCollision = GetAbsoluteCollision();
 					Rectangle AreaRect = new Rectangle(Sections[i].Area.X * Const.MapchipTileSize, Sections[i].Area.Y * Const.MapchipTileSize, Sections[i].Area.Width * Const.MapchipTileSize, Sections[i].Area.Height * Const.MapchipTileSize);
 					if (AbsoluteCollision.Intersects(AreaRect))
 					{
@@ -374,6 +403,7 @@ namespace Rockman_vs_SmashBros
 						Entity.DestroyAll();
 
 						// カメラの移動を開始
+						Point DrawPosition = GetDrawPosition();
 						Main.Camera.StartChangeSection(DrawPosition);
 					}
 				}
@@ -387,6 +417,7 @@ namespace Rockman_vs_SmashBros
 		/// <returns></returns>
 		private bool CheckBottomLadder(Map Map)
 		{
+			Point DrawPosition = GetDrawPosition();
 			Point CheckPoint = DrawPosition; CheckPoint.Y += 1;   // プレイヤーの足元の1ドット下
 			if (Map.PointToCollisionIndex(CheckPoint) == Map.CollisionTypes.Ladder)
 			{
@@ -400,6 +431,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		private bool CheckGrabLadder(Map Map)
 		{
+			Point DrawPosition = GetDrawPosition();
 			Point Top = DrawPosition; Top.Y += RelativeCollision.Y;                 // 上辺
 			Point Middle = DrawPosition; Middle.Y -= RelativeCollision.Height / 2;  // 中心
 			Point Bottom = DrawPosition;                                            // 下辺

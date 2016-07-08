@@ -30,6 +30,7 @@ namespace Rockman_vs_SmashBros
 			Enemy,                                                      // エネミー
 			Player,                                                     // プレイヤー
 			UpperLayer,                                                 // 上層レイヤー
+			CollisionLayer,                                             // 当たり判定レイヤー
 			MAX                                                         // レイヤーの最大数
 		}
 

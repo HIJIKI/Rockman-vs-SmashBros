@@ -28,15 +28,15 @@ namespace Rockman_vs_SmashBros
 		public bool IsInAir;                                        // 空中にいるかどうか
 		public bool IsStop;                                         // 更新停止フラグ
 		public Vector2 Position;                                    // 内部座標
-		public Point DrawPosition;                                  // 描画座標
+		public Vector2 OldPosition;                                 // 1フレーム前の内部座標
 		public Vector2 MoveDistance;                                // 現在のフレームで移動する量
 		public Rectangle RelativeCollision;                         // 当たり判定 (相対)
-		public Rectangle AbsoluteCollision;                         // 当たり判定 (絶対)
-		public Rectangle OldAbsoluteCollision;                      // 1フレーム前の当たり判定 (絶対)
 		public bool IsFromMap;                                      // マップにより作成されたかどうか
 		public Point FromMapPosition;                               // マップにより作成された場合に、その座標を保持
 		public bool IsIgnoreGravity;                                // このエンティティが重力を無視するかどうか
 		public Entity RidingEntity;                                 // このエンティティが乗っているエンティティ
+		public int Health;                                          // このエンティティの体力
+		public int HitDamage;										// 接触時に相手に与えるダメージ
 		#endregion
 
 		/// <summary>
@@ -59,7 +59,7 @@ namespace Rockman_vs_SmashBros
 				// エンティティに乗っている場合は Y座標を合わせて Xの移動量を吸収
 				if (RidingEntity != null)
 				{
-					int FitY = RidingEntity.AbsoluteCollision.Top - 1;
+					int FitY = RidingEntity.GetAbsoluteCollision().Top - 1;
 					int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
 					SetPosY(NewPositionY);
 					MoveDistance.X += RidingEntity.MoveDistance.X;
@@ -67,7 +67,7 @@ namespace Rockman_vs_SmashBros
 
 				MoveY(Main.Map);
 				MoveX(Main.Map);
-				if (IsInAir)
+				if (IsInAir && !IsNoclip)
 				{
 					RidingEntity = null;
 					if (!IsIgnoreGravity)
@@ -81,10 +81,8 @@ namespace Rockman_vs_SmashBros
 				}
 			}
 
-			// 描画座標、当たり判定を更新
-			OldAbsoluteCollision = AbsoluteCollision;
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
+			// OldPosition を更新
+			OldPosition = Position;
 		}
 
 		/// <summary>
@@ -97,6 +95,8 @@ namespace Rockman_vs_SmashBros
 				// デバッグ描画
 				if (Global.Debug)
 				{
+					Point DrawPosition = GetDrawPosition();
+					Rectangle AbsoluteCollision = GetAbsoluteCollision();
 					SpriteBatch.DrawRectangle(new Rectangle(AbsoluteCollision.X, AbsoluteCollision.Y, AbsoluteCollision.Width, AbsoluteCollision.Height), Color.Blue * 0.2f, true);
 					SpriteBatch.DrawRectangle(new Rectangle(AbsoluteCollision.X, AbsoluteCollision.Y, AbsoluteCollision.Width, AbsoluteCollision.Height), Color.Blue);
 					SpriteBatch.DrawPixel(DrawPosition.ToVector2(), Color.Red);
@@ -108,9 +108,18 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// エンティティを削除
 		/// </summary>
-		public virtual void Destroy(Entity Entity)
+		public virtual void Destroy()
 		{
 			IsAlive = false;
+		}
+
+		/// <summary>
+		/// エンティティにダメージを与える
+		/// </summary>
+		/// <param name="Damage">与えるダメージ</param>
+		public virtual void GiveDamage(int Damage)
+		{
+			Health -= Damage;
 		}
 
 		/// <summary>
@@ -120,10 +129,6 @@ namespace Rockman_vs_SmashBros
 		public void SetPosition(Vector2 Position)
 		{
 			this.Position = Position;
-
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -133,10 +138,6 @@ namespace Rockman_vs_SmashBros
 		public void SetPosX(float PosX)
 		{
 			Position.X = PosX;
-
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -145,10 +146,6 @@ namespace Rockman_vs_SmashBros
 		public void SetPosY(float PosY)
 		{
 			Position.Y = PosY;
-
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -164,6 +161,43 @@ namespace Rockman_vs_SmashBros
 			return Result;
 		}
 
+		/// <summary>
+		/// AbsoluteCollision (ワールドに対する絶対座標での当たり判定) を取得
+		/// </summary>
+		public Rectangle GetAbsoluteCollision()
+		{
+			Point DrawPosition = GetDrawPosition();
+			Rectangle AbsoluteCollision = new Rectangle(DrawPosition.X + RelativeCollision.X, DrawPosition.Y + RelativeCollision.Y, RelativeCollision.Width, RelativeCollision.Height);
+			return AbsoluteCollision;
+		}
+
+		/// <summary>
+		/// 1フレーム前の AbsoluteCollision (ワールドに対する絶対座標での当たり判定) を取得
+		/// </summary>
+		public Rectangle GetOldAbsoluteCollision()
+		{
+			Point OldDrawPosition = GetOldDrawPosition();
+			Rectangle OldAbsoluteCollision = new Rectangle(OldDrawPosition.X + RelativeCollision.X, OldDrawPosition.Y + RelativeCollision.Y, RelativeCollision.Width, RelativeCollision.Height);
+			return OldAbsoluteCollision;
+		}
+
+		/// <summary>
+		/// DrawPosition を取得
+		/// </summary>
+		public Point GetDrawPosition()
+		{
+			return Position.ToPoint();
+		}
+
+		/// <summary>
+		/// 1フレーム前の DrawPosition を取得
+		/// </summary>
+		/// <returns></returns>
+		public Point GetOldDrawPosition()
+		{
+			return OldPosition.ToPoint();
+		}
+
 		#region プライベート関数
 
 		/// <summary>
@@ -174,11 +208,10 @@ namespace Rockman_vs_SmashBros
 		{
 			// 移動量を反映
 			Position.X += MoveDistance.X;
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 			// 現在のセクション
 			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+			// ワールドに対する絶対座標での当たり判定
+			Rectangle AbsoluteCollision;
 
 			// 地形判定を行う場合
 			if (!IsNoclip)
@@ -187,6 +220,7 @@ namespace Rockman_vs_SmashBros
 				if (MoveDistance.X > 0)
 				{
 					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					AbsoluteCollision = GetAbsoluteCollision();
 					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Height / Const.MapchipTileSize) + 1;
 					for (int i = 0; i < SplitNumber; i++)
 					{
@@ -212,9 +246,9 @@ namespace Rockman_vs_SmashBros
 					// 重力に従うエンティティが接地中に移動した場合、足元のスロープに移動後の高さを合わせる
 					if (!IsInAir && !IsIgnoreGravity)
 					{
-						// 描画座標、当たり判定を更新
-						UpdateDrawPosition();
-						UpdateAbsoluteCollision();
+						// 当たり判定を更新
+						AbsoluteCollision = GetAbsoluteCollision();
+
 						Point HitCheckPosition = new Point(AbsoluteCollision.Left, AbsoluteCollision.Bottom + 2);
 						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
 						if (Map.IsSlope(Index, "right"))
@@ -245,6 +279,7 @@ namespace Rockman_vs_SmashBros
 				else if (MoveDistance.X < 0)
 				{
 					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					AbsoluteCollision = GetAbsoluteCollision();
 					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Height / Const.MapchipTileSize) + 1;
 					for (int i = 0; i < SplitNumber; i++)
 					{
@@ -270,9 +305,9 @@ namespace Rockman_vs_SmashBros
 					// 重力に従うエンティティが接地中に移動した場合、足元のスロープに移動後の高さを合わせる
 					if (!IsInAir && !IsIgnoreGravity)
 					{
-						// 描画座標、当たり判定を更新
-						UpdateDrawPosition();
-						UpdateAbsoluteCollision();
+						// 当たり判定を更新
+						AbsoluteCollision = GetAbsoluteCollision();
+
 						Point HitCheckPosition = new Point(AbsoluteCollision.Right - 1, AbsoluteCollision.Bottom + 2);
 						Map.CollisionTypes Index = Map.PointToCollisionIndex(HitCheckPosition);
 						if (Map.IsSlope(Index, "left"))
@@ -300,10 +335,8 @@ namespace Rockman_vs_SmashBros
 					}
 
 				}
-				// 描画座標、当たり判定を更新
-				UpdateDrawPosition();
-				UpdateAbsoluteCollision();
 				// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+				AbsoluteCollision = GetAbsoluteCollision();
 				if (CurrentlySection.RightIsWall && AbsoluteCollision.Right > Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width)
 				{
 					int FitX = Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width - 1;
@@ -319,9 +352,6 @@ namespace Rockman_vs_SmashBros
 					MoveDistance.X = 0;
 				}
 			}
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -332,11 +362,12 @@ namespace Rockman_vs_SmashBros
 		{
 			// 移動量を反映
 			Position.Y += MoveDistance.Y;
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 			// 現在のセクション
 			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+			// ワールドに対する絶対座標での当たり判定
+			Rectangle AbsoluteCollision;
+			// 1フレーム前の AbsoluteCollision
+			Rectangle OldAbsoluteCollision;
 
 			// 地形判定を行う場合
 			if (!IsNoclip)
@@ -345,6 +376,8 @@ namespace Rockman_vs_SmashBros
 				if (MoveDistance.Y > 0)
 				{
 					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					AbsoluteCollision = GetAbsoluteCollision();
+					OldAbsoluteCollision = GetOldAbsoluteCollision();
 					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
 					for (int i = 0; i < SplitNumber; i++)
 					{
@@ -379,11 +412,11 @@ namespace Rockman_vs_SmashBros
 								foreach (Entity Entity in Main.Entities)
 								{
 									// エンティティの属性が Platform の場合
-									if (Entity.Type == Types.Platform && Entity.AbsoluteCollision.Contains(HitCheckPosition) && Entity != this &&
-										OldAbsoluteCollision.Bottom - 1 <= Entity.AbsoluteCollision.Top)
+									if (Entity.Type == Types.Platform && Entity.GetAbsoluteCollision().Contains(HitCheckPosition) && Entity != this &&
+										OldAbsoluteCollision.Bottom - 1 <= Entity.GetAbsoluteCollision().Top)
 									{
 										// 接触したエンティティにギリギリ接触しない位置に移動する
-										int FitY = Entity.AbsoluteCollision.Top - 1;
+										int FitY = Entity.GetAbsoluteCollision().Top - 1;
 										int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
 										Position.Y = NewPositionY;
 										MoveDistance.Y = 0;
@@ -400,6 +433,7 @@ namespace Rockman_vs_SmashBros
 				else if (MoveDistance.Y < 0)
 				{
 					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					AbsoluteCollision = GetAbsoluteCollision();
 					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
 					for (int i = 0; i < SplitNumber; i++)
 					{
@@ -425,10 +459,8 @@ namespace Rockman_vs_SmashBros
 						}
 					}
 				}
-				// 描画座標、当たり判定を更新
-				UpdateDrawPosition();
-				UpdateAbsoluteCollision();
 				// 現在のセクションからはみ出た場合にその方向が壁属性であれば押し戻す
+				AbsoluteCollision = GetAbsoluteCollision();
 				if (CurrentlySection.BottomIsWall && AbsoluteCollision.Bottom > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
 				{
 					int FitY = Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height - 1;
@@ -446,9 +478,7 @@ namespace Rockman_vs_SmashBros
 				}
 				// スロープにめり込んでいた場合押し出す
 				{
-					// 描画座標、当たり判定を更新
-					UpdateDrawPosition();
-					UpdateAbsoluteCollision();
+					AbsoluteCollision = GetAbsoluteCollision();
 					int SplitNumber = (int)Math.Ceiling((float)AbsoluteCollision.Width / Const.MapchipTileSize) + 1;
 					for (int i = 0; i < SplitNumber; i++)
 					{
@@ -478,9 +508,6 @@ namespace Rockman_vs_SmashBros
 					}
 				}
 			}
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 		}
 
 		/// <summary>
@@ -491,15 +518,15 @@ namespace Rockman_vs_SmashBros
 		{
 			IsInAir = true;
 			RidingEntity = null;
-			// 描画座標、当たり判定を更新
-			UpdateDrawPosition();
-			UpdateAbsoluteCollision();
 			// 現在のセクション
 			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+			// ワールドに対する絶対座標での当たり判定
+			Rectangle AbsoluteCollision;
 
 			if (!IsNoclip)
 			{
 				// セクションの端が壁属性であれば着地していることにする
+				AbsoluteCollision = GetAbsoluteCollision();
 				if (CurrentlySection.BottomIsWall && AbsoluteCollision.Bottom >= Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
 				{
 					IsInAir = false;
@@ -546,7 +573,7 @@ namespace Rockman_vs_SmashBros
 								foreach (Entity Entity in Main.Entities)
 								{
 									// エンティティの属性が Platform の場合
-									if (Entity.Type == Types.Platform && Entity.AbsoluteCollision.Contains(HitCheckPosition) && Entity != this)
+									if (Entity.Type == Types.Platform && Entity.GetAbsoluteCollision().Contains(HitCheckPosition) && Entity != this)
 									{
 										IsInAir = false;
 										RidingEntity = Entity;
@@ -558,22 +585,6 @@ namespace Rockman_vs_SmashBros
 					}
 				}
 			}
-		}
-
-		/// <summary>
-		/// AbsoluteCollision を更新
-		/// </summary>
-		private void UpdateAbsoluteCollision()
-		{
-			AbsoluteCollision = new Rectangle(DrawPosition.X + RelativeCollision.X, DrawPosition.Y + RelativeCollision.Y, RelativeCollision.Width, RelativeCollision.Height);
-		}
-
-		/// <summary>
-		/// DrawPosition を更新
-		/// </summary>
-		private void UpdateDrawPosition()
-		{
-			DrawPosition = Position.ToPoint();
 		}
 
 		#endregion
