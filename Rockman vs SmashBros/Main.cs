@@ -187,25 +187,29 @@ namespace Rockman_vs_SmashBros
 
 			SpriteBatch.Draw(WorldBuffer, Vector2.Zero, new Rectangle(Camera.Position.X, Camera.Position.Y, Const.GameScreenWidth, Const.GameScreenHeight), Color.White);
 
-			Controller.Draw(GameTime, SpriteBatch);
-
 			SpriteBatch.End();
 
 			// デバッグ描画
 			if (Global.Debug)
 			{
 				SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 8*9), new Color(Color.Black, 0.5f), true);
+
+				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 8*10), new Color(Color.Black, 0.5f), true);
+
 				Vector2 Position = new Vector2(1, 1);
 				SpriteBatch.DrawString(Font, "GameTime: " + GameTime.TotalGameTime, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.WorldPosition: " + Player.Position, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.WorldPosition(Draw): " + Player.GetDrawPosition(), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.Health: " + Player.Health, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
+				SpriteBatch.DrawString(Font, "Player.IsInvincible: " + Player.IsInvincible, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.ScreenPosition: " + (Player.Position - Camera.Position.ToVector2()), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.IsInAir: " + Player.IsInAir.ToString(), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "Player.RidingEntity: " + Player.GetRidingEntityString(), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "CameraPosition: " + (Camera.Position), Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
 				SpriteBatch.DrawString(Font, "AllEntities: " + Entities.Count, Position, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1); Position.Y += 8;
+
+				Controller.Draw(GameTime, SpriteBatch);
+
 				SpriteBatch.End();
 			}
 

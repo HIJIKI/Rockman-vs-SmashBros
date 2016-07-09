@@ -45,6 +45,7 @@ namespace Rockman_vs_SmashBros
 			this.IsFromMap = IsFromMap;
 			this.FromMapPosition = FromMapPosition;
 			Type = Types.Enemy;
+			HitDamage = 4;
 			Initialize();
 		}
 
@@ -108,7 +109,7 @@ namespace Rockman_vs_SmashBros
 			// 突撃
 			else if (Status == Statuses.Attack)
 			{
-				float Speed = 1;
+				float Speed = 0.8f;
 				// 左右移動
 				if (Math.Abs(Player.Position.X - Position.X) > 8)
 				{
@@ -135,7 +136,7 @@ namespace Rockman_vs_SmashBros
 			Rectangle AbsoluteCollision = GetAbsoluteCollision();
 			if (AbsoluteCollision.Intersects(Player.GetAbsoluteCollision()))
 			{
-				Player.GiveDamage(1);
+				Player.GiveDamage(HitDamage);
 			}
 
 			// 落下時にデスポーン
@@ -166,19 +167,26 @@ namespace Rockman_vs_SmashBros
 				CurrentlySprite = AttackSprites[AttackAnimationTable[AnimationPattern]];
 			}
 
+			// 描画
 			Vector2 Position = GetDrawPosition().ToVector2();
 			Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
 			Vector2 Origin = CurrentlySprite.Origin;
 			SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 			float layerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
-
 			// 左を向いている場合は中心座標を反転
 			if (IsFaceToLeft)
 			{
 				Origin = new Vector2((CurrentlySprite.SourceRectangle.Width) - Origin.X, Origin.Y);
 			}
-
 			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
+
+			// デバッグ描画
+			if (Global.Debug && Status == Statuses.Searching)
+			{
+				Point DrawPosition = GetDrawPosition();
+				Rectangle AbsoluteSearchRange = new Rectangle(DrawPosition.X + SearchRange.X, DrawPosition.Y + SearchRange.Y, SearchRange.Width, SearchRange.Height);
+				SpriteBatch.DrawRectangle(AbsoluteSearchRange, Color.Red * 0.2f, true);
+			}
 
 			base.Draw(GameTime, SpriteBatch);
 		}

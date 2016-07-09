@@ -95,7 +95,6 @@ namespace Rockman_vs_SmashBros
 			Vector2 Position = GetDrawPosition().ToVector2();
 			Rectangle SourceRectangle = Sprite.SourceRectangle;
 			Vector2 Origin = Sprite.Origin;
-			SpriteEffects SpriteEffect = SpriteEffects.None;
 			float LayerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
 
 			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Sprite.Origin, 1.0f, SpriteEffects.None, LayerDepth);

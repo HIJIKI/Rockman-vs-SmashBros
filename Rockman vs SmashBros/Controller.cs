@@ -111,53 +111,50 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
-			if (Global.Debug)
-			{
-				int BaseX = 8, BaseY = 216;
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX, BaseY, 32, 16), Color.Black, true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 1, BaseY + 1, 30, 14), new Color(160, 0, 0), true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 2, BaseY + 2, 13, 12), new Color(239, 175, 111), true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 15, BaseY + 5, 15, 9), new Color(239, 175, 111), true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 12, BaseY + 10, 9, 3), new Color(160, 0, 0), true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 6, BaseY + 3, 3, 9), Color.Black, true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 3, BaseY + 6, 9, 3), Color.Black, true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 13, BaseY + 11, 3, 1), Color.Black, true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 17, BaseY + 11, 3, 1), Color.Black, true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 22, BaseY + 9, 3, 3), Color.Black, true);
-				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 26, BaseY + 9, 3, 3), Color.Black, true);
+			int BaseX = 8, BaseY = 216;
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX, BaseY, 32, 16), Color.Black, true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 1, BaseY + 1, 30, 14), new Color(160, 0, 0), true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 2, BaseY + 2, 13, 12), new Color(239, 175, 111), true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 15, BaseY + 5, 15, 9), new Color(239, 175, 111), true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 12, BaseY + 10, 9, 3), new Color(160, 0, 0), true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 6, BaseY + 3, 3, 9), Color.Black, true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 3, BaseY + 6, 9, 3), Color.Black, true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 13, BaseY + 11, 3, 1), Color.Black, true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 17, BaseY + 11, 3, 1), Color.Black, true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 22, BaseY + 9, 3, 3), Color.Black, true);
+			SpriteBatch.DrawRectangle(new Rectangle(BaseX + 26, BaseY + 9, 3, 3), Color.Black, true);
 
-				if (buttonState.Up)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 6, BaseY + 3, 3, 3), Color.AliceBlue, true);
-				}
-				if (buttonState.Down)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 6, BaseY + 9, 3, 3), Color.AliceBlue, true);
-				}
-				if (buttonState.Left)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 3, BaseY + 6, 3, 3), Color.AliceBlue, true);
-				}
-				if (buttonState.Right)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 9, BaseY + 6, 3, 3), Color.AliceBlue, true);
-				}
-				if (buttonState.A)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 26, BaseY + 9, 3, 3), Color.AliceBlue, true);
-				}
-				if (buttonState.B)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 22, BaseY + 9, 3, 3), Color.AliceBlue, true);
-				}
-				if (buttonState.Start)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 17, BaseY + 11, 3, 1), Color.AliceBlue, true);
-				}
-				if (buttonState.Select)
-				{
-					SpriteBatch.DrawRectangle(new Rectangle(BaseX + 13, BaseY + 11, 3, 1), Color.AliceBlue, true);
-				}
+			if (buttonState.Up)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 6, BaseY + 3, 3, 3), Color.AliceBlue, true);
+			}
+			if (buttonState.Down)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 6, BaseY + 9, 3, 3), Color.AliceBlue, true);
+			}
+			if (buttonState.Left)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 3, BaseY + 6, 3, 3), Color.AliceBlue, true);
+			}
+			if (buttonState.Right)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 9, BaseY + 6, 3, 3), Color.AliceBlue, true);
+			}
+			if (buttonState.A)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 26, BaseY + 9, 3, 3), Color.AliceBlue, true);
+			}
+			if (buttonState.B)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 22, BaseY + 9, 3, 3), Color.AliceBlue, true);
+			}
+			if (buttonState.Start)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 17, BaseY + 11, 3, 1), Color.AliceBlue, true);
+			}
+			if (buttonState.Select)
+			{
+				SpriteBatch.DrawRectangle(new Rectangle(BaseX + 13, BaseY + 11, 3, 1), Color.AliceBlue, true);
 			}
 		}
 
