@@ -265,7 +265,7 @@ namespace Rockman_vs_SmashBros
 					Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
 					Vector2 Origin = CurrentlySprite.Origin;
 					SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-					float layerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
+					float layerDepth = (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX;
 					// 左を向いている場合は中心座標を反転
 					if (IsFaceToLeft)
 					{
