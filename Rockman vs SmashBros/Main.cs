@@ -29,10 +29,7 @@ namespace Rockman_vs_SmashBros
 
 		// 各メンバーを宣言
 		public static Player Player = new Player();                 // プレイヤー
-		public static Map Map = new Map();                          // 現在のマップ
-		public static Camera Camera = new Camera();                 // カメラ
 		public static List<Entity> Entities = new List<Entity>();   // エンティティ
-		public static Controller Controller = new Controller();     // コントローラ
 
 		#endregion
 

@@ -23,8 +23,8 @@ namespace Rockman_vs_SmashBros
 		private Rectangle SearchRange;                              // プレイヤーを見つける相対範囲
 		private int AnimationPattern;                               // アニメーションのパターン
 
-		private Sprite SearchingSprite;                             // プレイヤー捜索中のスプライト
-		private Sprite[] AttackSprites = new Sprite[3];             // 突撃中のスプライト
+		private static Sprite SearchingSprite;                      // プレイヤー捜索中のスプライト
+		private static Sprite[] AttackSprites = new Sprite[3];      // 突撃中のスプライト
 		private static int[] AttackAnimationTable;                  // 突撃中のアニメーションの順番
 
 		private Statuses Status;                                    // プレイヤーの状態
@@ -125,7 +125,7 @@ namespace Rockman_vs_SmashBros
 					}
 				}
 				// アニメーションを管理
-				if (FrameCounter%16 == 0)
+				if (FrameCounter % 16 == 0)
 				{
 					AnimationPattern++;
 					AnimationPattern = AnimationPattern % AttackAnimationTable.Length;
@@ -140,7 +140,7 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// 落下時にデスポーン
-			if (Position.Y > Main.Map.Size.Height * Const.MapchipTileSize)
+			if (Position.Y > Map.Size.Height * Const.MapchipTileSize)
 			{
 				Destroy();
 			}

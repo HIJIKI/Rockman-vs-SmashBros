@@ -38,7 +38,7 @@ namespace Rockman_vs_SmashBros
 		private struct SpritesStruct                                // 各スプライト管理構造体
 		{
 			public Sprite[] Neutral;                                // ニュートラル
-			public Sprite[] Walk;									// 歩き
+			public Sprite[] Walk;                                   // 歩き
 			public Sprite Jump;                                     // ジャンプ
 			public Sprite Sliding;                                  // スライディング
 			public Sprite[] Ladder;                                 // はしご掴まり中
@@ -143,7 +143,7 @@ namespace Rockman_vs_SmashBros
 		{
 			#region テストコード
 			// 落下時のリスポーン
-			if (Position.Y > Main.Map.Size.Height * Const.MapchipTileSize)
+			if (Position.Y > Map.Size.Height * Const.MapchipTileSize)
 			{
 				Initialize();
 			}
@@ -161,7 +161,7 @@ namespace Rockman_vs_SmashBros
 						MoveDistance = Vector2.Zero;
 						IsInAir = true;
 						RidingEntity = null;
-						Vector2 NewPosition = new Vector2(Main.Camera.Position.X + MouseState.X / Global.WindowScale, Main.Camera.Position.Y + MouseState.Y / Global.WindowScale + RelativeCollision.Height / 2);
+						Vector2 NewPosition = new Vector2(Camera.Position.X + MouseState.X / Global.WindowScale, Camera.Position.Y + MouseState.Y / Global.WindowScale + RelativeCollision.Height / 2);
 						SetPosition(NewPosition);
 					}
 				}
@@ -174,7 +174,7 @@ namespace Rockman_vs_SmashBros
 				// 通常移動の処理
 				if (Status == Statuses.Neutral || Status == Statuses.Walk || Status == Statuses.Jump)
 				{
-					StandardOperation(Main.Map);
+					StandardOperation();
 				}
 				// スライディング中の処理
 				else if (Status == Statuses.Sliding)
@@ -184,7 +184,7 @@ namespace Rockman_vs_SmashBros
 				// ハシゴ掴まり中の処理
 				else if (Status == Statuses.Ladder)
 				{
-					LadderOperation(Main.Map);
+					LadderOperation();
 				}
 				// 被ダメージ中の処理
 				else if (Status == Statuses.Damage)
@@ -206,7 +206,7 @@ namespace Rockman_vs_SmashBros
 			if (!IsInChangeSection)
 			{
 				// 別のセクションに触れていれば移動する
-				CheckChangeSection(Main.Map);
+				CheckChangeSection();
 			}
 			// セクション移動中の処理
 			else
@@ -347,7 +347,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 通常の処理
 		/// </summary>
-		private void StandardOperation(Map Map)
+		private void StandardOperation()
 		{
 			// 接地している場合
 			if (!IsInAir)
@@ -359,14 +359,14 @@ namespace Rockman_vs_SmashBros
 					return;
 				}
 				// ジャンプ開始
-				if (Main.Controller.IsButtonPressed(Controller.Buttons.A))
+				if (Controller.IsButtonPressed(Controller.Buttons.A))
 				{
 					ChangeStatus(Statuses.Jump);
 					MoveDistance.Y = JumpSpeed;
 					IsInAir = true;
 				}
 				// ハシゴに捕まる
-				else if (Main.Controller.IsButtonDown(Controller.Buttons.Up) && CheckGrabLadder(Map))
+				else if (Controller.IsButtonDown(Controller.Buttons.Up) && CheckGrabLadder())
 				{
 					Point DrawPosition = GetDrawPosition();
 					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y);
@@ -374,7 +374,7 @@ namespace Rockman_vs_SmashBros
 					return;
 				}
 				// 足元のハシゴに捕まる
-				else if (Main.Controller.IsButtonDown(Controller.Buttons.Down) && CheckBottomLadder(Map))
+				else if (Controller.IsButtonDown(Controller.Buttons.Down) && CheckBottomLadder())
 				{
 					Point DrawPosition = GetDrawPosition();
 					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y + 9);
@@ -386,12 +386,12 @@ namespace Rockman_vs_SmashBros
 			else
 			{
 				// ショートジャンプ
-				if (MoveDistance.Y < 0 && Main.Controller.IsButtonUp(Controller.Buttons.A))
+				if (MoveDistance.Y < 0 && Controller.IsButtonUp(Controller.Buttons.A))
 				{
 					MoveDistance.Y = 0;
 				}
 				// はしごに捕まる
-				if ((Main.Controller.IsButtonDown(Controller.Buttons.Up) || Main.Controller.IsButtonDown(Controller.Buttons.Down)) && CheckGrabLadder(Map))
+				if ((Controller.IsButtonDown(Controller.Buttons.Up) || Controller.IsButtonDown(Controller.Buttons.Down)) && CheckGrabLadder())
 				{
 					Point DrawPosition = GetDrawPosition();
 					Vector2 NewPosition = new Vector2(DrawPosition.X / Const.MapchipTileSize * Const.MapchipTileSize + Const.MapchipTileSize / 2, DrawPosition.Y);
@@ -425,7 +425,7 @@ namespace Rockman_vs_SmashBros
 			{
 				ChangeStatus(Statuses.Walk);
 			}
-			else if(MoveDistance.X == 0 && Status != Statuses.Neutral)
+			else if (MoveDistance.X == 0 && Status != Statuses.Neutral)
 			{
 				ChangeStatus(Statuses.Neutral);
 			}
@@ -434,21 +434,21 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// はしご掴まり中の処理
 		/// </summary>
-		private void LadderOperation(Map Map)
+		private void LadderOperation()
 		{
 			// 昇降移動
 			MoveDistance = Vector2.Zero;
 			IsLadderBend = false;
-			if (Main.Controller.IsButtonDown(Controller.Buttons.Up))
+			if (Controller.IsButtonDown(Controller.Buttons.Up))
 			{
 				MoveDistance.Y = -LadderSpeed;
 			}
-			else if (Main.Controller.IsButtonDown(Controller.Buttons.Down))
+			else if (Controller.IsButtonDown(Controller.Buttons.Down))
 			{
 				MoveDistance.Y = LadderSpeed;
 			}
 			// ジャンプが押されたらはしごを離す
-			else if (Main.Controller.IsButtonPressed(Controller.Buttons.A))
+			else if (Controller.IsButtonPressed(Controller.Buttons.A))
 			{
 				ChangeStatus(Statuses.Jump);
 				IsInAir = true;
@@ -459,7 +459,7 @@ namespace Rockman_vs_SmashBros
 				ChangeStatus(Statuses.Neutral);
 			}
 			// 掴める範囲にはしごがなければはしごを離す
-			if (!CheckGrabLadder(Map))
+			if (!CheckGrabLadder())
 			{
 				ChangeStatus(Statuses.Jump);
 			}
@@ -518,7 +518,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 別のセクションに触れていればそのセクションに移動する
 		/// </summary>
-		private void CheckChangeSection(Map Map)
+		private void CheckChangeSection()
 		{
 			// 現在のセクションID
 			int CurrentlySectionID = Map.CurrentlySectionID;
@@ -576,14 +576,14 @@ namespace Rockman_vs_SmashBros
 						IsStop = true;
 
 						// エンティティのスポーンを停止
-						Main.Map.StopEntitySpawn = true;
+						Map.StopEntitySpawn = true;
 
 						// 全てのエンティティを削除
 						Entity.DestroyAll();
 
 						// カメラの移動を開始
 						Point DrawPosition = GetDrawPosition();
-						Main.Camera.StartChangeSection(DrawPosition);
+						Camera.StartChangeSection(DrawPosition);
 					}
 				}
 			}
@@ -594,7 +594,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		/// <param name="Map"></param>
 		/// <returns></returns>
-		private bool CheckBottomLadder(Map Map)
+		private bool CheckBottomLadder()
 		{
 			Point DrawPosition = GetDrawPosition();
 			Point CheckPoint = DrawPosition; CheckPoint.Y += 1;   // プレイヤーの足元の1ドット下
@@ -608,7 +608,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 掴める範囲に梯子があるかどうかを調べる
 		/// </summary>
-		private bool CheckGrabLadder(Map Map)
+		private bool CheckGrabLadder()
 		{
 			Point DrawPosition = GetDrawPosition();
 			Point Top = DrawPosition; Top.Y += RelativeCollision.Y;                 // 上辺
@@ -655,10 +655,10 @@ namespace Rockman_vs_SmashBros
 				Position = ChangeSectionDestinationPosition;
 
 				// エンティティのスポーンを再開
-				Main.Map.StopEntitySpawn = false;
+				Map.StopEntitySpawn = false;
 
 				// 画面内に配置された全てのエンティティをスポーンさせる
-				Main.Map.SpawnAllEntities();
+				Map.SpawnAllEntities();
 			}
 		}
 

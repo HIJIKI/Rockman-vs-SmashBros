@@ -91,7 +91,7 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// 落下時にデスポーン
-			if (Position.Y > Main.Map.Size.Height * Const.MapchipTileSize)
+			if (Position.Y > Map.Size.Height * Const.MapchipTileSize)
 			{
 				Destroy();
 			}

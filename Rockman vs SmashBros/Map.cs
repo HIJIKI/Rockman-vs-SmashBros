@@ -13,23 +13,23 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Map クラス
 	/// </summary>
-	public class Map
+	public static class Map
 	{
 		#region メンバーの宣言 
 
 		public static Texture2D Texture;                            // マップチップ画像
-		public static Texture2D CollisionTexture;					// マップの当たり判定チップ画像
-		public Size Size;                                           // マップの縦横マス数
-		public AnimationTile[] AnimationTiles;                      // アニメーションタイルのデータ
-		public List<Section> Sections = new List<Section>();        // マップ内セクションのデータ
-		public int CurrentlySectionID;                              // 現在いるセクションのID
-		public Tile[,] BGLayer;                                     // 背景レイヤー
-		public Tile[,] LowerLayer;                                  // 下層レイヤー
-		public Tile[,] UpperLayer;                                  // 上層レイヤー
-		public int[,] CollisionLayer;                               // 地形判定レイヤー
-		public string[,] EntityLayer;                               // エンティティレイヤー
-		public int FrameCounter;                                    // フレームカウンター
-		public bool StopEntitySpawn;                                // エンティティのスポーンを停止するフラグ
+		public static Texture2D CollisionTexture;                   // マップの当たり判定チップ画像
+		public static Size Size;                                    // マップの縦横マス数
+		public static AnimationTile[] AnimationTiles;               // アニメーションタイルのデータ
+		public static List<Section> Sections = new List<Section>(); // マップ内セクションのデータ
+		public static int CurrentlySectionID;                       // 現在いるセクションのID
+		public static Tile[,] BGLayer;                              // 背景レイヤー
+		public static Tile[,] LowerLayer;                           // 下層レイヤー
+		public static Tile[,] UpperLayer;                           // 上層レイヤー
+		public static int[,] CollisionLayer;                        // 地形判定レイヤー
+		public static string[,] EntityLayer;                        // エンティティレイヤー
+		public static int FrameCounter;                             // フレームカウンター
+		public static bool StopEntitySpawn;                         // エンティティのスポーンを停止するフラグ
 
 		// タイル1枚のデータ構造体
 		public struct Tile
@@ -107,14 +107,9 @@ namespace Rockman_vs_SmashBros
 		#endregion
 
 		/// <summary>
-		/// コンストラクタ
-		/// </summary>
-		public Map() { }
-
-		/// <summary>
 		/// テスト用初期化
 		/// </summary>
-		public void InitForTest()
+		public static void InitForTest()
 		{
 			Size = new Size(32, 45);
 			BGLayer = new Tile[Size.Width, Size.Height];
@@ -372,7 +367,7 @@ namespace Rockman_vs_SmashBros
 			AnimationTiles[10] = new AnimationTile(new int[] { 176, 178, 180 }, 12);
 			AnimationTiles[11] = new AnimationTile(new int[] { 177, 179, 181 }, 12);
 		}
-		public void InitForTest2()
+		public static void InitForTest2()
 		{
 			Size = new Size(64, 18);
 			BGLayer = new Tile[Size.Width, Size.Height];
@@ -497,7 +492,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 初期化
 		/// </summary>
-		public void Initialize()
+		public static void Initialize()
 		{
 		}
 
@@ -522,13 +517,13 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public void Update(GameTime GameTime)
+		public static void Update(GameTime GameTime)
 		{
 			if (!StopEntitySpawn)
 			{
 				// 画面に入ったマスに配置されているエンティティを作成
-				Point ViewMap = Main.Camera.ViewMap;
-				Point OldViewMap = Main.Camera.OldViewMap;
+				Point ViewMap = Camera.ViewMap;
+				Point OldViewMap = Camera.OldViewMap;
 				Rectangle CurrentlySectionArea = Sections[CurrentlySectionID].Area;
 				if (ViewMap != OldViewMap)
 				{
@@ -580,10 +575,10 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 描画
 		/// </summary>
-		public void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
+		public static void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
-			Point ViewMap = Main.Camera.ViewMap;
-			Point OldViewMap = Main.Camera.OldViewMap;
+			Point ViewMap = Camera.ViewMap;
+			Point OldViewMap = Camera.OldViewMap;
 			for (int x = ViewMap.X; x < ViewMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 			{
 				for (int y = ViewMap.Y; y < ViewMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
@@ -616,7 +611,7 @@ namespace Rockman_vs_SmashBros
 		/// 別のセクションへ移動
 		/// </summary>
 		/// <param name="TargetSectionID">移動先のセクションID</param>
-		public void ChangeSection(int TargetSectionID)
+		public static void ChangeSection(int TargetSectionID)
 		{
 			CurrentlySectionID = TargetSectionID;
 		}
@@ -624,11 +619,11 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 画面内に配置された全てのエンティティをスポーンさせる
 		/// </summary>
-		public void SpawnAllEntities()
+		public static void SpawnAllEntities()
 		{
 			if (!StopEntitySpawn)
 			{
-				Point ViewMap = Main.Camera.ViewMap;
+				Point ViewMap = Camera.ViewMap;
 				Rectangle CurrentlySectionArea = Sections[CurrentlySectionID].Area;
 				// 画面内のマスに配置されているエンティティ
 				for (int x = ViewMap.X; x < ViewMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
@@ -655,7 +650,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		/// <param name="Point">当たり判定IDを取得したい Map 上のワールド座標</param>
 		/// <returns>指定した座標の当たり判定ID。マップ外を取得しようとした場合は常に 0 を返す。</returns>
-		public CollisionTypes PointToCollisionIndex(Point WorldPosition)
+		public static CollisionTypes PointToCollisionIndex(Point WorldPosition)
 		{
 			CollisionTypes CollisionIndex = CollisionTypes.Air;
 			Point MapPosition = new Point(WorldPosition.X / Const.MapchipTileSize, WorldPosition.Y / Const.MapchipTileSize);
@@ -675,7 +670,7 @@ namespace Rockman_vs_SmashBros
 		///		左スロープを対象とする場合: "left",
 		///		右スロープを対象とする場合: "right"
 		///	</param>
-		public bool IsSlope(CollisionTypes CollisionType, string Filter = "both")
+		public static bool IsSlope(CollisionTypes CollisionType, string Filter = "both")
 		{
 			CollisionTypes ct = CollisionType;
 			if (Filter == "left" || Filter == "both")
@@ -704,7 +699,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 指定したスロープ上のX座標の床のタイル内での相対位置を返す
 		/// </summary>
-		public int GetSlopeFloorY(CollisionTypes SlopeType, int PositionX)
+		public static int GetSlopeFloorY(CollisionTypes SlopeType, int PositionX)
 		{
 			byte Result = 0;
 			byte[] FloorY = new byte[0];
@@ -744,7 +739,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		/// <param name="Point">梯子の上辺かどうかを調べたい Map 上のワールド座標</param>
 		/// <returns>指定した座標が梯子の上辺かどうか。マップ外を取得しようとした場合は常に false を返す。</returns>
-		public bool CheckPointLadderTop(Point WorldPosition)
+		public static bool CheckPointLadderTop(Point WorldPosition)
 		{
 			bool Result = false;
 			CollisionTypes CollisionIndex = CollisionTypes.Air;
@@ -774,7 +769,7 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Tile">描画対象のタイル</param>
 		/// <param name="Position">描画する座標</param>
 		/// <param name="DrawOrder">描画震度</param>
-		private void DrawTile(SpriteBatch SpriteBatch, Tile Tile, Point Position, float DrawOrder)
+		private static void DrawTile(SpriteBatch SpriteBatch, Tile Tile, Point Position, float DrawOrder)
 		{
 			int DrawChipIndex = 0;                                  // 描画するマップチップID
 
@@ -804,14 +799,13 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Index">描画対象の当たり判定ID</param>
 		/// <param name="Position">描画する座標</param>
 		/// <param name="DrawOrder">描画震度</param>
-		private void DrawCollision(SpriteBatch SpriteBatch, int Index, Point Position)
+		private static void DrawCollision(SpriteBatch SpriteBatch, int Index, Point Position)
 		{
 			// マップチップのIndexをRectangleに変換
 			Size MapchipSize = new Size(CollisionTexture.Width / Const.MapchipTileSize, Texture.Height / Const.MapchipTileSize);             //マップチップの縦横枚数
 			Rectangle SourceRect = new Rectangle((Index % MapchipSize.Width) * Const.MapchipTileSize, (Index / MapchipSize.Width) * Const.MapchipTileSize, Const.MapchipTileSize, Const.MapchipTileSize);
 
 			// マップチップを描画
-			float Alpha = 1f;
 			SpriteBatch.Draw(CollisionTexture, new Vector2(Position.X, Position.Y), SourceRect, Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.CollisionLayer / (float)Const.DrawOrder.MAX);
 		}
 

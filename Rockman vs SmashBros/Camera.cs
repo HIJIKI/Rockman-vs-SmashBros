@@ -12,27 +12,22 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Camera クラス
 	/// </summary>
-	public class Camera
+	public static class Camera
 	{
 		#region メンバーの宣言
-		public Point Position;                                      // カメラの座標
-		public Vector2 ScrollSourcePosition;                        // スクロール元の座標
-		public Vector2 ScrollDestinationPosition;                   // スクロール先の座標
-		public Point ViewMap;                                       // 見えているマップの範囲(マス数)
-		public Point OldViewMap;                                    // 1フレーム前の見えているマップの範囲(マス数)
-		public bool InChangeSection;                                // 別のセクションに移動中かどうか
-		public int ChangeSectionFrame;                              // セクションの移動中のフレームカウンター
+		public static Point Position;                                      // カメラの座標
+		public static Vector2 ScrollSourcePosition;                        // スクロール元の座標
+		public static Vector2 ScrollDestinationPosition;                   // スクロール先の座標
+		public static Point ViewMap;                                       // 見えているマップの範囲(マス数)
+		public static Point OldViewMap;                                    // 1フレーム前の見えているマップの範囲(マス数)
+		public static bool InChangeSection;                                // 別のセクションに移動中かどうか
+		public static int ChangeSectionFrame;                              // セクションの移動中のフレームカウンター
 		#endregion
-
-		/// <summary>
-		/// コンストラクタ
-		/// </summary>
-		public Camera() { }
 
 		/// <summary>
 		/// 初期化
 		/// </summary>
-		public void Initialize()
+		public static void Initialize()
 		{
 
 		}
@@ -40,14 +35,14 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// リソースの確保
 		/// </summary>
-		public void LoadContent(ContentManager Content)
+		public static void LoadContent(ContentManager Content)
 		{
 		}
 
 		/// <summary>
 		/// リソースの破棄
 		/// </summary>
-		public void UnloadContent()
+		public static void UnloadContent()
 		{
 		}
 
@@ -55,12 +50,12 @@ namespace Rockman_vs_SmashBros
 		/// フレームの更新
 		/// </summary>
 		/// <param name="PlayerDrawPosition">プレイヤーの描画座標</param>
-		public void Update(GameTime GameTime, Point PlayerDrawPosition)
+		public static void Update(GameTime GameTime, Point PlayerDrawPosition)
 		{
 			if (!InChangeSection)
 			{
 				// カメラをプレイヤーに追従
-				Rectangle CurrentlySectionArea = Main.Map.Sections[Main.Map.CurrentlySectionID].Area;
+				Rectangle CurrentlySectionArea = Map.Sections[Map.CurrentlySectionID].Area;
 				Position.X = PlayerDrawPosition.X - Const.GameScreenWidth / 2;
 				if (Position.X < Const.MapchipTileSize * CurrentlySectionArea.X)
 				{
@@ -96,19 +91,19 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 描画
 		/// </summary>
-		public void Draw(GameTime GameTime)
+		public static void Draw(GameTime GameTime)
 		{
 		}
 
 		/// <summary>
 		/// セクション移動開始時の処理
 		/// </summary>
-		public void StartChangeSection(Point PlayerDrawPosition)
+		public static void StartChangeSection(Point PlayerDrawPosition)
 		{
 			ScrollSourcePosition = Position.ToVector2();
 
 			// 移動後の座標を移動先セクション内に収める
-			Rectangle CurrentlySectionArea = Main.Map.Sections[Main.Map.CurrentlySectionID].Area;
+			Rectangle CurrentlySectionArea = Map.Sections[Map.CurrentlySectionID].Area;
 			ScrollDestinationPosition.X = PlayerDrawPosition.X - Const.GameScreenWidth / 2;
 			if (ScrollDestinationPosition.X < Const.MapchipTileSize * CurrentlySectionArea.X)
 			{
@@ -138,7 +133,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// セクション移動中の処理
 		/// </summary>
-		private void ChangeSectionCalc()
+		private static void ChangeSectionCalc()
 		{
 			Vector2 Source = ScrollSourcePosition;
 			Vector2 Destination = ScrollDestinationPosition;

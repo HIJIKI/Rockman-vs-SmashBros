@@ -12,7 +12,7 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Controller クラス
 	/// </summary>
-	public class Controller
+	public static class Controller
 	{
 		#region メンバーの宣言
 
@@ -40,40 +40,35 @@ namespace Rockman_vs_SmashBros
 			Select                                                   // セレクトボタン
 		}
 
-		private ButtonState buttonState;                             // 現在のボタン入力状態
-		private ButtonState oldButtonState;                          // 1フレーム前のボタン入力状態
-		private KeyboardState keyboardState;                         // キーボード入力状態
+		private static ButtonState buttonState;                       // 現在のボタン入力状態
+		private static ButtonState oldButtonState;                    // 1フレーム前のボタン入力状態
+		private static KeyboardState keyboardState;                   // キーボード入力状態
 
 		#endregion
 
 		/// <summary>
-		/// コンストラクタ
-		/// </summary>
-		public Controller() { }
-
-		/// <summary>
 		/// 初期化
 		/// </summary>
-		public void Initialize() { }
+		public static void Initialize() { }
 
 		/// <summary>
 		/// リソースの確保
 		/// </summary>
-		public void LoadConten(ContentManager Content)
+		public static void LoadConten(ContentManager Content)
 		{
 		}
 
 		/// <summary>
 		/// リソースの破棄
 		/// </summary>
-		public void UnloadContent()
+		public static void UnloadContent()
 		{
 		}
 
 		/// <summary>
 		/// フレームの更新
 		/// </summary>
-		public void Update(GameTime GameTime)
+		public static void Update(GameTime GameTime)
 		{
 			// 1フレーム前の入力状態
 			oldButtonState = buttonState;
@@ -109,7 +104,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 描画
 		/// </summary>
-		public void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
+		public static void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
 			int BaseX = 8, BaseY = 216;
 			SpriteBatch.DrawRectangle(new Rectangle(BaseX, BaseY, 32, 16), Color.Black, true);
@@ -163,7 +158,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		/// <param name="Button">調べたいボタン</param>
 		/// <returns>指定されたボタンが押されていれば true を、それ以外は false を返す。</returns>
-		public bool IsButtonDown(Buttons Button)
+		public static bool IsButtonDown(Buttons Button)
 		{
 			if (Button == Buttons.Up && buttonState.Up) { return true; }
 			if (Button == Buttons.Down && buttonState.Down) { return true; }
@@ -181,7 +176,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		/// <param name="Button">調べたいボタン</param>
 		/// <returns>指定されたボタンが離されていれば true を、それ以外は false を返す。</returns>
-		public bool IsButtonUp(Buttons Button)
+		public static bool IsButtonUp(Buttons Button)
 		{
 			if (Button == Buttons.Up && !buttonState.Up) { return true; }
 			if (Button == Buttons.Down && !buttonState.Down) { return true; }
@@ -199,7 +194,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		/// <param name="Button">調べたいボタン</param>
 		/// <returns>指定されたボタンが押された瞬間であれば true を、それ以外は false を返す。</returns>
-		public bool IsButtonPressed(Buttons Button)
+		public static bool IsButtonPressed(Buttons Button)
 		{
 			if (Button == Buttons.Up && buttonState.Up && !oldButtonState.Up) { return true; }
 			if (Button == Buttons.Down && buttonState.Down && !oldButtonState.Down) { return true; }

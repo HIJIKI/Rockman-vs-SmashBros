@@ -65,8 +65,8 @@ namespace Rockman_vs_SmashBros
 					MoveDistance.X += RidingEntity.MoveDistance.X;
 				}
 
-				MoveY(Main.Map);
-				MoveX(Main.Map);
+				MoveY();
+				MoveX();
 				if (IsInAir && !IsNoclip)
 				{
 					RidingEntity = null;
@@ -77,7 +77,7 @@ namespace Rockman_vs_SmashBros
 				}
 				else
 				{
-					CheckInAir(Main.Map);
+					CheckInAir();
 				}
 			}
 
@@ -204,7 +204,7 @@ namespace Rockman_vs_SmashBros
 		/// X 方向の移動、地形判定
 		/// </summary>
 		/// <param name="Map">地形判定を行う場合の対象となるマップ</param>
-		private void MoveX(Map Map)
+		private void MoveX()
 		{
 			// 移動量を反映
 			Position.X += MoveDistance.X;
@@ -358,7 +358,7 @@ namespace Rockman_vs_SmashBros
 		/// Y 方向の移動、地形判定
 		/// </summary>
 		/// <param name="Map">地形判定を行う場合の対象となるマップ</param>
-		private void MoveY(Map Map)
+		private void MoveY()
 		{
 			// 移動量を反映
 			Position.Y += MoveDistance.Y;
@@ -514,7 +514,7 @@ namespace Rockman_vs_SmashBros
 		/// 接地しているかを確認する
 		/// </summary>
 		/// <param name="Map">地形判定を行う場合の対象となるマップ</param>
-		private void CheckInAir(Map Map)
+		private void CheckInAir()
 		{
 			IsInAir = true;
 			RidingEntity = null;
