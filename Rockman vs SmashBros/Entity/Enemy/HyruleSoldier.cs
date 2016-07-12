@@ -45,6 +45,7 @@ namespace Rockman_vs_SmashBros
 			this.IsFromMap = IsFromMap;
 			this.FromMapPosition = FromMapPosition;
 			Type = Types.Enemy;
+            Health = 3;
 			HitDamage = 4;
 			Initialize();
 		}
@@ -191,8 +192,14 @@ namespace Rockman_vs_SmashBros
 			base.Draw(GameTime, SpriteBatch);
 		}
 
-		public void GiveDamage(int Damage, int BulletType)
+        /// <summary>
+        /// エンティティにダメージを与える
+        /// </summary>
+        /// <param name="Damage">与えるダメージ</param>
+        public override void GiveDamage(int Damage)
 		{
+            Status = Statuses.Attack;
+
 			base.GiveDamage(Damage);
 		}
 	}

@@ -79,6 +79,7 @@ namespace Rockman_vs_SmashBros
 			HyruleSoldier.LoadContent(Content);
 			Platform1.LoadContent(Content);
 			Platform2.LoadContent(Content);
+			RockBuster.LoadContent(Content);
 
 			// テストフォント
 			Font = Content.Load<SpriteFont>("Font/myfont");
@@ -99,6 +100,7 @@ namespace Rockman_vs_SmashBros
 			HyruleSoldier.UnloadContent();
 			Platform1.UnloadContent();
 			Platform2.UnloadContent();
+			RockBuster.UnloadContent();
 		}
 
 		/// <summary>

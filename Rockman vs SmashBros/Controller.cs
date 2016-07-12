@@ -92,7 +92,7 @@ namespace Rockman_vs_SmashBros
 			buttonState.A = keyboardState.IsKeyDown(Keys.Space);
 
 			// B ボタン
-			buttonState.B = keyboardState.IsKeyDown(Keys.B);
+			buttonState.B = keyboardState.IsKeyDown(Keys.E);
 
 			// スタートボタン
 			buttonState.Start = keyboardState.IsKeyDown(Keys.Enter);

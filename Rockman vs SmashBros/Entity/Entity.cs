@@ -120,6 +120,10 @@ namespace Rockman_vs_SmashBros
 		public virtual void GiveDamage(int Damage)
 		{
 			Health -= Damage;
+            if (Health <= 0)
+            {
+                Destroy();
+            }
 		}
 
 		/// <summary>

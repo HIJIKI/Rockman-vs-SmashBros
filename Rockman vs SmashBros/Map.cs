@@ -522,18 +522,18 @@ namespace Rockman_vs_SmashBros
 			if (!StopEntitySpawn)
 			{
 				// 画面に入ったマスに配置されているエンティティを作成
-				Point ViewMap = Camera.ViewMap;
-				Point OldViewMap = Camera.OldViewMap;
+				Point CameraPosInMap = Camera.Position / new Point(Const.MapchipTileSize);
+				Point OldCameraPosInMap = Camera.OldPosition / new Point(Const.MapchipTileSize);
 				Rectangle CurrentlySectionArea = Sections[CurrentlySectionID].Area;
-				if (ViewMap != OldViewMap)
+				if (CameraPosInMap != OldCameraPosInMap)
 				{
 					// 1フレーム前に描画されていたマップ範囲
-					Rectangle OldViewMapRange = new Rectangle(OldViewMap.X, OldViewMap.Y, (Const.GameScreenWidth / Const.MapchipTileSize) + 1, (Const.GameScreenHeight / Const.MapchipTileSize) + 1);
+					Rectangle OldViewMapRange = new Rectangle(OldCameraPosInMap.X, OldCameraPosInMap.Y, (Const.GameScreenWidth / Const.MapchipTileSize) + 1, (Const.GameScreenHeight / Const.MapchipTileSize) + 1);
 
 					// 画面内のマスに配置されているエンティティ
-					for (int x = ViewMap.X; x < ViewMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
+					for (int x = CameraPosInMap.X; x < CameraPosInMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 					{
-						for (int y = ViewMap.Y; y < ViewMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
+						for (int y = CameraPosInMap.Y; y < CameraPosInMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 						{
 							// 現在のセクション内で、且つ新たに画面に入った範囲か確認する
 							if (!OldViewMapRange.Contains(x, y) && CurrentlySectionArea.Contains(x, y))
@@ -577,11 +577,10 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
-			Point ViewMap = Camera.ViewMap;
-			Point OldViewMap = Camera.OldViewMap;
-			for (int x = ViewMap.X; x < ViewMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
+			Point CameraPosInMap = Camera.Position / new Point(Const.MapchipTileSize);
+			for (int x = CameraPosInMap.X; x < CameraPosInMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 			{
-				for (int y = ViewMap.Y; y < ViewMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
+				for (int y = CameraPosInMap.Y; y < CameraPosInMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 				{
 					// 画面外を読んでしまわないようにする
 					if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
@@ -623,12 +622,12 @@ namespace Rockman_vs_SmashBros
 		{
 			if (!StopEntitySpawn)
 			{
-				Point ViewMap = Camera.ViewMap;
+				Point CameraPosInMap = Camera.Position / new Point(Const.MapchipTileSize);
 				Rectangle CurrentlySectionArea = Sections[CurrentlySectionID].Area;
 				// 画面内のマスに配置されているエンティティ
-				for (int x = ViewMap.X; x < ViewMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
+				for (int x = CameraPosInMap.X; x < CameraPosInMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 				{
-					for (int y = ViewMap.Y; y < ViewMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
+					for (int y = CameraPosInMap.Y; y < CameraPosInMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 					{
 						// 現在のセクション内で、且つ新たに画面に入った範囲か確認する
 						if (CurrentlySectionArea.Contains(x, y))

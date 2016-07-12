@@ -15,13 +15,12 @@ namespace Rockman_vs_SmashBros
 	public static class Camera
 	{
 		#region メンバーの宣言
-		public static Point Position;                                      // カメラの座標
-		public static Vector2 ScrollSourcePosition;                        // スクロール元の座標
-		public static Vector2 ScrollDestinationPosition;                   // スクロール先の座標
-		public static Point ViewMap;                                       // 見えているマップの範囲(マス数)
-		public static Point OldViewMap;                                    // 1フレーム前の見えているマップの範囲(マス数)
-		public static bool InChangeSection;                                // 別のセクションに移動中かどうか
-		public static int ChangeSectionFrame;                              // セクションの移動中のフレームカウンター
+		public static Point Position;                               // カメラの座標
+		public static Point OldPosition;                            // 1フレーム前のカメラの座標
+		public static Vector2 ScrollSourcePosition;                 // スクロール元の座標
+		public static Vector2 ScrollDestinationPosition;            // スクロール先の座標
+		public static bool InChangeSection;                         // 別のセクションに移動中かどうか
+		public static int ChangeSectionFrame;                       // セクションの移動中のフレームカウンター
 		#endregion
 
 		/// <summary>
@@ -52,7 +51,9 @@ namespace Rockman_vs_SmashBros
 		/// <param name="PlayerDrawPosition">プレイヤーの描画座標</param>
 		public static void Update(GameTime GameTime, Point PlayerDrawPosition)
 		{
-			if (!InChangeSection)
+            OldPosition = Position;
+
+            if (!InChangeSection)
 			{
 				// カメラをプレイヤーに追従
 				Rectangle CurrentlySectionArea = Map.Sections[Map.CurrentlySectionID].Area;
@@ -81,11 +82,6 @@ namespace Rockman_vs_SmashBros
 			{
 				ChangeSectionCalc();
 			}
-
-			// 見えている範囲を検出
-			OldViewMap = ViewMap;
-			ViewMap.X = Position.X / Const.MapchipTileSize;
-			ViewMap.Y = Position.Y / Const.MapchipTileSize;
 		}
 
 		/// <summary>
