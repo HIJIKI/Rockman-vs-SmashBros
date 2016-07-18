@@ -24,7 +24,7 @@ namespace Rockman_vs_SmashBros
         public int ChangeSectionFrame;                              // セクションの移動中のフレームカウンター
         public bool IsInvincible;                                   // 無敵かどうか
         public int FrameCounter;                                    // フレームカウンター
-        private int AnimationPattern;                               // アニメーションのパターン
+        public int AnimationPattern;                                // アニメーションのパターン
         private bool IsFaceToLeft;                                  // 左を向いているかどうか
         private bool IsLadderBend;                                  // はしご掴み中に登りかけかどうか
         private float WalkSpeed;                                    // プレイヤーの歩行速度
@@ -33,15 +33,21 @@ namespace Rockman_vs_SmashBros
         private float SlidingSpeed;                                 // プレイヤーのスライディング速度
         private Rectangle Collision;                                // 右向き時の相対当たり判定
         private int InvincibleBlinkDuration;                        // 無敵点滅の残り時間 (フレーム)
+        private bool IsShooting;                                    // ショットモーション中かどうか
+        private int ShootingFrameCounter;                           // ショットモーション中のフレームカウンター
 
         private static SpritesStruct Sprites;                       // 各スプライト
         private struct SpritesStruct                                // 各スプライト管理構造体
         {
             public Sprite[] Neutral;                                // ニュートラル
+            public Sprite StandingShoot;                            // 立ちショット
             public Sprite[] Walk;                                   // 歩き
+            public Sprite[] WalkShoot;                              // 歩きショット
             public Sprite Jump;                                     // ジャンプ
+            public Sprite JumpShoot;                                // ジャンプショット
             public Sprite Sliding;                                  // スライディング
-            public Sprite[] Ladder;                                 // はしご掴まり中
+            public Sprite[] Ladder;                                 // はしご掴まり
+            public Sprite LadderShoot;                              // はしご掴まりショット
             public Sprite LadderBend;                               // はしご登りかけ
             public Sprite[] Damage;                                 // 被ダメージ
         }
@@ -98,6 +104,8 @@ namespace Rockman_vs_SmashBros
                 new Sprite(new Rectangle(32 * 1, 32, 32, 32), new Vector2(15, 30)),
                 new Sprite(new Rectangle(32 * 2, 32, 32, 32), new Vector2(15, 30)),
             };
+            // 立ちショット
+            Sprites.StandingShoot = new Sprite(new Rectangle(32 * 1, 32 * 2, 32, 32), new Vector2(11, 30));
             // 歩き
             Sprites.Walk = new Sprite[]
             {
@@ -106,18 +114,30 @@ namespace Rockman_vs_SmashBros
                 new Sprite(new Rectangle(32 * 6, 32, 32, 32), new Vector2(15, 30)),
                 new Sprite(new Rectangle(32 * 5, 32, 32, 32), new Vector2(15, 30)),
             };
+            // 歩きショット
+            Sprites.WalkShoot = new Sprite[]
+            {
+                new Sprite(new Rectangle(32 * 4, 32 * 2, 32, 32), new Vector2(15, 30)),
+                new Sprite(new Rectangle(32 * 5, 32 * 2, 32, 32), new Vector2(15, 30)),
+                new Sprite(new Rectangle(32 * 6, 32 * 2, 32, 32), new Vector2(15, 30)),
+                new Sprite(new Rectangle(32 * 5, 32 * 2, 32, 32), new Vector2(15, 30)),
+            };
             // ジャンプ
             Sprites.Jump = new Sprite(new Rectangle(32 * 7, 32, 32, 32), new Vector2(15, 24));
+            // ジャンプショット
+            Sprites.JumpShoot = new Sprite(new Rectangle(32 * 7, 32 * 2, 32, 32), new Vector2(15, 24));
             // スライディング
             Sprites.Sliding = new Sprite(new Rectangle(0, 32, 32, 32), new Vector2(15, 30));
-            // はしご掴まり中
+            // はしご掴まり
             Sprites.Ladder = new Sprite[]
             {
-                new Sprite(new Rectangle(32 * 9, 32, 32, 32), new Vector2(15, 30)),
-                new Sprite(new Rectangle(32 * 10, 32, 32, 32), new Vector2(15, 30)),
+                new Sprite(new Rectangle(32 * 9, 32, 32, 32), new Vector2(16, 30)),
+                new Sprite(new Rectangle(32 * 10, 32, 32, 32), new Vector2(16, 30)),
             };
+            // はしご捕まりショット
+            Sprites.LadderShoot = new Sprite(new Rectangle(32 * 9, 32 * 2, 32, 32), new Vector2(16, 30));
             // はしご登りかけ
-            Sprites.LadderBend = new Sprite(new Rectangle(32 * 11, 32, 32, 32), new Vector2(15, 30));
+            Sprites.LadderBend = new Sprite(new Rectangle(32 * 11, 32, 32, 32), new Vector2(16, 30));
             // 被ダメージ
             Sprites.Damage = new Sprite[]
             {
@@ -233,16 +253,16 @@ namespace Rockman_vs_SmashBros
                     // ニュートラル
                     if (Status == Statuses.Neutral)
                     {
-                        CurrentlySprite = Sprites.Neutral[AnimationPattern];
+                        CurrentlySprite = IsShooting ? Sprites.StandingShoot : Sprites.Neutral[AnimationPattern];
                     }
                     else if (Status == Statuses.Walk)
                     {
-                        CurrentlySprite = Sprites.Walk[AnimationPattern];
+                        CurrentlySprite = IsShooting ? Sprites.WalkShoot[AnimationPattern] : Sprites.Walk[AnimationPattern];
                     }
                     // ジャンプ
                     else if (Status == Statuses.Jump)
                     {
-                        CurrentlySprite = Sprites.Jump;
+                        CurrentlySprite = IsShooting ? Sprites.JumpShoot : Sprites.Jump;
                     }
                     // スライディング
                     else if (Status == Statuses.Sliding)
@@ -252,7 +272,15 @@ namespace Rockman_vs_SmashBros
                     // はしご掴まり中
                     else if (Status == Statuses.Ladder)
                     {
-                        CurrentlySprite = Sprites.Ladder[AnimationPattern];
+                        // ショット中かどうか
+                        if (IsShooting)
+                        {
+                            CurrentlySprite = Sprites.LadderShoot;
+                        }
+                        else
+                        {
+                            CurrentlySprite = IsLadderBend ? Sprites.LadderBend : CurrentlySprite = Sprites.Ladder[AnimationPattern];
+                        }
                     }
                     // 被ダメージ
                     else if (Status == Statuses.Damage)
@@ -294,6 +322,7 @@ namespace Rockman_vs_SmashBros
                 }
                 else
                 {
+                    IsShooting = false;
                     IsInvincible = true;
                     MoveDistance.Y = 0;
                     SetStatus(Statuses.Damage);
@@ -349,21 +378,26 @@ namespace Rockman_vs_SmashBros
         /// </summary>
         private void StandardOperation()
         {
+            // ショット開始
             if (Controller.IsButtonPressed(Controller.Buttons.B))
             {
-                Point ShotPosition = Position.ToPoint() + new Point(0, -8);
+                Point ShotPosition = Position.ToPoint() + new Point(0, -10);
                 Main.Entities.Add(new RockBuster(ShotPosition, IsFaceToLeft));
+                IsShooting = true;
+                ShootingFrameCounter = 0;
             }
 
             // 接地している場合
             if (!IsInAir)
             {
+                /*
                 // スライディング開始
                 if (false)
                 {
                     SetStatus(Statuses.Sliding);
                     return;
                 }
+                //*/
                 // ジャンプ開始
                 if (Controller.IsButtonPressed(Controller.Buttons.A))
                 {
@@ -427,10 +461,25 @@ namespace Rockman_vs_SmashBros
             else if (MoveDistance.X != 0)
             {
                 SetStatus(Statuses.Walk);
+                if (FrameCounter % 8 == 0)
+                {
+                    AnimationPattern++;
+                    AnimationPattern = AnimationPattern % Sprites.Walk.Length;
+                }
             }
             else if (MoveDistance.X == 0)
             {
                 SetStatus(Statuses.Neutral);
+            }
+
+            // ショットモーション管理
+            if (IsShooting)
+            {
+                ShootingFrameCounter++;
+                if (ShootingFrameCounter >= 32)
+                {
+                    IsShooting = false;
+                }
             }
         }
 
@@ -439,55 +488,97 @@ namespace Rockman_vs_SmashBros
         /// </summary>
         private void LadderOperation()
         {
-            // 昇降移動
             MoveDistance = Vector2.Zero;
-            IsLadderBend = false;
-            if (Controller.IsButtonDown(Controller.Buttons.Up))
+
+            // ショット開始
+            if (Controller.IsButtonPressed(Controller.Buttons.B))
             {
-                MoveDistance.Y = -LadderSpeed;
+                // 押している方向に向く
+                if (Controller.IsButtonDown(Controller.Buttons.Left))
+                {
+                    IsFaceToLeft = true;
+                }
+                else if (Controller.IsButtonDown(Controller.Buttons.Right))
+                {
+                    IsFaceToLeft = false;
+                }
+                Point ShotPosition = Position.ToPoint() + new Point(0, -16);
+                Main.Entities.Add(new RockBuster(ShotPosition, IsFaceToLeft));
+                IsShooting = true;
+                ShootingFrameCounter = 0;
             }
-            else if (Controller.IsButtonDown(Controller.Buttons.Down))
-            {
-                MoveDistance.Y = LadderSpeed;
-            }
+
             // ジャンプが押されたらはしごを離す
-            else if (Controller.IsButtonPressed(Controller.Buttons.A))
+            if (Controller.IsButtonPressed(Controller.Buttons.A))
             {
-                SetStatus(Statuses.Jump);
+                IsShooting = false;
                 IsInAir = true;
-            }
-            // 接地したらはしごを離す
-            if (!IsInAir)
-            {
-                SetStatus(Statuses.Neutral);
-            }
-            // 掴める範囲にはしごがなければはしごを離す
-            if (!CheckGrabLadder())
-            {
                 SetStatus(Statuses.Jump);
             }
-            // 登りかけかどうかを調べる
-            Point DrawPosition = GetDrawPosition();
-            Point LadderBendCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 16);
-            Point LadderBendCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
-            if (Map.PointToCollisionIndex(LadderBendCheckPoint) != Map.CollisionTypes.Ladder &&
-                Map.PointToCollisionIndex(LadderBendCheckPoint2) != Map.CollisionTypes.Ladder)
+
+            // ショット中は昇降できない
+            if (!IsShooting)
             {
-                IsLadderBend = true;
+                // 昇降移動
+                IsLadderBend = false;
+                if (Controller.IsButtonDown(Controller.Buttons.Up))
+                {
+                    MoveDistance.Y = -LadderSpeed;
+                }
+                else if (Controller.IsButtonDown(Controller.Buttons.Down))
+                {
+                    MoveDistance.Y = LadderSpeed;
+                }
+                // 接地したらはしごを離す
+                if (!IsInAir)
+                {
+                    SetStatus(Statuses.Neutral);
+                }
+                // 掴める範囲にはしごがなければはしごを離す
+                if (!CheckGrabLadder())
+                {
+                    SetStatus(Statuses.Jump);
+                }
+                // 登りかけかどうかを調べる
+                Point DrawPosition = GetDrawPosition();
+                Point LadderBendCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 16);
+                Point LadderBendCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
+                if (Map.PointToCollisionIndex(LadderBendCheckPoint) != Map.CollisionTypes.Ladder &&
+                    Map.PointToCollisionIndex(LadderBendCheckPoint2) != Map.CollisionTypes.Ladder)
+                {
+                    IsLadderBend = true;
+                }
+                // はしごを登り切る
+                DrawPosition = GetDrawPosition();
+                Point LadderFinishCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 9);
+                Point LadderFinishCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
+                if (MoveDistance.Y < 0 &&
+                    Map.PointToCollisionIndex(LadderFinishCheckPoint) != Map.CollisionTypes.Ladder &&
+                    Map.PointToCollisionIndex(LadderFinishCheckPoint2) != Map.CollisionTypes.Ladder)
+                {
+                    SetStatus(Statuses.Neutral);
+                    int NewPosY = (DrawPosition.Y / Const.MapchipTileSize - 1) * Const.MapchipTileSize + Const.MapchipTileSize - 1;
+                    SetPosY(NewPosY);
+                    MoveDistance.Y = 0;
+                    IsInAir = false;
+                }
+
             }
-            // はしごを登り切る
-            DrawPosition = GetDrawPosition();
-            Point LadderFinishCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 9);
-            Point LadderFinishCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
-            if (MoveDistance.Y < 0 &&
-                Map.PointToCollisionIndex(LadderFinishCheckPoint) != Map.CollisionTypes.Ladder &&
-                Map.PointToCollisionIndex(LadderFinishCheckPoint2) != Map.CollisionTypes.Ladder)
+            // ショットモーション管理
+            else
             {
-                SetStatus(Statuses.Neutral);
-                int NewPosY = (DrawPosition.Y / Const.MapchipTileSize - 1) * Const.MapchipTileSize + Const.MapchipTileSize - 1;
-                SetPosY(NewPosY);
-                MoveDistance.Y = 0;
-                IsInAir = false;
+                ShootingFrameCounter++;
+                if (ShootingFrameCounter >= 32)
+                {
+                    IsShooting = false;
+                }
+            }
+
+            // スプライト管理
+            if (Status == Statuses.Ladder && MoveDistance.Y != 0 && FrameCounter % 8 == 0)
+            {
+                AnimationPattern++;
+                AnimationPattern = AnimationPattern % Sprites.Ladder.Length;
             }
         }
 
@@ -632,6 +723,7 @@ namespace Rockman_vs_SmashBros
         /// <param name="AfterPosition">はしごを掴んだあとの座標</param>
         private void GrabLadder(Vector2 AfterPosition)
         {
+            IsShooting = false;
             SetPosition(AfterPosition);
             MoveDistance = Vector2.Zero;
             SetStatus(Statuses.Ladder);

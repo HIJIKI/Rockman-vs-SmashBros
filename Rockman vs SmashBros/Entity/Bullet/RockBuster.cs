@@ -76,7 +76,7 @@ namespace Rockman_vs_SmashBros
         /// </summary>
         public override void Update(GameTime GameTime)
         {
-            float Speed = 3.0f;
+            float Speed = 4.0f;
             // 左向き
             if (IsFaceToLeft)
             {
@@ -127,7 +127,7 @@ namespace Rockman_vs_SmashBros
                 Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
                 Vector2 Origin = CurrentlySprite.Origin;
                 SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-                float layerDepth = (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX;
+                float layerDepth = (float)Const.DrawOrder.PlayerShot / (float)Const.DrawOrder.MAX;
                 // 左を向いている場合は中心座標を反転
                 if (IsFaceToLeft)
                 {

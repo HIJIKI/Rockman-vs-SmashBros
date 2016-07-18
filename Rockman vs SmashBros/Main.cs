@@ -56,8 +56,12 @@ namespace Rockman_vs_SmashBros
 			Map.InitForTest();
 			Map.SpawnAllEntities();
 
-			// MonoGame コンポーネントを初期化
-			base.Initialize();
+            //TODO: リリース時には削除する
+            // ニコ生で画面の中心あたりにウィンドウが来るようにする
+            Window.Position = new Point(200, 150);
+
+            // MonoGame コンポーネントを初期化
+            base.Initialize();
 		}
 
 		/// <summary>
@@ -202,8 +206,10 @@ namespace Rockman_vs_SmashBros
 				//Messages.Add("Player.ScreenPosition: " + (Player.Position - Camera.Position.ToVector2()));
 				Messages.Add("Player.IsInAir: " + Player.IsInAir.ToString());
 				Messages.Add("Player.RidingEntity: " + Player.GetRidingEntityString());
-				//Messages.Add("CameraPosition: " + (Camera.Position));
-				Messages.Add("AllEntities: " + Entities.Count);
+                Messages.Add("Player.FrameCounter: " + Player.FrameCounter);
+                Messages.Add("Player.AnimationPattern: " + Player.AnimationPattern);
+                //Messages.Add("CameraPosition: " + (Camera.Position));
+                Messages.Add("AllEntities: " + Entities.Count);
 				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 8 * Messages.Count), new Color(Color.Black, 0.5f), true);
 				for (int i = 0; i < Messages.Count; i++)
 				{
