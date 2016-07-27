@@ -17,6 +17,7 @@ namespace Rockman_vs_SmashBros
 	{
 		#region メンバーの宣言
 		public static Texture2D Texture;                            // テクスチャ
+		public static DamageDetail DamageDetail;                    // 接触時にプレイヤーに与えるダメージ
 
 		private bool IsFaceToLeft;                                  // 左を向いているかどうか
 		private int FrameCounter;                                   // フレームカウンター
@@ -45,8 +46,8 @@ namespace Rockman_vs_SmashBros
 			this.IsFromMap = IsFromMap;
 			this.FromMapPosition = FromMapPosition;
 			Type = Types.Enemy;
-            Health = 3;
-			HitDamage = 4;
+			Health = 3;
+			DamageDetail = new DamageDetail(4, DamageDetail.Types.Normal, this);
 			Initialize();
 		}
 
@@ -137,7 +138,7 @@ namespace Rockman_vs_SmashBros
 			Rectangle AbsoluteCollision = GetAbsoluteCollision();
 			if (AbsoluteCollision.Intersects(Player.GetAbsoluteCollision()))
 			{
-				Player.GiveDamage(HitDamage);
+				Player.GiveDamage(DamageDetail);
 			}
 
 			// 落下時にデスポーン
@@ -186,21 +187,21 @@ namespace Rockman_vs_SmashBros
 			{
 				Point DrawPosition = GetDrawPosition();
 				Rectangle AbsoluteSearchRange = new Rectangle(DrawPosition.X + SearchRange.X, DrawPosition.Y + SearchRange.Y, SearchRange.Width, SearchRange.Height);
-				SpriteBatch.DrawRectangle(AbsoluteSearchRange, Color.Red * 0.2f, true);
+				SpriteBatch.DrawRectangle(AbsoluteSearchRange, Color.Red * 0.15f, true);
 			}
 
 			base.Draw(GameTime, SpriteBatch);
 		}
 
-        /// <summary>
-        /// エンティティにダメージを与える
-        /// </summary>
-        /// <param name="Damage">与えるダメージ</param>
-        public override void GiveDamage(int Damage)
+		/// <summary>
+		/// エンティティにダメージを与える
+		/// </summary>
+		/// <param name="Damage">与えるダメージ</param>
+		public override bool GiveDamage(DamageDetail DamageDetail)
 		{
-            Status = Statuses.Attack;
-
-			base.GiveDamage(Damage);
+			Status = Statuses.Attack;
+			base.GiveDamage(DamageDetail);
+			return true;
 		}
 	}
 }

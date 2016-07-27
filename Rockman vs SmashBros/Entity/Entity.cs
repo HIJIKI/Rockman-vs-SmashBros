@@ -36,7 +36,6 @@ namespace Rockman_vs_SmashBros
 		public bool IsIgnoreGravity;                                // このエンティティが重力を無視するかどうか
 		public Entity RidingEntity;                                 // このエンティティが乗っているエンティティ
 		public int Health;                                          // このエンティティの体力
-		public int HitDamage;										// 接触時に相手に与えるダメージ
 		#endregion
 
 		/// <summary>
@@ -116,16 +115,18 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// エンティティにダメージを与える
 		/// </summary>
-		/// <param name="Damage">与えるダメージ</param>
-		public virtual void GiveDamage(int Damage)
+		/// <param name="DamageDetail">与えるダメージの内容</param>
+		/// <returns>ダメージが有効であったかどうかを返す。</returns>
+		public virtual bool GiveDamage(DamageDetail DamageDetail)
 		{
-			Health -= Damage;
+			Health -= DamageDetail.Damage;
             if (Health <= 0)
             {
                 Destroy();
             }
+			return true;
 		}
-
+	
 		/// <summary>
 		/// 指定した座標へ移動
 		/// </summary>

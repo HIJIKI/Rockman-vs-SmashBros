@@ -38,9 +38,11 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Bullet.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Const.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="DamageDetail.cs" />
     <Compile Include="Entity\Bullet\RockBuster.cs" />
     <Compile Include="Entity\EntityManager.cs" />
     <Compile Include="Entity\Enemy\HyruleSoldier.cs" />

@@ -310,11 +310,11 @@ namespace Rockman_vs_SmashBros
         /// ダメージを受ける
         /// </summary>
         /// <param name="Damage">ダメージ量</param>
-        public override void GiveDamage(int Damage)
+        public override bool GiveDamage(DamageDetail DamageDetail)
         {
             if (IsAlive && !IsInvincible)
             {
-                base.GiveDamage(Damage);
+                base.GiveDamage(DamageDetail);
 
                 if (Health <= 0)
                 {
@@ -326,8 +326,9 @@ namespace Rockman_vs_SmashBros
                     IsInvincible = true;
                     MoveDistance.Y = 0;
                     SetStatus(Statuses.Damage);
-                }
+				}
             }
+			return true;
         }
 
         #region プライベート関数
@@ -379,7 +380,7 @@ namespace Rockman_vs_SmashBros
         private void StandardOperation()
         {
             // ショット開始
-            if (Controller.IsButtonPressed(Controller.Buttons.B))
+            if (Controller.IsButtonPressed(Controller.Buttons.B) && RockBuster.Count < 3)
             {
                 Point ShotPosition = Position.ToPoint() + new Point(0, -10);
                 Main.Entities.Add(new RockBuster(ShotPosition, IsFaceToLeft));
@@ -491,7 +492,7 @@ namespace Rockman_vs_SmashBros
             MoveDistance = Vector2.Zero;
 
             // ショット開始
-            if (Controller.IsButtonPressed(Controller.Buttons.B))
+            if (Controller.IsButtonPressed(Controller.Buttons.B) && RockBuster.Count < 3)
             {
                 // 押している方向に向く
                 if (Controller.IsButtonDown(Controller.Buttons.Left))

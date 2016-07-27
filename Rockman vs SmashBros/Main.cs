@@ -210,7 +210,8 @@ namespace Rockman_vs_SmashBros
                 Messages.Add("Player.AnimationPattern: " + Player.AnimationPattern);
                 //Messages.Add("CameraPosition: " + (Camera.Position));
                 Messages.Add("AllEntities: " + Entities.Count);
-				SpriteBatch.DrawRectangle(new Rectangle(0, 0, 240, 8 * Messages.Count), new Color(Color.Black, 0.5f), true);
+				Messages.Add("RockBuster: " + RockBuster.Count);
+				SpriteBatch.DrawRectangle(new Rectangle(0, 0, Const.GameScreenWidth, 8 * Messages.Count), new Color(Color.Black, 0.5f), true);
 				for (int i = 0; i < Messages.Count; i++)
 				{
 					Vector2 Position = new Vector2(1, 1 + i * 8);
