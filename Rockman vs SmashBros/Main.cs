@@ -79,7 +79,6 @@ namespace Rockman_vs_SmashBros
 			// 画像リソースの読み込み
 			Player.LoadContent(Content);
 			Map.LoadContent(Content);
-			Enemy1.LoadContent(Content);
 			HyruleSoldier.LoadContent(Content);
 			Platform1.LoadContent(Content);
 			Platform2.LoadContent(Content);
@@ -100,7 +99,6 @@ namespace Rockman_vs_SmashBros
 
 			Player.UnloadContent();
 			Map.UnloadContent();
-			Enemy1.UnloadContent();
 			HyruleSoldier.UnloadContent();
 			Platform1.UnloadContent();
 			Platform2.UnloadContent();

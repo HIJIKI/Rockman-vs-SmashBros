@@ -40,7 +40,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// コンストラクタ
 		/// </summary>
-		public HyruleSoldier(Point Position, bool IsFromMap = false, Point FromMapPosition = new Point())
+		public HyruleSoldier(Point Position, bool IsFromMap = false, Point FromMapPosition = new Point(), bool AttackStart = false)
 		{
 			this.Position = Position.ToVector2();
 			this.IsFromMap = IsFromMap;
@@ -48,7 +48,21 @@ namespace Rockman_vs_SmashBros
 			Type = Types.Enemy;
 			Health = 3;
 			DamageDetail = new DamageDetail(4, DamageDetail.Types.Normal, this);
-			Initialize();
+
+			if (AttackStart)
+			{
+				Status = Statuses.Attack;
+			}
+			else
+			{
+				Status = Statuses.Searching;
+			}
+
+			IsAlive = true;
+			MoveDistance = Vector2.Zero;
+
+			RelativeCollision = new Rectangle(-7, -23, 14, 24);
+			SearchRange = new Rectangle(-80, -63, 160, 64);
 		}
 
 		/// <summary>
@@ -56,17 +70,6 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public override void Initialize()
 		{
-			IsAlive = true;
-			MoveDistance = Vector2.Zero;
-
-			SearchingSprite = new Sprite(new Rectangle(0, 0, 32, 32), new Vector2(15, 28));
-			AttackSprites[0] = new Sprite(new Rectangle(48 * 0, 32, 48, 32), new Vector2(15, 28));
-			AttackSprites[1] = new Sprite(new Rectangle(48 * 1, 32, 48, 32), new Vector2(15, 28));
-			AttackSprites[2] = new Sprite(new Rectangle(48 * 2, 32, 48, 32), new Vector2(15, 28));
-			AttackAnimationTable = new int[] { 0, 1, 2, 1 };
-
-			RelativeCollision = new Rectangle(-7, -23, 14, 24);
-			SearchRange = new Rectangle(-80, -63, 160, 64);
 		}
 
 		/// <summary>
@@ -74,7 +77,15 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void LoadContent(ContentManager Content)
 		{
+			// テクスチャの読み込み
 			Texture = Content.Load<Texture2D>("Image/HyruleSoldier.png");
+
+			// 各スプライトの定義
+			SearchingSprite = new Sprite(new Rectangle(0, 0, 32, 32), new Vector2(15, 28));
+			AttackSprites[0] = new Sprite(new Rectangle(48 * 0, 32, 48, 32), new Vector2(15, 28));
+			AttackSprites[1] = new Sprite(new Rectangle(48 * 1, 32, 48, 32), new Vector2(15, 28));
+			AttackSprites[2] = new Sprite(new Rectangle(48 * 2, 32, 48, 32), new Vector2(15, 28));
+			AttackAnimationTable = new int[] { 0, 1, 2, 1 };
 		}
 
 		/// <summary>

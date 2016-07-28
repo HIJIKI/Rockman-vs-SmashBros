@@ -21,13 +21,15 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Positiuon">作成する座標</param>
 		public static void Create(string EntityName, Point Position, bool IsFromMap, Point FromMapPosition)
 		{
-			if (EntityName == "Enemy1")
-			{
-				Main.Entities.Add(new Enemy1(Position, IsFromMap, FromMapPosition));
-			}
+			// ハイラル兵
 			if (EntityName == "HyruleSoldier")
 			{
 				Main.Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition));
+			}
+			// ハイラル兵 (攻撃モード)
+			if (EntityName == "HyruleSoldier:Attacking")
+			{
+				Main.Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition, true));
 			}
 			if (EntityName == "Platform1")
 			{

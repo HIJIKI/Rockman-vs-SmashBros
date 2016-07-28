@@ -323,12 +323,9 @@ namespace Rockman_vs_SmashBros
 			#endregion
 
 			EntityLayer[9, 3] = "HyruleSoldier";
-			//EntityLayer[20, 11] = "Enemy1";
-			//EntityLayer[25, 11] = "Enemy1";
 			EntityLayer[21, 24] = "HyruleSoldier";
-			EntityLayer[26, 33] = "HyruleSoldier";
+			EntityLayer[26, 33] = "HyruleSoldier:Attacking";
 			EntityLayer[21, 41] = "HyruleSoldier";
-			//EntityLayer[7, 41] = "Enemy1";
 
 			EntityLayer[19, 8] = "Platform1";
 			EntityLayer[25, 10] = "Platform2";
