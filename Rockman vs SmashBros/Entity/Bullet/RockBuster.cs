@@ -51,7 +51,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 初期化
 		/// </summary>
-		public override void Initialize()
+		public void Initialize()
 		{
 
 		}

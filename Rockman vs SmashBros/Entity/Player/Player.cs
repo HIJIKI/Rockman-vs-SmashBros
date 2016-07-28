@@ -75,18 +75,20 @@ namespace Rockman_vs_SmashBros
         /// <summary>
         /// 初期化
         /// </summary>
-        public override void Initialize()
+		/// <param name="SpawnPoint">開始位置 (マップ上のマス数)</param>
+        public void Initialize(Point SpawnPoint)
         {
-            Health = 28;
+            Health = 8;
             IsAlive = true;
-            Position.X = 3 * Const.MapchipTileSize;
-            Position.Y = 4 * Const.MapchipTileSize;
-            MoveDistance = Vector2.Zero;
+			Position.X = SpawnPoint.X * Const.MapchipTileSize + Const.MapchipTileSize / 2;
+			Position.Y = SpawnPoint.Y * Const.MapchipTileSize + Const.MapchipTileSize - 1;
+			MoveDistance = Vector2.Zero;
             Collision = new Rectangle(-7, -23, 15, 24);
             WalkSpeed = 1.35f;
             JumpSpeed = -4.8f;
             LadderSpeed = 1.3f;
             SlidingSpeed = 2.5f;
+			Map.SetSectionID(0);
         }
 
         /// <summary>
@@ -165,7 +167,7 @@ namespace Rockman_vs_SmashBros
             // 落下時のリスポーン
             if (Position.Y > Map.Size.Height * Const.MapchipTileSize)
             {
-                Initialize();
+				Destroy();
             }
 
             if (Global.Debug)
@@ -662,7 +664,7 @@ namespace Rockman_vs_SmashBros
                             }
                         }
 
-                        Map.ChangeSection(i);
+                        Map.SetSectionID(i);
 
                         ChangeSectionSourcePosition = Source;
                         ChangeSectionDestinationPosition = Destination;
@@ -738,7 +740,7 @@ namespace Rockman_vs_SmashBros
         {
             Vector2 Source = ChangeSectionSourcePosition;
             Vector2 Destination = ChangeSectionDestinationPosition;
-            int Duration = Global.ChangeSectionDuration;
+            int Duration = Const.ChangeSectionDuration;
             Position.X = Source.X + (Destination.X - Source.X) / Duration * ChangeSectionFrame;
             Position.Y = Source.Y + (Destination.Y - Source.Y) / Duration * ChangeSectionFrame;
 

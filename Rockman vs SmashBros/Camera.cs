@@ -133,11 +133,11 @@ namespace Rockman_vs_SmashBros
 		{
 			Vector2 Source = ScrollSourcePosition;
 			Vector2 Destination = ScrollDestinationPosition;
-			Position.X = (int)(Source.X + (Destination.X - Source.X) / Global.ChangeSectionDuration * ChangeSectionFrame);
-			Position.Y = (int)(Source.Y + (Destination.Y - Source.Y) / Global.ChangeSectionDuration * ChangeSectionFrame);
+			Position.X = (int)(Source.X + (Destination.X - Source.X) / Const.ChangeSectionDuration * ChangeSectionFrame);
+			Position.Y = (int)(Source.Y + (Destination.Y - Source.Y) / Const.ChangeSectionDuration * ChangeSectionFrame);
 
 			ChangeSectionFrame++;
-			if (ChangeSectionFrame > Global.ChangeSectionDuration)
+			if (ChangeSectionFrame > Const.ChangeSectionDuration)
 			{
 				InChangeSection = false;
 				Position = Destination.ToPoint();

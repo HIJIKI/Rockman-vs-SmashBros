@@ -21,7 +21,7 @@ namespace Rockman_vs_SmashBros
 		public static Texture2D CollisionTexture;                   // マップの当たり判定チップ画像
 		public static Size Size;                                    // マップの縦横マス数
 		public static AnimationTile[] AnimationTiles;               // アニメーションタイルのデータ
-		public static List<Section> Sections = new List<Section>(); // マップ内セクションのデータ
+		public static List<Section> Sections;                       // マップ内セクションのデータ
 		public static int CurrentlySectionID;                       // 現在いるセクションのID
 		public static Tile[,] BGLayer;                              // 背景レイヤー
 		public static Tile[,] LowerLayer;                           // 下層レイヤー
@@ -30,7 +30,8 @@ namespace Rockman_vs_SmashBros
 		public static string[,] EntityLayer;                        // エンティティレイヤー
 		public static int FrameCounter;                             // フレームカウンター
 		public static bool StopEntitySpawn;                         // エンティティのスポーンを停止するフラグ
-
+		public static Point SpawnPoint;                             // ステージ開始時のプレイヤー位置 (マス)
+		
 		// タイル1枚のデータ構造体
 		public struct Tile
 		{
@@ -330,11 +331,15 @@ namespace Rockman_vs_SmashBros
 			EntityLayer[19, 8] = "Platform1";
 			EntityLayer[25, 10] = "Platform2";
 
-			Sections.Add(new Section(new Rectangle(0, 0, 16, 15), false, true, true, false));
+			EntityLayer[25, 11] = "CheckPoint";
+			EntityLayer[8, 41] = "CheckPoint";
+
+			Sections = new List<Section>();
+			Sections.Add(new Section(new Rectangle(0, 0, 16, 15), false, false, false, false));
 			Sections.Add(new Section(new Rectangle(16, 0, 16, 15), false, false, false, true));
 			Sections.Add(new Section(new Rectangle(16, 15, 16, 30), false, true, false, true));
 			Sections.Add(new Section(new Rectangle(0, 30, 16, 15), false, true, true, false));
-			CurrentlySectionID = 0;
+			SetSectionID(0);
 			//*/
 
 			for (int x = 0; x < Size.Width; x++)
@@ -348,6 +353,8 @@ namespace Rockman_vs_SmashBros
 				}
 			}
 			//*/
+
+			SpawnPoint = new Point(2, 5);
 
 			// アニメーションタイルの定義
 			AnimationTiles = new AnimationTile[12];
@@ -469,8 +476,9 @@ namespace Rockman_vs_SmashBros
 			};
 			#endregion
 
+			Sections = new List<Section>();
 			Sections.Add(new Section(new Rectangle(0, 0, 64, 18), false, true, true, true));
-			CurrentlySectionID = 0;
+			SetSectionID(0);
 			//*/
 
 			for (int x = 0; x < Size.Width; x++)
@@ -604,12 +612,15 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// 別のセクションへ移動
+		/// セクションIDを設定または変更
 		/// </summary>
-		/// <param name="TargetSectionID">移動先のセクションID</param>
-		public static void ChangeSection(int TargetSectionID)
+		/// <param name="TargetSectionID">設定したいセクションID</param>
+		public static void SetSectionID(int TargetSectionID)
 		{
-			CurrentlySectionID = TargetSectionID;
+			if (TargetSectionID >= 0 && TargetSectionID < Sections.Count)
+			{
+				CurrentlySectionID = TargetSectionID;
+			}
 		}
 
 		/// <summary>
@@ -751,6 +762,25 @@ namespace Rockman_vs_SmashBros
 				if (CollisionIndex == CollisionTypes.Air)
 				{
 					Result = true;
+				}
+			}
+			return Result;
+		}
+
+		/// <summary>
+		/// 指定したマップ上の座標が属しているセクションのIDを返す
+		/// </summary>
+		/// <param name="Point">属しているセクションを取得したいマップ上の座標 (マス数)</param>
+		/// <returns>指定したマップ上の座標が属しているセクションのID。どのセクションにも属していなければ -1 を返す。</returns>
+		public static int GetSectionIDFromPoint(Point Point)
+		{
+			int Result = -1;
+			for (int i = 0; i < Sections.Count; i++)
+			{
+				if (Sections[i].Area.Contains(Point))
+				{
+					Result = i;
+					break;
 				}
 			}
 			return Result;

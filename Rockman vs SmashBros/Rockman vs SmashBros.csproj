@@ -47,6 +47,7 @@
     <Compile Include="Entity\EntityManager.cs" />
     <Compile Include="Entity\Enemy\HyruleSoldier.cs" />
     <Compile Include="Entity\Entity.cs" />
+    <Compile Include="Entity\Gimmick\CheckPoint.cs" />
     <Compile Include="Entity\Gimmick\Platform2.cs" />
     <Compile Include="Entity\Gimmick\Platform1.cs" />
     <Compile Include="Library\Primitives2DWrapper.cs" />

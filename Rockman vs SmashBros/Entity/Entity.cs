@@ -39,16 +39,6 @@ namespace Rockman_vs_SmashBros
 		#endregion
 
 		/// <summary>
-		/// コンストラクタ
-		/// </summary>
-		public Entity() { }
-
-		/// <summary>
-		/// 初期化
-		/// </summary>
-		public virtual void Initialize() { }
-
-		/// <summary>
 		/// フレームの更新
 		/// </summary>
 		public virtual void Update(GameTime GameTime)

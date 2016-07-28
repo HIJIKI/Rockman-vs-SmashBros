@@ -35,5 +35,7 @@ namespace Rockman_vs_SmashBros
 			MAX                                                         // レイヤーの最大数
 		}
 
+		public const int ChangeSectionDuration = 128;					// セクションの移動にかけるフレーム数
+
 	}
 }

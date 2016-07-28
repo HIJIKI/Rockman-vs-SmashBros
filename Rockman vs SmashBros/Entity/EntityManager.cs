@@ -21,23 +21,30 @@ namespace Rockman_vs_SmashBros
 		/// <param name="Positiuon">作成する座標</param>
 		public static void Create(string EntityName, Point Position, bool IsFromMap, Point FromMapPosition)
 		{
-			// ハイラル兵
-			if (EntityName == "HyruleSoldier")
+			var Entities = Main.Entities;
+			// エンティティ名による場合分け
+			switch (EntityName)
 			{
-				Main.Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition));
-			}
-			// ハイラル兵 (攻撃モード)
-			if (EntityName == "HyruleSoldier:Attacking")
-			{
-				Main.Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition, true));
-			}
-			if (EntityName == "Platform1")
-			{
-				Main.Entities.Add(new Platform1(Position, IsFromMap, FromMapPosition));
-			}
-			if (EntityName == "Platform2")
-			{
-				Main.Entities.Add(new Platform2(Position, IsFromMap, FromMapPosition));
+				// チェックポイント
+				case "CheckPoint":
+					Entities.Add(new CheckPoint(Position, IsFromMap, FromMapPosition));
+					break;
+				// ハイラル兵
+				case "HyruleSoldier":
+					Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition));
+					break;
+				// ハイラル兵 (攻撃モード)
+				case "HyruleSoldier:Attacking":
+					Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition, true));
+					break;
+				// 足場1
+				case "Platform1":
+					Entities.Add(new Platform1(Position, IsFromMap, FromMapPosition));
+					break;
+				// 足場2
+				case "Platform2":
+					Entities.Add(new Platform2(Position, IsFromMap, FromMapPosition));
+					break;
 			}
 		}
 		public static void Create(string EntityName, Point Position)

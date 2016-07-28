@@ -28,8 +28,16 @@ namespace Rockman_vs_SmashBros
 		public static RenderTarget2D GameScreenBuffer;              // ゲーム画面描画バッファ
 
 		// 各メンバーを宣言
-		public static Player Player = new Player();                 // プレイヤー
-		public static List<Entity> Entities = new List<Entity>();   // エンティティ
+		public static Player Player;								// プレイヤー
+		public static List<Entity> Entities;						// エンティティ
+
+		public static Scenes Scene;									// シーン管理
+		public enum Scenes
+		{
+			Play
+		}
+
+		public static Point SpawnPoint;								// プレイヤーの開始位置 (マップ上のマス数)
 
 		#endregion
 
@@ -43,6 +51,10 @@ namespace Rockman_vs_SmashBros
 			GraphicsDeviceManager.PreferredBackBufferWidth = Const.GameScreenWidth * Global.WindowScale;
 			GraphicsDeviceManager.PreferredBackBufferHeight = Const.GameScreenHeight * Global.WindowScale;
 			IsMouseVisible = true;
+
+			//TODO: リリース時には削除する
+			// ニコ生で画面の中心あたりにウィンドウが来るようにする
+			Window.Position = new Point(200, 150);
 		}
 
 		/// <summary>
@@ -50,18 +62,20 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		protected override void Initialize()
 		{
-			// ここに初期化ロジックを追加
-			Player.Initialize();
+			// 開始シーンを設定
+			Scene = Scenes.Play;
+
+			// 各インスタンスを初期化
+			Entities = new List<Entity>();
 			Map.Initialize();
 			Map.InitForTest();
+			SetSpawnPoint(Map.SpawnPoint);
 			Map.SpawnAllEntities();
+			Player = new Player();
+			Player.Initialize(SpawnPoint);
 
-            //TODO: リリース時には削除する
-            // ニコ生で画面の中心あたりにウィンドウが来るようにする
-            Window.Position = new Point(200, 150);
-
-            // MonoGame コンポーネントを初期化
-            base.Initialize();
+			// MonoGame コンポーネントを初期化
+			base.Initialize();
 		}
 
 		/// <summary>
@@ -76,7 +90,7 @@ namespace Rockman_vs_SmashBros
 			WorldBuffer = new RenderTarget2D(GraphicsDevice, Map.Size.Width * Const.MapchipTileSize, Map.Size.Height * Const.MapchipTileSize);
 			GameScreenBuffer = new RenderTarget2D(GraphicsDevice, Const.GameScreenWidth, Const.GameScreenHeight);
 
-			// 画像リソースの読み込み
+			// 各クラスのリソースを読み込み
 			Player.LoadContent(Content);
 			Map.LoadContent(Content);
 			HyruleSoldier.LoadContent(Content);
@@ -125,6 +139,45 @@ namespace Rockman_vs_SmashBros
 			// コントローラ入力状態を更新
 			Controller.Update(GameTime);
 
+			// Play シーン
+			if (Scene == Scenes.Play)
+			{
+				UpdatePlayScene(GameTime);
+			}
+
+			base.Update(GameTime);
+		}
+
+		/// <summary>
+		/// 描画
+		/// </summary>
+		protected override void Draw(GameTime GameTime)
+		{
+			// Play シーン
+			if (Scene == Scenes.Play)
+			{
+				DrawPlayScene(GameTime);
+			}
+
+			base.Draw(GameTime);
+		}
+
+		/// <summary>
+		/// プレイヤーの開始位置を設定または変更
+		/// </summary>
+		/// <param name="SpawnPoint">設定したいプレイヤーの開始位置 (マップ上のマス数)</param>
+		public static void SetSpawnPoint(Point SpawnPoint)
+		{
+			Main.SpawnPoint = SpawnPoint;
+		}
+
+		#region プライベート関数
+
+		/// <summary>
+		/// Play シーンでのフレーム更新
+		/// </summary>
+		private void UpdatePlayScene(GameTime GameTime)
+		{
 			// マップを更新
 			Map.Update(GameTime);
 
@@ -155,13 +208,22 @@ namespace Rockman_vs_SmashBros
 			// カメラを更新
 			Camera.Update(GameTime, Player.GetDrawPosition());
 
-			base.Update(GameTime);
+			// プレイヤーが死亡した場合
+			if(!Player.IsAlive)
+			{
+				Entity.DestroyAll();
+				Player.Initialize(SpawnPoint);
+				Map.SetSectionID(Map.GetSectionIDFromPoint(SpawnPoint));
+				Camera.Update(GameTime, Player.GetDrawPosition());
+				Map.SpawnAllEntities();
+			}
+
 		}
 
 		/// <summary>
-		/// 描画
+		/// Play シーンでの描画
 		/// </summary>
-		protected override void Draw(GameTime GameTime)
+		private void DrawPlayScene(GameTime GameTime)
 		{
 			// ワールドバッファの描画
 			GraphicsDevice.SetRenderTarget(WorldBuffer);
@@ -204,10 +266,10 @@ namespace Rockman_vs_SmashBros
 				//Messages.Add("Player.ScreenPosition: " + (Player.Position - Camera.Position.ToVector2()));
 				Messages.Add("Player.IsInAir: " + Player.IsInAir.ToString());
 				Messages.Add("Player.RidingEntity: " + Player.GetRidingEntityString());
-                Messages.Add("Player.FrameCounter: " + Player.FrameCounter);
-                Messages.Add("Player.AnimationPattern: " + Player.AnimationPattern);
-                //Messages.Add("CameraPosition: " + (Camera.Position));
-                Messages.Add("AllEntities: " + Entities.Count);
+				Messages.Add("Player.FrameCounter: " + Player.FrameCounter);
+				Messages.Add("Player.AnimationPattern: " + Player.AnimationPattern);
+				//Messages.Add("CameraPosition: " + (Camera.Position));
+				Messages.Add("AllEntities: " + Entities.Count);
 				Messages.Add("RockBuster: " + RockBuster.Count);
 				SpriteBatch.DrawRectangle(new Rectangle(0, 0, Const.GameScreenWidth, 8 * Messages.Count), new Color(Color.Black, 0.5f), true);
 				for (int i = 0; i < Messages.Count; i++)
@@ -228,16 +290,8 @@ namespace Rockman_vs_SmashBros
 			SpriteBatch.Draw(GameScreenBuffer, Vector2.Zero, new Rectangle(0, 0, Const.GameScreenWidth, Const.GameScreenHeight), Color.White, 0.0f, new Vector2(0, 0), (float)Global.WindowScale, SpriteEffects.None, 1);
 			SpriteBatch.End();
 
-			base.Draw(GameTime);
 		}
 
-		/// <summary>
-		/// ワールド描画バッファをリサイズ
-		/// </summary>
-		/// <param name="Size"></param>
-		public static void ResizeWorldBuffer(Size Size)
-		{
-			WorldBuffer = new RenderTarget2D(WorldBuffer.GraphicsDevice, Size.Width, Size.Height);
-		}
+		#endregion
 	}
 }
