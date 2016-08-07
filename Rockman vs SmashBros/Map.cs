@@ -30,7 +30,7 @@ namespace Rockman_vs_SmashBros
 		public static string[,] EntityLayer;                        // エンティティレイヤー
 		public static int FrameCounter;                             // フレームカウンター
 		public static bool StopEntitySpawn;                         // エンティティのスポーンを停止するフラグ
-		public static Point SpawnPoint;                             // ステージ開始時のプレイヤー位置 (マス)
+		public static Point SpawnPositionOnMap;                     // ステージ開始時のプレイヤー位置 (マス)
 		
 		// タイル1枚のデータ構造体
 		public struct Tile
@@ -354,7 +354,7 @@ namespace Rockman_vs_SmashBros
 			}
 			//*/
 
-			SpawnPoint = new Point(2, 5);
+			SpawnPositionOnMap = new Point(2, 5);
 
 			// アニメーションタイルの定義
 			AnimationTiles = new AnimationTile[12];
@@ -527,18 +527,18 @@ namespace Rockman_vs_SmashBros
 			if (!StopEntitySpawn)
 			{
 				// 画面に入ったマスに配置されているエンティティを作成
-				Point CameraPosInMap = Camera.Position / new Point(Const.MapchipTileSize);
-				Point OldCameraPosInMap = Camera.OldPosition / new Point(Const.MapchipTileSize);
+				Point CameraPositionOnMap = Camera.Position / new Point(Const.MapchipTileSize);
+				Point OldCameraPositionOnMap = Camera.OldPosition / new Point(Const.MapchipTileSize);
 				Rectangle CurrentlySectionArea = Sections[CurrentlySectionID].Area;
-				if (CameraPosInMap != OldCameraPosInMap)
+				if (CameraPositionOnMap != OldCameraPositionOnMap)
 				{
 					// 1フレーム前に描画されていたマップ範囲
-					Rectangle OldViewMapRange = new Rectangle(OldCameraPosInMap.X, OldCameraPosInMap.Y, (Const.GameScreenWidth / Const.MapchipTileSize) + 1, (Const.GameScreenHeight / Const.MapchipTileSize) + 1);
+					Rectangle OldViewMapRange = new Rectangle(OldCameraPositionOnMap.X, OldCameraPositionOnMap.Y, (Const.GameScreenWidth / Const.MapchipTileSize) + 1, (Const.GameScreenHeight / Const.MapchipTileSize) + 1);
 
 					// 画面内のマスに配置されているエンティティ
-					for (int x = CameraPosInMap.X; x < CameraPosInMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
+					for (int x = CameraPositionOnMap.X; x < CameraPositionOnMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 					{
-						for (int y = CameraPosInMap.Y; y < CameraPosInMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
+						for (int y = CameraPositionOnMap.Y; y < CameraPositionOnMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 						{
 							// 現在のセクション内で、且つ新たに画面に入った範囲か確認する
 							if (!OldViewMapRange.Contains(x, y) && CurrentlySectionArea.Contains(x, y))
@@ -582,10 +582,10 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
-			Point CameraPosInMap = Camera.Position / new Point(Const.MapchipTileSize);
-			for (int x = CameraPosInMap.X; x < CameraPosInMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
+			Point CameraPositionOnMap = Camera.Position / new Point(Const.MapchipTileSize);
+			for (int x = CameraPositionOnMap.X; x < CameraPositionOnMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 			{
-				for (int y = CameraPosInMap.Y; y < CameraPosInMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
+				for (int y = CameraPositionOnMap.Y; y < CameraPositionOnMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 				{
 					// 画面外を読んでしまわないようにする
 					if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
@@ -630,12 +630,12 @@ namespace Rockman_vs_SmashBros
 		{
 			if (!StopEntitySpawn)
 			{
-				Point CameraPosInMap = Camera.Position / new Point(Const.MapchipTileSize);
+				Point CameraPositionOnMap = Camera.Position / new Point(Const.MapchipTileSize);
 				Rectangle CurrentlySectionArea = Sections[CurrentlySectionID].Area;
 				// 画面内のマスに配置されているエンティティ
-				for (int x = CameraPosInMap.X; x < CameraPosInMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
+				for (int x = CameraPositionOnMap.X; x < CameraPositionOnMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
 				{
-					for (int y = CameraPosInMap.Y; y < CameraPosInMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
+					for (int y = CameraPositionOnMap.Y; y < CameraPositionOnMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 					{
 						// 現在のセクション内で、且つ新たに画面に入った範囲か確認する
 						if (CurrentlySectionArea.Contains(x, y))
@@ -653,17 +653,17 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// Map 上における指定した座標の当たり判定IDを返す
+		/// 指定した座標の当たり判定IDを返す
 		/// </summary>
-		/// <param name="Point">当たり判定IDを取得したい Map 上のワールド座標</param>
+		/// <param name="Point">当たり判定IDを取得したいワールド座標</param>
 		/// <returns>指定した座標の当たり判定ID。マップ外を取得しようとした場合は常に 0 を返す。</returns>
-		public static CollisionTypes PointToCollisionIndex(Point WorldPosition)
+		public static CollisionTypes PositionToCollisionType(Point Position)
 		{
 			CollisionTypes CollisionIndex = CollisionTypes.Air;
-			Point MapPosition = new Point(WorldPosition.X / Const.MapchipTileSize, WorldPosition.Y / Const.MapchipTileSize);
-			if (MapPosition.X >= 0 && MapPosition.X < Size.Width && MapPosition.Y >= 0 && MapPosition.Y < Size.Height)
+			Point PositionOnMap = new Point(Position.X / Const.MapchipTileSize, Position.Y / Const.MapchipTileSize);
+			if (PositionOnMap.X >= 0 && PositionOnMap.X < Size.Width && PositionOnMap.Y >= 0 && PositionOnMap.Y < Size.Height)
 			{
-				CollisionIndex = (CollisionTypes)CollisionLayer[MapPosition.X, MapPosition.Y];
+				CollisionIndex = (CollisionTypes)CollisionLayer[PositionOnMap.X, PositionOnMap.Y];
 			}
 			return CollisionIndex;
 		}
@@ -742,23 +742,23 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// Map 上における指定した座標が梯子の上辺かどうかを調べる
+		/// 指定した座標が梯子の上辺かどうかを調べる
 		/// </summary>
-		/// <param name="Point">梯子の上辺かどうかを調べたい Map 上のワールド座標</param>
+		/// <param name="Point">梯子の上辺かどうかを調べたいワールド座標</param>
 		/// <returns>指定した座標が梯子の上辺かどうか。マップ外を取得しようとした場合は常に false を返す。</returns>
-		public static bool CheckPointLadderTop(Point WorldPosition)
+		public static bool CheckPositionLadderTop(Point Position)
 		{
 			bool Result = false;
 			CollisionTypes CollisionIndex = CollisionTypes.Air;
-			Point MapPosition = new Point(WorldPosition.X / Const.MapchipTileSize, WorldPosition.Y / Const.MapchipTileSize);
-			if (MapPosition.X >= 0 && MapPosition.X < Size.Width && MapPosition.Y >= 0 && MapPosition.Y < Size.Height)
+			Point PositionOnMap = new Point(Position.X / Const.MapchipTileSize, Position.Y / Const.MapchipTileSize);
+			if (PositionOnMap.X >= 0 && PositionOnMap.X < Size.Width && PositionOnMap.Y >= 0 && PositionOnMap.Y < Size.Height)
 			{
-				CollisionIndex = (CollisionTypes)CollisionLayer[MapPosition.X, MapPosition.Y];
+				CollisionIndex = (CollisionTypes)CollisionLayer[PositionOnMap.X, PositionOnMap.Y];
 			}
 			if (CollisionIndex == CollisionTypes.Ladder)
 			{
-				MapPosition.Y -= 1;
-				CollisionIndex = (CollisionTypes)CollisionLayer[MapPosition.X, MapPosition.Y];
+				PositionOnMap.Y -= 1;
+				CollisionIndex = (CollisionTypes)CollisionLayer[PositionOnMap.X, PositionOnMap.Y];
 				if (CollisionIndex == CollisionTypes.Air)
 				{
 					Result = true;
@@ -768,16 +768,16 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// 指定したマップ上の座標が属しているセクションのIDを返す
+		/// 指定したマップ上の座標 (マス数) が属しているセクションのIDを返す
 		/// </summary>
 		/// <param name="Point">属しているセクションを取得したいマップ上の座標 (マス数)</param>
 		/// <returns>指定したマップ上の座標が属しているセクションのID。どのセクションにも属していなければ -1 を返す。</returns>
-		public static int GetSectionIDFromPoint(Point Point)
+		public static int GetSectionIDFromPoint(Point PositionOnMap)
 		{
 			int Result = -1;
 			for (int i = 0; i < Sections.Count; i++)
 			{
-				if (Sections[i].Area.Contains(Point))
+				if (Sections[i].Area.Contains(PositionOnMap))
 				{
 					Result = i;
 					break;

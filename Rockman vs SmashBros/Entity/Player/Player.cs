@@ -76,12 +76,12 @@ namespace Rockman_vs_SmashBros
         /// 初期化
         /// </summary>
 		/// <param name="SpawnPoint">開始位置 (マップ上のマス数)</param>
-        public void Initialize(Point SpawnPoint)
+        public void Initialize(Point SpawnPositionOnMap)
         {
             Health = 8;
             IsAlive = true;
-			Position.X = SpawnPoint.X * Const.MapchipTileSize + Const.MapchipTileSize / 2;
-			Position.Y = SpawnPoint.Y * Const.MapchipTileSize + Const.MapchipTileSize - 1;
+			Position.X = SpawnPositionOnMap.X * Const.MapchipTileSize + Const.MapchipTileSize / 2;
+			Position.Y = SpawnPositionOnMap.Y * Const.MapchipTileSize + Const.MapchipTileSize - 1;
 			MoveDistance = Vector2.Zero;
             Collision = new Rectangle(-7, -23, 15, 24);
             WalkSpeed = 1.35f;
@@ -546,8 +546,8 @@ namespace Rockman_vs_SmashBros
                 Point DrawPosition = GetDrawPosition();
                 Point LadderBendCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 16);
                 Point LadderBendCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
-                if (Map.PointToCollisionIndex(LadderBendCheckPoint) != Map.CollisionTypes.Ladder &&
-                    Map.PointToCollisionIndex(LadderBendCheckPoint2) != Map.CollisionTypes.Ladder)
+                if (Map.PositionToCollisionType(LadderBendCheckPoint) != Map.CollisionTypes.Ladder &&
+                    Map.PositionToCollisionType(LadderBendCheckPoint2) != Map.CollisionTypes.Ladder)
                 {
                     IsLadderBend = true;
                 }
@@ -556,8 +556,8 @@ namespace Rockman_vs_SmashBros
                 Point LadderFinishCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 9);
                 Point LadderFinishCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
                 if (MoveDistance.Y < 0 &&
-                    Map.PointToCollisionIndex(LadderFinishCheckPoint) != Map.CollisionTypes.Ladder &&
-                    Map.PointToCollisionIndex(LadderFinishCheckPoint2) != Map.CollisionTypes.Ladder)
+                    Map.PositionToCollisionType(LadderFinishCheckPoint) != Map.CollisionTypes.Ladder &&
+                    Map.PositionToCollisionType(LadderFinishCheckPoint2) != Map.CollisionTypes.Ladder)
                 {
                     SetStatus(Statuses.Neutral);
                     int NewPosY = (DrawPosition.Y / Const.MapchipTileSize - 1) * Const.MapchipTileSize + Const.MapchipTileSize - 1;
@@ -695,7 +695,7 @@ namespace Rockman_vs_SmashBros
         {
             Point DrawPosition = GetDrawPosition();
             Point CheckPoint = DrawPosition; CheckPoint.Y += 1;   // プレイヤーの足元の1ドット下
-            if (Map.PointToCollisionIndex(CheckPoint) == Map.CollisionTypes.Ladder)
+            if (Map.PositionToCollisionType(CheckPoint) == Map.CollisionTypes.Ladder)
             {
                 return true;
             }
@@ -711,9 +711,9 @@ namespace Rockman_vs_SmashBros
             Point Top = DrawPosition; Top.Y += RelativeCollision.Y;                 // 上辺
             Point Middle = DrawPosition; Middle.Y -= RelativeCollision.Height / 2;  // 中心
             Point Bottom = DrawPosition;                                            // 下辺
-            if (Map.PointToCollisionIndex(Top) == Map.CollisionTypes.Ladder ||
-                Map.PointToCollisionIndex(Middle) == Map.CollisionTypes.Ladder ||
-                Map.PointToCollisionIndex(Bottom) == Map.CollisionTypes.Ladder)
+            if (Map.PositionToCollisionType(Top) == Map.CollisionTypes.Ladder ||
+                Map.PositionToCollisionType(Middle) == Map.CollisionTypes.Ladder ||
+                Map.PositionToCollisionType(Bottom) == Map.CollisionTypes.Ladder)
             {
                 return true;
             }

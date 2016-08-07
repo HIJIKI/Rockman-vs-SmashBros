@@ -37,7 +37,7 @@ namespace Rockman_vs_SmashBros
 			Play
 		}
 
-		public static Point SpawnPoint;								// プレイヤーの開始位置 (マップ上のマス数)
+		public static Point SpawnPositionOnMap;						// プレイヤーの開始位置 (マップ上のマス数)
 
 		#endregion
 
@@ -69,10 +69,10 @@ namespace Rockman_vs_SmashBros
 			Entities = new List<Entity>();
 			Map.Initialize();
 			Map.InitForTest();
-			SetSpawnPoint(Map.SpawnPoint);
+			SetSpawnPoint(Map.SpawnPositionOnMap);
 			Map.SpawnAllEntities();
 			Player = new Player();
-			Player.Initialize(SpawnPoint);
+			Player.Initialize(SpawnPositionOnMap);
 
 			// MonoGame コンポーネントを初期化
 			base.Initialize();
@@ -168,7 +168,7 @@ namespace Rockman_vs_SmashBros
 		/// <param name="SpawnPoint">設定したいプレイヤーの開始位置 (マップ上のマス数)</param>
 		public static void SetSpawnPoint(Point SpawnPoint)
 		{
-			Main.SpawnPoint = SpawnPoint;
+			Main.SpawnPositionOnMap = SpawnPoint;
 		}
 
 		#region プライベート関数
@@ -212,8 +212,8 @@ namespace Rockman_vs_SmashBros
 			if(!Player.IsAlive)
 			{
 				Entity.DestroyAll();
-				Player.Initialize(SpawnPoint);
-				Map.SetSectionID(Map.GetSectionIDFromPoint(SpawnPoint));
+				Player.Initialize(SpawnPositionOnMap);
+				Map.SetSectionID(Map.GetSectionIDFromPoint(SpawnPositionOnMap));
 				Camera.Update(GameTime, Player.GetDrawPosition());
 				Map.SpawnAllEntities();
 			}
