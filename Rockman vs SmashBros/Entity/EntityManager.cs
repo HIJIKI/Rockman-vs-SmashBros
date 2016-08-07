@@ -57,9 +57,10 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void DestroyAll()
 		{
-			while (Main.Entities.Count > 0)
+			var Entities = Main.Entities;
+			foreach (var Entity in Entities)
 			{
-				Main.Entities.RemoveAt(0);
+				Entity.Destroy();
 			}
 		}
 

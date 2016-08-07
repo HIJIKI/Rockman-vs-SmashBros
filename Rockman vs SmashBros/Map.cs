@@ -533,7 +533,7 @@ namespace Rockman_vs_SmashBros
 				if (CameraPositionOnMap != OldCameraPositionOnMap)
 				{
 					// 1フレーム前に描画されていたマップ範囲
-					Rectangle OldViewMapRange = new Rectangle(OldCameraPositionOnMap.X, OldCameraPositionOnMap.Y, (Const.GameScreenWidth / Const.MapchipTileSize) + 1, (Const.GameScreenHeight / Const.MapchipTileSize) + 1);
+					Rectangle OldViewRangeOnMap = new Rectangle(OldCameraPositionOnMap.X, OldCameraPositionOnMap.Y, (Const.GameScreenWidth / Const.MapchipTileSize) + 1, (Const.GameScreenHeight / Const.MapchipTileSize) + 1);
 
 					// 画面内のマスに配置されているエンティティ
 					for (int x = CameraPositionOnMap.X; x < CameraPositionOnMap.X + (Const.GameScreenWidth / Const.MapchipTileSize) + 1; x++)
@@ -541,7 +541,7 @@ namespace Rockman_vs_SmashBros
 						for (int y = CameraPositionOnMap.Y; y < CameraPositionOnMap.Y + (Const.GameScreenHeight / Const.MapchipTileSize) + 1; y++)
 						{
 							// 現在のセクション内で、且つ新たに画面に入った範囲か確認する
-							if (!OldViewMapRange.Contains(x, y) && CurrentlySectionArea.Contains(x, y))
+							if (!OldViewRangeOnMap.Contains(x, y) && CurrentlySectionArea.Contains(x, y))
 							{
 								if (EntityLayer[x, y] != "" && EntityLayer[x, y] != null)
 								{
@@ -644,7 +644,11 @@ namespace Rockman_vs_SmashBros
 							{
 								string EntityName = EntityLayer[x, y];
 								Point SpawnPosition = new Point(x * Const.MapchipTileSize + Const.MapchipTileSize / 2, y * Const.MapchipTileSize + (Const.MapchipTileSize - 1));
-								Entity.Create(EntityName, SpawnPosition, true, new Point(x, y));
+								// このマスより生成されたエンティティがいなければ作成する
+								if (!Main.Entities.Exists(E => E.IsFromMap && E.FromMapPosition == new Point(x, y)))
+								{
+									Entity.Create(EntityName, SpawnPosition, true, new Point(x, y));
+								}
 							}
 						}
 					}
