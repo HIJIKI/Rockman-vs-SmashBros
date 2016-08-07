@@ -166,9 +166,9 @@ namespace Rockman_vs_SmashBros
 		/// プレイヤーの開始位置を設定または変更
 		/// </summary>
 		/// <param name="SpawnPoint">設定したいプレイヤーの開始位置 (マップ上のマス数)</param>
-		public static void SetSpawnPoint(Point SpawnPoint)
+		public static void SetSpawnPoint(Point SpawnPositionOnMap)
 		{
-			Main.SpawnPositionOnMap = SpawnPoint;
+			Main.SpawnPositionOnMap = SpawnPositionOnMap;
 		}
 
 		#region プライベート関数
