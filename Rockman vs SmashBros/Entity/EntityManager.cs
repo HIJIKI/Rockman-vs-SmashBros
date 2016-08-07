@@ -45,6 +45,10 @@ namespace Rockman_vs_SmashBros
 				case "Platform2":
 					Entities.Add(new Platform2(Position, IsFromMap, FromMapPosition));
 					break;
+				// エラーエンティティ
+				default:
+					Entities.Add(new ErrorEntity(Position, IsFromMap, FromMapPosition));
+					break;
 			}
 		}
 		public static void Create(string EntityName, Point Position)

@@ -20,7 +20,8 @@ namespace Rockman_vs_SmashBros
 		{
 			Player,
 			Enemy,
-			Platform
+			Platform,
+			Error
 		}
 		public Types Type;                                          // エンティティの種類
 		public bool IsAlive;                                        // 生存フラグ
