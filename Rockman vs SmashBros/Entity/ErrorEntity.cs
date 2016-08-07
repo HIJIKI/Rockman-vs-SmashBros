@@ -26,8 +26,7 @@ namespace Rockman_vs_SmashBros
 			this.Position = Position.ToVector2();
 			this.IsFromMap = IsFromMap;
 			this.FromMapPosition = FromMapPosition;
-			Type = Types.Error;
-			Health = 1;
+			Type = Types.Other;
 			IsAlive = true;
 			RelativeCollision = new Rectangle(-8, -15, 16, 16);
 		}

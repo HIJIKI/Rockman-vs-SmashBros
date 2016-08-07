@@ -98,6 +98,7 @@ namespace Rockman_vs_SmashBros
 			Platform2.LoadContent(Content);
 			RockBuster.LoadContent(Content);
 			ErrorEntity.LoadContent(Content);
+			CheckPoint.LoadContent(Content);
 
 			// テストフォント
 			Font = Content.Load<SpriteFont>("Font/myfont");
@@ -119,6 +120,7 @@ namespace Rockman_vs_SmashBros
 			Platform2.UnloadContent();
 			RockBuster.UnloadContent();
 			ErrorEntity.UnloadContent();
+			CheckPoint.UnloadContent();
 		}
 
 		/// <summary>
@@ -214,6 +216,7 @@ namespace Rockman_vs_SmashBros
 			if(!Player.IsAlive)
 			{
 				Entity.DestroyAll();
+				Entities.RemoveAll(E => !E.IsAlive);
 				Player.Initialize(SpawnPositionOnMap);
 				Map.SetSectionID(Map.GetSectionIDFromPoint(SpawnPositionOnMap));
 				Camera.Update(GameTime, Player.GetDrawPosition());
