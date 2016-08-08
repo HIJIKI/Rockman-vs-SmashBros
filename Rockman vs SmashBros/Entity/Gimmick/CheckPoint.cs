@@ -31,6 +31,12 @@ namespace Rockman_vs_SmashBros
 			Type = Types.Other;
 
 			Main.SetSpawnPoint(FromMapPosition);
+
+			// 2 度目以降は出現しないようにする
+			if (IsFromMap)
+			{
+				Map.SetInvalidEntity(FromMapPosition);
+			}
 		}
 
 		/// <summary>

@@ -27,11 +27,18 @@ namespace Rockman_vs_SmashBros
 		public static Tile[,] LowerLayer;                           // 下層レイヤー
 		public static Tile[,] UpperLayer;                           // 上層レイヤー
 		public static int[,] CollisionLayer;                        // 地形判定レイヤー
-		public static string[,] EntityLayer;                        // エンティティレイヤー
+		public static EntityTile[,] EntityLayer;                    // エンティティレイヤー
 		public static int FrameCounter;                             // フレームカウンター
 		public static bool StopEntitySpawn;                         // エンティティのスポーンを停止するフラグ
 		public static Point SpawnPositionOnMap;                     // ステージ開始時のプレイヤー位置 (マス)
 		
+		// エンティティタイル1枚のデータ構造体
+		public struct EntityTile
+		{
+			public string Name;
+			public bool Invalid;
+		}
+
 		// タイル1枚のデータ構造体
 		public struct Tile
 		{
@@ -116,7 +123,7 @@ namespace Rockman_vs_SmashBros
 			BGLayer = new Tile[Size.Width, Size.Height];
 			LowerLayer = new Tile[Size.Width, Size.Height];
 			UpperLayer = new Tile[Size.Width, Size.Height];
-			EntityLayer = new string[Size.Width, Size.Height];
+			EntityLayer = new EntityTile[Size.Width, Size.Height];
 			CollisionLayer = new int[Size.Width, Size.Height];
 
 			#region 背景レイヤーの作成
@@ -323,16 +330,16 @@ namespace Rockman_vs_SmashBros
 			};
 			#endregion
 
-			EntityLayer[9, 3] = "HyruleSoldier";
-			EntityLayer[21, 24] = "HyruleSoldier";
-			EntityLayer[26, 33] = "HyruleSoldier:Attacking";
-			EntityLayer[21, 41] = "HyruleSoldier";
+			EntityLayer[9, 3].Name = "HyruleSoldier";
+			EntityLayer[21, 24].Name = "HyruleSoldier";
+			EntityLayer[26, 33].Name = "HyruleSoldier:Attacking";
+			EntityLayer[21, 41].Name = "HyruleSoldier";
 
-			EntityLayer[19, 8] = "Platform1";
-			EntityLayer[25, 10] = "Platform2";
+			EntityLayer[19, 8].Name = "Platform1";
+			EntityLayer[25, 10].Name = "Platform2";
 
-			EntityLayer[25, 11] = "CheckPoint";
-			EntityLayer[8, 41] = "CheckPoint";
+			EntityLayer[25, 11].Name = "CheckPoint";
+			EntityLayer[8, 41].Name = "CheckPoint";
 
 			Sections = new List<Section>();
 			Sections.Add(new Section(new Rectangle(0, 0, 16, 15), false, false, false, false));
@@ -377,7 +384,7 @@ namespace Rockman_vs_SmashBros
 			BGLayer = new Tile[Size.Width, Size.Height];
 			LowerLayer = new Tile[Size.Width, Size.Height];
 			UpperLayer = new Tile[Size.Width, Size.Height];
-			EntityLayer = new string[Size.Width, Size.Height];
+			EntityLayer = new EntityTile[Size.Width, Size.Height];
 			CollisionLayer = new int[Size.Width, Size.Height];
 
 			#region 背景レイヤーの作成
@@ -543,9 +550,9 @@ namespace Rockman_vs_SmashBros
 							// 現在のセクション内で、且つ新たに画面に入った範囲か確認する
 							if (!OldViewRangeOnMap.Contains(x, y) && CurrentlySectionArea.Contains(x, y))
 							{
-								if (EntityLayer[x, y] != "" && EntityLayer[x, y] != null)
+								if (!EntityLayer[x, y].Invalid && EntityLayer[x, y].Name != "" && EntityLayer[x, y].Name != null)
 								{
-									string EntityName = EntityLayer[x, y];
+									string EntityName = EntityLayer[x, y].Name;
 									Point SpawnPosition = new Point(x * Const.MapchipTileSize + Const.MapchipTileSize / 2, y * Const.MapchipTileSize + (Const.MapchipTileSize - 1));
 									// このマスより生成されたエンティティがいなければ作成する
 									if (!Main.Entities.Exists(E => E.IsFromMap && E.FromMapPosition == new Point(x, y)))
@@ -640,9 +647,9 @@ namespace Rockman_vs_SmashBros
 						// 現在のセクション内で、且つ新たに画面に入った範囲か確認する
 						if (CurrentlySectionArea.Contains(x, y))
 						{
-							if (EntityLayer[x, y] != "" && EntityLayer[x, y] != null)
+							if (!EntityLayer[x, y].Invalid && EntityLayer[x, y].Name != "" && EntityLayer[x, y].Name != null)
 							{
-								string EntityName = EntityLayer[x, y];
+								string EntityName = EntityLayer[x, y].Name;
 								Point SpawnPosition = new Point(x * Const.MapchipTileSize + Const.MapchipTileSize / 2, y * Const.MapchipTileSize + (Const.MapchipTileSize - 1));
 								// このマスより生成されたエンティティがいなければ作成する
 								if (!Main.Entities.Exists(E => E.IsFromMap && E.FromMapPosition == new Point(x, y)))
@@ -788,6 +795,19 @@ namespace Rockman_vs_SmashBros
 				}
 			}
 			return Result;
+		}
+
+		/// <summary>
+		/// 指定したマップ上の座標 (マス数) のエンティティ無効フラグを操作する
+		/// </summary>
+		/// <param name="PositionOnMap">エンティティ無効フラグを操作したいマップ上の座標 (マス数)</param>
+		/// <param name="InvalidFlag">エンティティ無効フラグ, 省略すると true</param>
+		public static void SetInvalidEntity(Point PositionOnMap, bool InvalidFlag = true)
+		{
+			if (PositionOnMap.X >= 0 && PositionOnMap.X < Size.Width && PositionOnMap.Y >= 0 && PositionOnMap.Y < Size.Height)
+			{
+				EntityLayer[PositionOnMap.X, PositionOnMap.Y].Invalid = InvalidFlag;
+			}
 		}
 
 		#region プライベート関数
