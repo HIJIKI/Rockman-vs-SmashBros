@@ -43,7 +43,7 @@ namespace Rockman_vs_SmashBros
 			IsFaceToLeft = FaceToLeft;
 			DamageDetail = new DamageDetail(1, DamageDetail.Types.RockBuster1, this);
 
-			RelativeCollision = new Rectangle(-4, -4, 8, 8);
+			RelativeHitbox = new Rectangle(-4, -4, 8, 8);
 
 			Count++;
 		}
@@ -95,7 +95,7 @@ namespace Rockman_vs_SmashBros
 
 			// カメラ外に出たらデスポーン
 			Rectangle CameraViewRange = new Rectangle(Camera.Position.X, Camera.Position.Y, Const.GameScreenWidth, Const.GameScreenHeight);
-			if (!CameraViewRange.Intersects(GetAbsoluteCollision()))
+			if (!CameraViewRange.Intersects(GetAbsoluteHitbox()))
 			{
 				Destroy();
 			}
@@ -103,10 +103,10 @@ namespace Rockman_vs_SmashBros
 			// 敵に接触したらダメージを与える
 			if (!IsRepelled)
 			{
-				Rectangle AbsoluteCollision = GetAbsoluteCollision();
+				Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
 				foreach (var Entity in Main.Entities)
 				{
-					if (Entity != this && Entity.Type == Types.Enemy && AbsoluteCollision.Intersects(Entity.GetAbsoluteCollision()))
+					if (Entity != this && Entity.Type == Types.Enemy && AbsoluteHitbox.Intersects(Entity.GetAbsoluteHitbox()))
 					{
 						if (Entity.GiveDamage(DamageDetail))
 						{

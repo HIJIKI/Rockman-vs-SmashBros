@@ -18,7 +18,7 @@ namespace Rockman_vs_SmashBros
 		#region メンバーの宣言 
 
 		public static Texture2D Texture;                            // マップチップ画像
-		public static Texture2D CollisionTexture;                   // マップの当たり判定チップ画像
+		public static Texture2D TerrainTexture;                     // マップの当たり判定チップ画像
 		public static Size Size;                                    // マップの縦横マス数
 		public static AnimationTile[] AnimationTiles;               // アニメーションタイルのデータ
 		public static List<Section> Sections;                       // マップ内セクションのデータ
@@ -26,12 +26,12 @@ namespace Rockman_vs_SmashBros
 		public static Tile[,] BGLayer;                              // 背景レイヤー
 		public static Tile[,] LowerLayer;                           // 下層レイヤー
 		public static Tile[,] UpperLayer;                           // 上層レイヤー
-		public static int[,] CollisionLayer;                        // 地形判定レイヤー
+		public static TerrainTypes[,] TerrainLayer;                 // 地形レイヤー
 		public static EntityTile[,] EntityLayer;                    // エンティティレイヤー
 		public static int FrameCounter;                             // フレームカウンター
 		public static bool StopEntitySpawn;                         // エンティティのスポーンを停止するフラグ
 		public static Point SpawnPositionOnMap;                     // ステージ開始時のプレイヤー位置 (マス)
-		
+
 		// エンティティタイル1枚のデータ構造体
 		public struct EntityTile
 		{
@@ -83,8 +83,8 @@ namespace Rockman_vs_SmashBros
 			}
 		}
 
-		// 当たり判定の属性
-		public enum CollisionTypes
+		// 当たり判定ボックスの種類
+		public enum TerrainTypes
 		{
 			Air,                                                    // 空気
 			Wall,                                                   // 壁
@@ -124,7 +124,7 @@ namespace Rockman_vs_SmashBros
 			LowerLayer = new Tile[Size.Width, Size.Height];
 			UpperLayer = new Tile[Size.Width, Size.Height];
 			EntityLayer = new EntityTile[Size.Width, Size.Height];
-			CollisionLayer = new int[Size.Width, Size.Height];
+			TerrainLayer = new TerrainTypes[Size.Width, Size.Height];
 
 			#region 背景レイヤーの作成
 			int[,] BGL = new int[45, 32]
@@ -280,7 +280,7 @@ namespace Rockman_vs_SmashBros
 			#endregion
 
 			#region 当たり判定レイヤー
-			int[,] CL = new int[45, 32]
+			int[,] TL = new int[45, 32]
 			{
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1 },
 				{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1 },
@@ -342,7 +342,7 @@ namespace Rockman_vs_SmashBros
 			EntityLayer[8, 41].Name = "CheckPoint";
 
 			Sections = new List<Section>();
-			Sections.Add(new Section(new Rectangle(0, 0, 16, 15), false, false, false, false));
+			Sections.Add(new Section(new Rectangle(0, 0, 16, 15), false, true, true, false));
 			Sections.Add(new Section(new Rectangle(16, 0, 16, 15), false, false, false, true));
 			Sections.Add(new Section(new Rectangle(16, 15, 16, 30), false, true, false, true));
 			Sections.Add(new Section(new Rectangle(0, 30, 16, 15), false, true, true, false));
@@ -356,7 +356,7 @@ namespace Rockman_vs_SmashBros
 					BGLayer[x, y].Index = BGL[y, x];
 					LowerLayer[x, y].Index = LL[y, x];
 					UpperLayer[x, y].Index = UL[y, x];
-					CollisionLayer[x, y] = CL[y, x];
+					TerrainLayer[x, y] = (TerrainTypes)TL[y, x];
 				}
 			}
 			//*/
@@ -385,7 +385,7 @@ namespace Rockman_vs_SmashBros
 			LowerLayer = new Tile[Size.Width, Size.Height];
 			UpperLayer = new Tile[Size.Width, Size.Height];
 			EntityLayer = new EntityTile[Size.Width, Size.Height];
-			CollisionLayer = new int[Size.Width, Size.Height];
+			TerrainLayer = new TerrainTypes[Size.Width, Size.Height];
 
 			#region 背景レイヤーの作成
 			int[,] BGL = new int[,]
@@ -460,7 +460,7 @@ namespace Rockman_vs_SmashBros
 			#endregion
 
 			#region 当たり判定レイヤー
-			int[,] CL = new int[,]
+			int[,] TL = new int[,]
 			{
 				{ 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 },
 				{ 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 },
@@ -495,7 +495,7 @@ namespace Rockman_vs_SmashBros
 					BGLayer[x, y].Index = BGL[y, x];
 					LowerLayer[x, y].Index = LL[y, x];
 					UpperLayer[x, y].Index = UL[y, x];
-					CollisionLayer[x, y] = CL[y, x];
+					TerrainLayer[x, y] = (TerrainTypes)TL[y, x];
 				}
 			}
 			//*/
@@ -514,7 +514,7 @@ namespace Rockman_vs_SmashBros
 		public static void LoadContent(ContentManager Content)
 		{
 			Texture = Content.Load<Texture2D>("Image/link_stage_mapchip.png");
-			CollisionTexture = Content.Load<Texture2D>("Image/CollisionTypes.png");
+			TerrainTexture = Content.Load<Texture2D>("Image/TerrainTypes.png");
 		}
 
 		/// <summary>
@@ -523,7 +523,7 @@ namespace Rockman_vs_SmashBros
 		public static void UnloadContent()
 		{
 			Texture.Dispose();
-			CollisionTexture.Dispose();
+			TerrainTexture.Dispose();
 		}
 
 		/// <summary>
@@ -607,10 +607,10 @@ namespace Rockman_vs_SmashBros
 						// デバッグ描画 (地形判定)
 						if (Global.Debug)
 						{
-							if (CollisionLayer[x, y] != (int)CollisionTypes.Air)
+							if (TerrainLayer[x, y] != TerrainTypes.Air)
 							{
-								int Index = (int)CollisionLayer[x, y];
-								DrawCollision(SpriteBatch, Index, Position);
+								TerrainTypes TerrainType = TerrainLayer[x, y];
+								DrawTerrain(SpriteBatch, TerrainType, Position);
 							}
 						}
 					}
@@ -664,49 +664,49 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// 指定した座標の当たり判定IDを返す
+		/// 指定した座標の当たり判定ボックスの種類を返す
 		/// </summary>
 		/// <param name="Point">当たり判定IDを取得したいワールド座標</param>
 		/// <returns>指定した座標の当たり判定ID。マップ外を取得しようとした場合は常に 0 を返す。</returns>
-		public static CollisionTypes PositionToCollisionType(Point Position)
+		public static TerrainTypes PositionToTerrainType(Point Position)
 		{
-			CollisionTypes CollisionIndex = CollisionTypes.Air;
+			TerrainTypes TerrainType = TerrainTypes.Air;
 			Point PositionOnMap = new Point(Position.X / Const.MapchipTileSize, Position.Y / Const.MapchipTileSize);
 			if (PositionOnMap.X >= 0 && PositionOnMap.X < Size.Width && PositionOnMap.Y >= 0 && PositionOnMap.Y < Size.Height)
 			{
-				CollisionIndex = (CollisionTypes)CollisionLayer[PositionOnMap.X, PositionOnMap.Y];
+				TerrainType = TerrainLayer[PositionOnMap.X, PositionOnMap.Y];
 			}
-			return CollisionIndex;
+			return TerrainType;
 		}
 
 		/// <summary>
-		/// 指定した CollisionType がスロープかどうかを返す
+		/// 指定した TerrainType がスロープかどうかを返す
 		/// </summary>
-		/// <param name="CollisionType">スロープかどうかを調べたい CollisionType</param>
+		/// <param name="TerrainType">スロープかどうかを調べたい TerrainType</param>
 		/// <param name="Filter">
 		///		全てのスロープを対象とする場合: "both",
 		///		左スロープを対象とする場合: "left",
 		///		右スロープを対象とする場合: "right"
 		///	</param>
-		public static bool IsSlope(CollisionTypes CollisionType, string Filter = "both")
+		public static bool IsSlope(TerrainTypes TerrainType, string Filter = "both")
 		{
-			CollisionTypes ct = CollisionType;
+			TerrainTypes tt = TerrainType;
 			if (Filter == "left" || Filter == "both")
 			{
-				if (ct == CollisionTypes.LeftSlope1of1 ||
-					ct == CollisionTypes.LeftSlope1of2 || ct == CollisionTypes.LeftSlope2of2 ||
-					ct == CollisionTypes.LeftSlope1of3 || ct == CollisionTypes.LeftSlope2of3 || ct == CollisionTypes.LeftSlope3of3 ||
-					ct == CollisionTypes.LeftSlope1of4 || ct == CollisionTypes.LeftSlope2of4 || ct == CollisionTypes.LeftSlope3of4 || ct == CollisionTypes.LeftSlope4of4)
+				if (tt == TerrainTypes.LeftSlope1of1 ||
+					tt == TerrainTypes.LeftSlope1of2 || tt == TerrainTypes.LeftSlope2of2 ||
+					tt == TerrainTypes.LeftSlope1of3 || tt == TerrainTypes.LeftSlope2of3 || tt == TerrainTypes.LeftSlope3of3 ||
+					tt == TerrainTypes.LeftSlope1of4 || tt == TerrainTypes.LeftSlope2of4 || tt == TerrainTypes.LeftSlope3of4 || tt == TerrainTypes.LeftSlope4of4)
 				{
 					return true;
 				}
 			}
 			if (Filter == "right" || Filter == "both")
 			{
-				if (ct == CollisionTypes.RightSlope1of1 ||
-					ct == CollisionTypes.RightSlope1of2 || ct == CollisionTypes.RightSlope2of2 ||
-					ct == CollisionTypes.RightSlope1of3 || ct == CollisionTypes.RightSlope2of3 || ct == CollisionTypes.RightSlope3of3 ||
-					ct == CollisionTypes.RightSlope1of4 || ct == CollisionTypes.RightSlope2of4 || ct == CollisionTypes.RightSlope3of4 || ct == CollisionTypes.RightSlope4of4)
+				if (tt == TerrainTypes.RightSlope1of1 ||
+					tt == TerrainTypes.RightSlope1of2 || tt == TerrainTypes.RightSlope2of2 ||
+					tt == TerrainTypes.RightSlope1of3 || tt == TerrainTypes.RightSlope2of3 || tt == TerrainTypes.RightSlope3of3 ||
+					tt == TerrainTypes.RightSlope1of4 || tt == TerrainTypes.RightSlope2of4 || tt == TerrainTypes.RightSlope3of4 || tt == TerrainTypes.RightSlope4of4)
 				{
 					return true;
 				}
@@ -717,34 +717,34 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 指定したスロープ上のX座標の床のタイル内での相対位置を返す
 		/// </summary>
-		public static int GetSlopeFloorY(CollisionTypes SlopeType, int PositionX)
+		public static int GetSlopeFloorY(TerrainTypes SlopeType, int PositionX)
 		{
 			byte Result = 0;
 			byte[] FloorY = new byte[0];
 			// 1マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of1) { FloorY = new byte[16] { 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of1) { FloorY = new byte[16] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }; }
+			if (SlopeType == TerrainTypes.LeftSlope1of1) { FloorY = new byte[16] { 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 }; }
+			if (SlopeType == TerrainTypes.RightSlope1of1) { FloorY = new byte[16] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }; }
 			// 2マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of2) { FloorY = new byte[16] { 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8 }; }
-			if (SlopeType == CollisionTypes.LeftSlope2of2) { FloorY = new byte[16] { 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of2) { FloorY = new byte[16] { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; }
-			if (SlopeType == CollisionTypes.RightSlope2of2) { FloorY = new byte[16] { 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15 }; }
+			if (SlopeType == TerrainTypes.LeftSlope1of2) { FloorY = new byte[16] { 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8 }; }
+			if (SlopeType == TerrainTypes.LeftSlope2of2) { FloorY = new byte[16] { 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0 }; }
+			if (SlopeType == TerrainTypes.RightSlope1of2) { FloorY = new byte[16] { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7 }; }
+			if (SlopeType == TerrainTypes.RightSlope2of2) { FloorY = new byte[16] { 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15 }; }
 			// 3マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of3) { FloorY = new byte[16] { 15, 15, 14, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10 }; }
-			if (SlopeType == CollisionTypes.LeftSlope2of3) { FloorY = new byte[16] { 10, 10, 9, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 5, 5 }; }
-			if (SlopeType == CollisionTypes.LeftSlope3of3) { FloorY = new byte[16] { 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of3) { FloorY = new byte[16] { 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5 }; }
-			if (SlopeType == CollisionTypes.RightSlope2of3) { FloorY = new byte[16] { 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10 }; }
-			if (SlopeType == CollisionTypes.RightSlope3of3) { FloorY = new byte[16] { 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 15, 15 }; }
+			if (SlopeType == TerrainTypes.LeftSlope1of3) { FloorY = new byte[16] { 15, 15, 14, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10 }; }
+			if (SlopeType == TerrainTypes.LeftSlope2of3) { FloorY = new byte[16] { 10, 10, 9, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 5, 5 }; }
+			if (SlopeType == TerrainTypes.LeftSlope3of3) { FloorY = new byte[16] { 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0 }; }
+			if (SlopeType == TerrainTypes.RightSlope1of3) { FloorY = new byte[16] { 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5 }; }
+			if (SlopeType == TerrainTypes.RightSlope2of3) { FloorY = new byte[16] { 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10 }; }
+			if (SlopeType == TerrainTypes.RightSlope3of3) { FloorY = new byte[16] { 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 15, 15 }; }
 			// 4マス幅スロープ
-			if (SlopeType == CollisionTypes.LeftSlope1of4) { FloorY = new byte[16] { 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 12, 12, 11 }; }
-			if (SlopeType == CollisionTypes.LeftSlope2of4) { FloorY = new byte[16] { 11, 11, 11, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8 }; }
-			if (SlopeType == CollisionTypes.LeftSlope3of4) { FloorY = new byte[16] { 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4 }; }
-			if (SlopeType == CollisionTypes.LeftSlope4of4) { FloorY = new byte[16] { 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0 }; }
-			if (SlopeType == CollisionTypes.RightSlope1of4) { FloorY = new byte[16] { 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4 }; }
-			if (SlopeType == CollisionTypes.RightSlope2of4) { FloorY = new byte[16] { 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7 }; }
-			if (SlopeType == CollisionTypes.RightSlope3of4) { FloorY = new byte[16] { 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11 }; }
-			if (SlopeType == CollisionTypes.RightSlope4of4) { FloorY = new byte[16] { 11, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15 }; }
+			if (SlopeType == TerrainTypes.LeftSlope1of4) { FloorY = new byte[16] { 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 13, 12, 12, 12, 12, 11 }; }
+			if (SlopeType == TerrainTypes.LeftSlope2of4) { FloorY = new byte[16] { 11, 11, 11, 10, 10, 10, 10, 10, 9, 9, 9, 9, 8, 8, 8, 8 }; }
+			if (SlopeType == TerrainTypes.LeftSlope3of4) { FloorY = new byte[16] { 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 4, 4, 4 }; }
+			if (SlopeType == TerrainTypes.LeftSlope4of4) { FloorY = new byte[16] { 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0 }; }
+			if (SlopeType == TerrainTypes.RightSlope1of4) { FloorY = new byte[16] { 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4 }; }
+			if (SlopeType == TerrainTypes.RightSlope2of4) { FloorY = new byte[16] { 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7 }; }
+			if (SlopeType == TerrainTypes.RightSlope3of4) { FloorY = new byte[16] { 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11 }; }
+			if (SlopeType == TerrainTypes.RightSlope4of4) { FloorY = new byte[16] { 11, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15 }; }
 			if (PositionX >= 0 && PositionX < FloorY.Length)
 			{
 				Result = FloorY[PositionX];
@@ -760,19 +760,22 @@ namespace Rockman_vs_SmashBros
 		public static bool CheckPositionLadderTop(Point Position)
 		{
 			bool Result = false;
-			CollisionTypes CollisionIndex = CollisionTypes.Air;
+			TerrainTypes TerrainType = TerrainTypes.Air;
 			Point PositionOnMap = new Point(Position.X / Const.MapchipTileSize, Position.Y / Const.MapchipTileSize);
 			if (PositionOnMap.X >= 0 && PositionOnMap.X < Size.Width && PositionOnMap.Y >= 0 && PositionOnMap.Y < Size.Height)
 			{
-				CollisionIndex = (CollisionTypes)CollisionLayer[PositionOnMap.X, PositionOnMap.Y];
+				TerrainType = TerrainLayer[PositionOnMap.X, PositionOnMap.Y];
 			}
-			if (CollisionIndex == CollisionTypes.Ladder)
+			if (TerrainType == TerrainTypes.Ladder)
 			{
 				PositionOnMap.Y -= 1;
-				CollisionIndex = (CollisionTypes)CollisionLayer[PositionOnMap.X, PositionOnMap.Y];
-				if (CollisionIndex == CollisionTypes.Air)
+				if (PositionOnMap.X >= 0 && PositionOnMap.X < Size.Width && PositionOnMap.Y >= 0 && PositionOnMap.Y < Size.Height)
 				{
-					Result = true;
+					TerrainType = TerrainLayer[PositionOnMap.X, PositionOnMap.Y];
+					if (TerrainType == TerrainTypes.Air)
+					{
+						Result = true;
+					}
 				}
 			}
 			return Result;
@@ -843,20 +846,22 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// 当たり判定チップを描画
+		/// 地形チップを描画
 		/// </summary>
 		/// <param name="SpriteBatch">描画に使用する SpriteBatch</param>
-		/// <param name="Index">描画対象の当たり判定ID</param>
+		/// <param name="Index">描画する地形の種類</param>
 		/// <param name="Position">描画する座標</param>
-		/// <param name="DrawOrder">描画震度</param>
-		private static void DrawCollision(SpriteBatch SpriteBatch, int Index, Point Position)
+		/// <param name="DrawOrder">描画深度</param>
+		private static void DrawTerrain(SpriteBatch SpriteBatch, TerrainTypes TerrainType, Point Position)
 		{
+			int TerrainTypeInt = (int)TerrainType;
+
 			// マップチップのIndexをRectangleに変換
-			Size MapchipSize = new Size(CollisionTexture.Width / Const.MapchipTileSize, Texture.Height / Const.MapchipTileSize);             //マップチップの縦横枚数
-			Rectangle SourceRect = new Rectangle((Index % MapchipSize.Width) * Const.MapchipTileSize, (Index / MapchipSize.Width) * Const.MapchipTileSize, Const.MapchipTileSize, Const.MapchipTileSize);
+			Size MapchipSize = new Size(TerrainTexture.Width / Const.MapchipTileSize, Texture.Height / Const.MapchipTileSize);             //マップチップの縦横枚数
+			Rectangle SourceRect = new Rectangle((TerrainTypeInt % MapchipSize.Width) * Const.MapchipTileSize, (TerrainTypeInt / MapchipSize.Width) * Const.MapchipTileSize, Const.MapchipTileSize, Const.MapchipTileSize);
 
 			// マップチップを描画
-			SpriteBatch.Draw(CollisionTexture, new Vector2(Position.X, Position.Y), SourceRect, Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.CollisionLayer / (float)Const.DrawOrder.MAX);
+			SpriteBatch.Draw(TerrainTexture, new Vector2(Position.X, Position.Y), SourceRect, Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.TerrainLayer / (float)Const.DrawOrder.MAX);
 		}
 
 		#endregion

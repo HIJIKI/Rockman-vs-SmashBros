@@ -27,7 +27,7 @@ namespace Rockman_vs_SmashBros
 			this.Position = Position.ToVector2();
 			this.IsFromMap = IsFromMap;
 			this.FromMapPosition = FromMapPosition;
-			RelativeCollision = new Rectangle(-8, -15, 16, 16);
+			RelativeHitbox = new Rectangle(-8, -15, 16, 16);
 			Type = Types.Other;
 
 			Main.SetSpawnPoint(FromMapPosition);

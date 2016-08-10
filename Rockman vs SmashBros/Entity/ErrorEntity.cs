@@ -28,7 +28,7 @@ namespace Rockman_vs_SmashBros
 			this.FromMapPosition = FromMapPosition;
 			Type = Types.Other;
 			IsAlive = true;
-			RelativeCollision = new Rectangle(-8, -15, 16, 16);
+			RelativeHitbox = new Rectangle(-8, -15, 16, 16);
 		}
 
 		/// <summary>

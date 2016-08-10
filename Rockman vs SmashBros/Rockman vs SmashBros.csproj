@@ -80,7 +80,7 @@
     <Content Include="Content\Image\CheckPoint.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\CollisionTypes.png">
+    <Content Include="Content\Image\TerrainTypes.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Image\ErrorEntity.png">

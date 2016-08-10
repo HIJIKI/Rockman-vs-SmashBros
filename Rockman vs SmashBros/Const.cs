@@ -31,7 +31,7 @@ namespace Rockman_vs_SmashBros
             Player,                                                     // プレイヤー
             PlayerShot,                                                 // プレイヤーの弾
             UpperLayer,                                                 // 上層レイヤー
-			CollisionLayer,                                             // 当たり判定レイヤー
+			TerrainLayer,                                               // 地形チップレイヤー
 			MAX                                                         // レイヤーの最大数
 		}
 

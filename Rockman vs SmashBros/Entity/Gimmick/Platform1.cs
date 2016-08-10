@@ -44,7 +44,7 @@ namespace Rockman_vs_SmashBros
 			IsAlive = true;
 			MoveDistance = Vector2.Zero;
 			FrameCounter = 0;
-			RelativeCollision = new Rectangle(0, 0, 32, 16);
+			RelativeHitbox = new Rectangle(0, 0, 32, 16);
 		}
 
 		/// <summary>

@@ -27,12 +27,7 @@ namespace Rockman_vs_SmashBros
 		public int AnimationPattern;                                // アニメーションのパターン
 		private bool IsFaceToLeft;                                  // 左を向いているかどうか
 		private bool IsLadderBend;                                  // はしご掴み中に登りかけかどうか
-		private float WalkSpeed;                                    // プレイヤーの歩行速度
-		private float JumpSpeed;                                    // プレイヤーのジャンプの初速
-		private float LadderSpeed;                                  // プレイヤーのはしご昇降速度
-		private float SlidingSpeed;                                 // プレイヤーのスライディング速度
-		private Rectangle Collision;                                // 右向き時の相対当たり判定
-		private int InvincibleBlinkDuration;                        // 無敵点滅の残り時間 (フレーム)
+		private int InvincibleBlinkFrame;                           // 無敵点滅の残り時間 (フレーム数)
 		private bool IsShooting;                                    // ショットモーション中かどうか
 		private int ShootingFrameCounter;                           // ショットモーション中のフレームカウンター
 
@@ -52,8 +47,8 @@ namespace Rockman_vs_SmashBros
 			public Sprite[] Damage;                                 // 被ダメージ
 		}
 
-		private Statuses Status;                                    // プレイヤーの状態
-		private enum Statuses                                       // 各プレイヤーの状態
+		private Statuses Status;                                    // 状態
+		private enum Statuses                                       // 各状態名
 		{
 			Neutral,                                                // ニュートラル
 			Walk,                                                   // 歩き
@@ -62,6 +57,14 @@ namespace Rockman_vs_SmashBros
 			Ladder,                                                 // はしご掴まり中
 			Damage                                                  // 被ダメージ
 		}
+
+		// 以下定数
+		private const float WalkSpeed = 1.35f;                      // 歩行速度
+		private const float JumpSpeed = -4.8f;                      // ジャンプの初速
+		private const float LadderSpeed = 1.3f;                     // はしご昇降速度
+		private const float SlidingSpeed = 2.5f;                    // スライディング速度
+		private const int SlidingDuration = 24;                     // スライディングの長さ (フレーム数)
+		private const int InvincibleBlinkDuration = 60;             // 被ダメージ後の無敵点滅の長さ (フレーム数)
 		#endregion
 
 		/// <summary>
@@ -83,11 +86,6 @@ namespace Rockman_vs_SmashBros
 			Position.X = SpawnPositionOnMap.X * Const.MapchipTileSize + Const.MapchipTileSize / 2;
 			Position.Y = SpawnPositionOnMap.Y * Const.MapchipTileSize + Const.MapchipTileSize - 1;
 			MoveDistance = Vector2.Zero;
-			Collision = new Rectangle(-7, -23, 15, 24);
-			WalkSpeed = 1.35f;
-			JumpSpeed = -4.8f;
-			LadderSpeed = 1.3f;
-			SlidingSpeed = 2.5f;
 			Map.SetSectionID(0);
 		}
 
@@ -183,7 +181,7 @@ namespace Rockman_vs_SmashBros
 						MoveDistance = Vector2.Zero;
 						IsInAir = true;
 						RidingEntity = null;
-						Vector2 NewPosition = new Vector2(Camera.Position.X + MouseState.X / Global.WindowScale, Camera.Position.Y + MouseState.Y / Global.WindowScale + RelativeCollision.Height / 2);
+						Vector2 NewPosition = new Vector2(Camera.Position.X + MouseState.X / Global.WindowScale, Camera.Position.Y + MouseState.Y / Global.WindowScale + RelativeHitbox.Height / 2);
 						SetPosition(NewPosition);
 					}
 				}
@@ -196,22 +194,22 @@ namespace Rockman_vs_SmashBros
 				// 通常移動の処理
 				if (Status == Statuses.Neutral || Status == Statuses.Walk || Status == Statuses.Jump)
 				{
-					StandardOperation();
+					StandardUpdate();
 				}
 				// スライディング中の処理
 				else if (Status == Statuses.Sliding)
 				{
-					// SlidingOperation(Main.Map);
+					SlidingUpdate();
 				}
 				// ハシゴ掴まり中の処理
 				else if (Status == Statuses.Ladder)
 				{
-					LadderOperation();
+					LadderUpdate();
 				}
 				// 被ダメージ中の処理
 				else if (Status == Statuses.Damage)
 				{
-					DamageOperation();
+					DamageUpdate();
 				}
 			}
 
@@ -219,7 +217,7 @@ namespace Rockman_vs_SmashBros
 			base.Update(GameTime);
 
 			// 当たり判定を更新
-			CollisionManager();
+			HitboxManagement();
 
 			// 無敵時間の管理
 			InvincibleDurationManager();
@@ -236,7 +234,11 @@ namespace Rockman_vs_SmashBros
 				ChangeSectionCalc();
 			}
 
-			FrameCounter++;
+			if (!IsInChangeSection)
+			{
+				FrameCounter++;
+
+			}
 		}
 
 		/// <summary>
@@ -296,7 +298,7 @@ namespace Rockman_vs_SmashBros
 					Vector2 Origin = CurrentlySprite.Origin;
 					SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 					float layerDepth = (float)Const.DrawOrder.Player / (float)Const.DrawOrder.MAX;
-					// 左を向いている場合は中心座標を反転
+					// 左を向いている場合は中心座標を左右反転
 					if (IsFaceToLeft)
 					{
 						Origin = new Vector2((CurrentlySprite.SourceRectangle.Width) - Origin.X, Origin.Y);
@@ -336,20 +338,34 @@ namespace Rockman_vs_SmashBros
 		#region プライベート関数
 
 		/// <summary>
-		/// 当たり判定の管理
+		/// 当たり判定ボックスの管理
 		/// </summary>
-		private void CollisionManager()
+		private void HitboxManagement()
 		{
-			Rectangle NewCollision;
+			Rectangle NewHitbox;
+
+			// ステータスに応じてヒットボックスを調整
+			switch (Status)
+			{
+				case Statuses.Neutral:  // ニュートラル
+				case Statuses.Walk:     // 歩き
+				case Statuses.Jump:     // ジャンプ
+				case Statuses.Ladder:   // はしご掴まり
+				case Statuses.Damage:   // 被ダメージ
+				default:                // その他
+					NewHitbox = new Rectangle(-7, -23, 15, 24);
+					break;
+				case Statuses.Sliding:
+					NewHitbox = new Rectangle(-7, -15, 15, 16);
+					break;
+			}
+
+			// 左を向いている場合はヒットボックスを左右反転
 			if (IsFaceToLeft)
 			{
-				NewCollision = new Rectangle(1 - (Collision.X + Collision.Width), Collision.Y, Collision.Width, Collision.Height);
+				NewHitbox = new Rectangle(1 - (NewHitbox.X + NewHitbox.Width), NewHitbox.Y, NewHitbox.Width, NewHitbox.Height);
 			}
-			else
-			{
-				NewCollision = Collision;
-			}
-			RelativeCollision = NewCollision;
+			RelativeHitbox = NewHitbox;
 		}
 
 		/// <summary>
@@ -363,23 +379,23 @@ namespace Rockman_vs_SmashBros
 			}
 			else
 			{
-				if (InvincibleBlinkDuration <= 0)
+				if (InvincibleBlinkFrame <= 0)
 				{
-					InvincibleBlinkDuration = 0;
+					InvincibleBlinkFrame = 0;
 					IsInvincible = false;
 				}
 				else
 				{
-					InvincibleBlinkDuration--;
+					InvincibleBlinkFrame--;
 					IsInvincible = true;
 				}
 			}
 		}
 
 		/// <summary>
-		/// 通常の処理
+		/// 通常の更新処理
 		/// </summary>
-		private void StandardOperation()
+		private void StandardUpdate()
 		{
 			// ショット開始
 			if (Controller.IsButtonPressed(Controller.Buttons.B) && RockBuster.Count < 3)
@@ -393,16 +409,15 @@ namespace Rockman_vs_SmashBros
 			// 接地している場合
 			if (!IsInAir)
 			{
-				/*
-                // スライディング開始
-                if (false)
-                {
-                    SetStatus(Statuses.Sliding);
-                    return;
-                }
-                //*/
+				// スライディング開始
+				if (Controller.IsButtonDown(Controller.Buttons.Down) && Controller.IsButtonPressed(Controller.Buttons.A))
+				{
+					IsShooting = false;
+					SetStatus(Statuses.Sliding);
+					return;
+				}
 				// ジャンプ開始
-				if (Controller.IsButtonPressed(Controller.Buttons.A))
+				else if (Controller.IsButtonPressed(Controller.Buttons.A))
 				{
 					SetStatus(Statuses.Jump);
 					MoveDistance.Y = JumpSpeed;
@@ -499,9 +514,55 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
+		/// スライディング中の更新処理
+		/// </summary>
+		private void SlidingUpdate()
+		{
+			// 向いている方向に前進する
+			MoveDistance.X = IsFaceToLeft ? -SlidingSpeed : SlidingSpeed;
+
+			// 一定時間続くとキャンセル
+			if (FrameCounter >= SlidingDuration)
+			{
+				SetStatus(Statuses.Neutral);
+				return;
+			}
+
+			// 向いている方向と反対方向を押すとキャンセル
+			if (IsFaceToLeft && Controller.IsButtonDown(Controller.Buttons.Right))
+			{
+				IsFaceToLeft = false;
+				SetStatus(Statuses.Walk);
+				return;
+			}
+			else if (!IsFaceToLeft && Controller.IsButtonDown(Controller.Buttons.Left))
+			{
+				IsFaceToLeft = true;
+				SetStatus(Statuses.Walk);
+				return;
+			}
+
+			// 足元に地形がなくなるとキャンセル
+			if (IsInAir)
+			{
+				SetStatus(Statuses.Jump);
+				return;
+			}
+
+			// ジャンプボタンが押されるとジャンプキャンセル
+			if (Controller.IsButtonPressed(Controller.Buttons.A))
+			{
+				SetStatus(Statuses.Jump);
+				MoveDistance.Y = JumpSpeed;
+				IsInAir = true;
+				return;
+			}
+		}
+
+		/// <summary>
 		/// はしご掴まり中の処理
 		/// </summary>
-		private void LadderOperation()
+		private void LadderUpdate()
 		{
 			MoveDistance = Vector2.Zero;
 
@@ -557,19 +618,19 @@ namespace Rockman_vs_SmashBros
 				// 登りかけかどうかを調べる
 				Point DrawPosition = GetDrawPosition();
 				Point LadderBendCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 16);
-				Point LadderBendCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
-				if (Map.PositionToCollisionType(LadderBendCheckPoint) != Map.CollisionTypes.Ladder &&
-					Map.PositionToCollisionType(LadderBendCheckPoint2) != Map.CollisionTypes.Ladder)
+				Point LadderBendCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeHitbox.Y);
+				if (Map.PositionToTerrainType(LadderBendCheckPoint) != Map.TerrainTypes.Ladder &&
+					Map.PositionToTerrainType(LadderBendCheckPoint2) != Map.TerrainTypes.Ladder)
 				{
 					IsLadderBend = true;
 				}
 				// はしごを登り切る
 				DrawPosition = GetDrawPosition();
 				Point LadderFinishCheckPoint = new Point(DrawPosition.X, DrawPosition.Y - 9);
-				Point LadderFinishCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeCollision.Y);
+				Point LadderFinishCheckPoint2 = new Point(DrawPosition.X, DrawPosition.Y + RelativeHitbox.Y);
 				if (MoveDistance.Y < 0 &&
-					Map.PositionToCollisionType(LadderFinishCheckPoint) != Map.CollisionTypes.Ladder &&
-					Map.PositionToCollisionType(LadderFinishCheckPoint2) != Map.CollisionTypes.Ladder)
+					Map.PositionToTerrainType(LadderFinishCheckPoint) != Map.TerrainTypes.Ladder &&
+					Map.PositionToTerrainType(LadderFinishCheckPoint2) != Map.TerrainTypes.Ladder)
 				{
 					SetStatus(Statuses.Neutral);
 					int NewPosY = (DrawPosition.Y / Const.MapchipTileSize - 1) * Const.MapchipTileSize + Const.MapchipTileSize - 1;
@@ -600,7 +661,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 被ダメージ中の処理
 		/// </summary>
-		private void DamageOperation()
+		private void DamageUpdate()
 		{
 			float Speed = 0.5f;
 			MoveDistance.X = IsFaceToLeft ? Speed : -Speed;
@@ -612,7 +673,7 @@ namespace Rockman_vs_SmashBros
 			}
 			if (FrameCounter >= 30)
 			{
-				InvincibleBlinkDuration = 60;
+				InvincibleBlinkFrame = InvincibleBlinkDuration;
 				if (!IsInAir)
 				{
 					SetStatus(Statuses.Neutral);
@@ -638,40 +699,40 @@ namespace Rockman_vs_SmashBros
 			{
 				if (i != CurrentlySectionID)
 				{
-					Rectangle AbsoluteCollision = GetAbsoluteCollision();
+					Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
 					Rectangle AreaRect = new Rectangle(Sections[i].Area.X * Const.MapchipTileSize, Sections[i].Area.Y * Const.MapchipTileSize, Sections[i].Area.Width * Const.MapchipTileSize, Sections[i].Area.Height * Const.MapchipTileSize);
-					if (AbsoluteCollision.Intersects(AreaRect))
+					if (AbsoluteHitbox.Intersects(AreaRect))
 					{
 						Vector2 Source = Position;
 						Vector2 Destination = Source;
 						// 移動後の座標を移動先セクション内に収める
 						{
 							// 上方向にはみ出していた場合
-							if (Destination.Y + RelativeCollision.Y < AreaRect.Y)
+							if (Destination.Y + RelativeHitbox.Y < AreaRect.Y)
 							{
 								int FitY = AreaRect.Y + 4;
-								int NewPositionY = FitY - RelativeCollision.Y;
+								int NewPositionY = FitY - RelativeHitbox.Y;
 								Destination.Y = NewPositionY;
 							}
 							// 下方向にはみ出していた場合
-							if (Destination.Y + RelativeCollision.Y + RelativeCollision.Height > AreaRect.Y + AreaRect.Height)
+							if (Destination.Y + RelativeHitbox.Y + RelativeHitbox.Height > AreaRect.Y + AreaRect.Height)
 							{
 								int FitY = AreaRect.Y + AreaRect.Height - 5;
-								int NewPositionY = FitY - (RelativeCollision.Height - 1 + RelativeCollision.Y);
+								int NewPositionY = FitY - (RelativeHitbox.Height - 1 + RelativeHitbox.Y);
 								Destination.Y = NewPositionY;
 							}
 							// 左方向にはみ出していた場合
-							if (Destination.X + RelativeCollision.X < AreaRect.X)
+							if (Destination.X + RelativeHitbox.X < AreaRect.X)
 							{
 								int FitX = AreaRect.X + 4;
-								int NewPositionX = FitX - RelativeCollision.X;
+								int NewPositionX = FitX - RelativeHitbox.X;
 								Destination.X = NewPositionX;
 							}
 							// 右方向にはみ出していた場合
-							if (Destination.X + RelativeCollision.X + RelativeCollision.Width > AreaRect.X + AreaRect.Width)
+							if (Destination.X + RelativeHitbox.X + RelativeHitbox.Width > AreaRect.X + AreaRect.Width)
 							{
 								int FitX = AreaRect.X + AreaRect.Width - 5;
-								int NewPositionX = FitX - (RelativeCollision.Width - 1 + RelativeCollision.X);
+								int NewPositionX = FitX - (RelativeHitbox.Width - 1 + RelativeHitbox.X);
 								Destination.X = NewPositionX;
 							}
 						}
@@ -707,7 +768,7 @@ namespace Rockman_vs_SmashBros
 		{
 			Point DrawPosition = GetDrawPosition();
 			Point CheckPoint = DrawPosition; CheckPoint.Y += 1;   // プレイヤーの足元の1ドット下
-			if (Map.PositionToCollisionType(CheckPoint) == Map.CollisionTypes.Ladder)
+			if (Map.PositionToTerrainType(CheckPoint) == Map.TerrainTypes.Ladder)
 			{
 				return true;
 			}
@@ -720,12 +781,12 @@ namespace Rockman_vs_SmashBros
 		private bool CheckGrabLadder()
 		{
 			Point DrawPosition = GetDrawPosition();
-			Point Top = DrawPosition; Top.Y += RelativeCollision.Y;                 // 上辺
-			Point Middle = DrawPosition; Middle.Y -= RelativeCollision.Height / 2;  // 中心
+			Point Top = DrawPosition; Top.Y += RelativeHitbox.Y;                    // 上辺
+			Point Middle = DrawPosition; Middle.Y -= RelativeHitbox.Height / 2;     // 中心
 			Point Bottom = DrawPosition;                                            // 下辺
-			if (Map.PositionToCollisionType(Top) == Map.CollisionTypes.Ladder ||
-				Map.PositionToCollisionType(Middle) == Map.CollisionTypes.Ladder ||
-				Map.PositionToCollisionType(Bottom) == Map.CollisionTypes.Ladder)
+			if (Map.PositionToTerrainType(Top) == Map.TerrainTypes.Ladder ||
+				Map.PositionToTerrainType(Middle) == Map.TerrainTypes.Ladder ||
+				Map.PositionToTerrainType(Bottom) == Map.TerrainTypes.Ladder)
 			{
 				return true;
 			}

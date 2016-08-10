@@ -61,7 +61,7 @@ namespace Rockman_vs_SmashBros
 			IsAlive = true;
 			MoveDistance = Vector2.Zero;
 
-			RelativeCollision = new Rectangle(-7, -23, 14, 24);
+			RelativeHitbox = new Rectangle(-7, -23, 14, 24);
 			SearchRange = new Rectangle(-80, -63, 160, 64);
 		}
 
@@ -109,7 +109,7 @@ namespace Rockman_vs_SmashBros
 				// プレイヤーを見つけると Attack に移行
 				Point DrawPosition = GetDrawPosition();
 				Rectangle AbsoluteSearchRange = new Rectangle(DrawPosition.X + SearchRange.X, DrawPosition.Y + SearchRange.Y, SearchRange.Width, SearchRange.Height);
-				if (AbsoluteSearchRange.Intersects(Player.GetAbsoluteCollision()))
+				if (AbsoluteSearchRange.Intersects(Player.GetAbsoluteHitbox()))
 				{
 					Status = Statuses.Attack;
 				}
@@ -146,8 +146,8 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// プレイヤーにダメージを与える
-			Rectangle AbsoluteCollision = GetAbsoluteCollision();
-			if (AbsoluteCollision.Intersects(Player.GetAbsoluteCollision()))
+			Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
+			if (AbsoluteHitbox.Intersects(Player.GetAbsoluteHitbox()))
 			{
 				Player.GiveDamage(DamageDetail);
 			}
