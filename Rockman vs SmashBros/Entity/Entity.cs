@@ -31,7 +31,7 @@ namespace Rockman_vs_SmashBros
 		public Vector2 Position;                                    // 内部座標
 		public Vector2 OldPosition;                                 // 1フレーム前の内部座標
 		public Vector2 MoveDistance;                                // 現在のフレームで移動する量
-		public Rectangle RelativeHitbox;						    // 当たり判定ボックス (相対)
+		public Rectangle RelativeHitbox;                            // 当たり判定ボックス (相対)
 		public bool IsFromMap;                                      // マップにより作成されたかどうか
 		public Point FromMapPosition;                               // マップにより作成された場合に、その座標を保持
 		public bool IsIgnoreGravity;                                // このエンティティが重力を無視するかどうか
@@ -111,13 +111,13 @@ namespace Rockman_vs_SmashBros
 		public virtual bool GiveDamage(DamageDetail DamageDetail)
 		{
 			Health -= DamageDetail.Damage;
-            if (Health <= 0)
-            {
-                Destroy();
-            }
+			if (Health <= 0)
+			{
+				Destroy();
+			}
 			return true;
 		}
-	
+
 		/// <summary>
 		/// 指定した座標へ移動
 		/// </summary>
@@ -192,6 +192,162 @@ namespace Rockman_vs_SmashBros
 		public Point GetOldDrawPosition()
 		{
 			return OldPosition.ToPoint();
+		}
+
+		/// <summary>
+		/// 指定した方向が地形に接触しているかどうかを取得する。Platform エンティティは対象にならない。
+		/// </summary>
+		/// <param name="Direction">取得したい方向を "Top", "Bottom", "Left", "Bottom" のいずれかで指定する</param>
+		public bool IsTouchTerrain(string Direction)
+		{
+			bool Result = false;
+			if (Direction == "Top")
+			{
+				Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+				Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
+				// セクションの端も壁属性であった場合は地形と見なす
+				if (CurrentlySection.TopIsWall && AbsoluteHitbox.Y - 1 < Const.MapchipTileSize * CurrentlySection.Area.Y)
+				{
+					Result = true;
+				}
+				else
+				{
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteHitbox.Width / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
+					{
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
+						{
+							HitCheckPosition = new Point(AbsoluteHitbox.Right - 1, AbsoluteHitbox.Y - 1);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteHitbox.X + Const.MapchipTileSize * i, AbsoluteHitbox.Y - 1);
+						}
+						// 判定実行
+						Map.TerrainTypes Index = Map.PositionToTerrainType(HitCheckPosition);
+						if (Index == Map.TerrainTypes.Wall || Map.IsSlope(Index))
+						{
+							Result = true;
+						}
+					}
+				}
+			}
+			else if (Direction == "Bottom")
+			{
+				if (!IsInAir)
+				{
+					Result = true;
+				}
+				else
+				{
+					Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+					Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
+					// セクションの端も壁属性であった場合は地形と見なす
+					if (CurrentlySection.BottomIsWall && AbsoluteHitbox.Bottom + 1 > Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
+					{
+						Result = true;
+					}
+					else
+					{
+						// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+						int SplitNumber = (int)Math.Ceiling((float)AbsoluteHitbox.Width / Const.MapchipTileSize) + 1;
+						for (int i = 0; i < SplitNumber; i++)
+						{
+							Point HitCheckPosition;
+							if (i == SplitNumber - 1)
+							{
+								HitCheckPosition = new Point(AbsoluteHitbox.Right - 1, AbsoluteHitbox.Bottom);
+							}
+							else
+							{
+								HitCheckPosition = new Point(AbsoluteHitbox.X + Const.MapchipTileSize * i, AbsoluteHitbox.Bottom);
+							}
+							// 判定実行
+							Map.TerrainTypes Index = Map.PositionToTerrainType(HitCheckPosition);
+							if (Index == Map.TerrainTypes.Wall)
+							{
+								Result = true;
+							}
+							else if (Map.IsSlope(Index))
+							{
+								Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
+								int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);
+								if (HitCheckPositionInTile.Y >= FloorY)
+								{
+									Result = true;
+								}
+							}
+						}
+					}
+				}
+			}
+			else if (Direction == "Left")
+			{
+				Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+				Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
+				// セクションの端も壁属性であった場合は地形と見なす
+				if (CurrentlySection.LeftIsWall && AbsoluteHitbox.X - 1 < Const.MapchipTileSize * CurrentlySection.Area.X)
+				{
+					Result = true;
+				}
+				else
+				{
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteHitbox.Height / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
+					{
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
+						{
+							HitCheckPosition = new Point(AbsoluteHitbox.X - 1, AbsoluteHitbox.Bottom - 1);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteHitbox.X - 1, AbsoluteHitbox.Y + Const.MapchipTileSize * i);
+						}
+						// 判定実行
+						if (Map.PositionToTerrainType(HitCheckPosition) == Map.TerrainTypes.Wall)
+						{
+							Result = true;
+						}
+					}
+				}
+			}
+			else if (Direction == "Right")
+			{
+				Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
+				Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
+				// セクションの端も壁属性であった場合は地形と見なす
+				if (CurrentlySection.RightIsWall && AbsoluteHitbox.Right + 1 > Const.MapchipTileSize * CurrentlySection.Area.X + Const.MapchipTileSize * CurrentlySection.Area.Width)
+				{
+					Result = true;
+				}
+				else
+				{
+					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					int SplitNumber = (int)Math.Ceiling((float)AbsoluteHitbox.Height / Const.MapchipTileSize) + 1;
+					for (int i = 0; i < SplitNumber; i++)
+					{
+						Point HitCheckPosition;
+						if (i == SplitNumber - 1)
+						{
+							HitCheckPosition = new Point(AbsoluteHitbox.Right, AbsoluteHitbox.Bottom - 1);
+						}
+						else
+						{
+							HitCheckPosition = new Point(AbsoluteHitbox.Right, AbsoluteHitbox.Y + Const.MapchipTileSize * i);
+						}
+						// 判定実行
+						if (Map.PositionToTerrainType(HitCheckPosition) == Map.TerrainTypes.Wall)
+						{
+							Result = true;
+						}
+					}
+				}
+			}
+			return Result;
 		}
 
 		#region プライベート関数
@@ -514,22 +670,17 @@ namespace Rockman_vs_SmashBros
 		{
 			IsInAir = true;
 			RidingEntity = null;
-			// 現在のセクション
-			Map.Section CurrentlySection = Map.Sections[Map.CurrentlySectionID];
-			// ワールドに対する絶対座標での当たり判定
-			Rectangle AbsoluteHitbox;
 
 			if (!IsNoclip)
 			{
-				// セクションの端が壁属性であれば着地していることにする
-				AbsoluteHitbox = GetAbsoluteHitbox();
-				if (CurrentlySection.BottomIsWall && AbsoluteHitbox.Bottom >= Const.MapchipTileSize * CurrentlySection.Area.Y + Const.MapchipTileSize * CurrentlySection.Area.Height)
+				if (IsTouchTerrain("Bottom"))
 				{
 					IsInAir = false;
 				}
 				else
 				{
 					// 当たり判定をスライスする個数 (マップチップ1枚のサイズごとにスライス)
+					Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
 					int SplitNumber = (int)Math.Ceiling((float)AbsoluteHitbox.Width / Const.MapchipTileSize) + 1;
 					for (int i = 0; i < SplitNumber; i++)
 					{
@@ -542,39 +693,23 @@ namespace Rockman_vs_SmashBros
 						{
 							HitCheckPosition = new Point(AbsoluteHitbox.X + Const.MapchipTileSize * i, AbsoluteHitbox.Bottom);
 						}
-						// 地形判定実行
-						Map.TerrainTypes Index = Map.PositionToTerrainType(HitCheckPosition);
-						if (Index == Map.TerrainTypes.Wall ||
-							Index == Map.TerrainTypes.OneWay ||
-							Map.CheckPositionLadderTop(HitCheckPosition))
+						// すり抜け床に対する接地判定
+						Map.TerrainTypes TerrainType = Map.PositionToTerrainType(HitCheckPosition);
+						if (TerrainType == Map.TerrainTypes.OneWay || Map.CheckPositionLadderTop(HitCheckPosition) )
 						{
 							IsInAir = false;
 						}
-						// スロープとの当たり判定
-						else if (Map.IsSlope(Index))
+						// Platform に対する接地判定
+						if (Type != Types.Platform)
 						{
-							Point HitCheckPositionInTile = new Point(HitCheckPosition.X - HitCheckPosition.X / Const.MapchipTileSize * Const.MapchipTileSize, HitCheckPosition.Y - HitCheckPosition.Y / Const.MapchipTileSize * Const.MapchipTileSize);
-							int FloorY = Map.GetSlopeFloorY(Index, HitCheckPositionInTile.X);
-							if (HitCheckPositionInTile.Y >= FloorY)
+							foreach (Entity Entity in Main.Entities)
 							{
-								IsInAir = false;
-							}
-						}
-						// Platform エンティティとの当たり判定
-						else
-						{
-							// Platform が Platform に乗ることはない
-							if (Type != Types.Platform)
-							{
-								foreach (Entity Entity in Main.Entities)
+								// 相手のエンティティが Platform の場合
+								if (Entity.Type == Types.Platform && Entity.GetAbsoluteHitbox().Contains(HitCheckPosition) && Entity != this)
 								{
-									// エンティティの属性が Platform の場合
-									if (Entity.Type == Types.Platform && Entity.GetAbsoluteHitbox().Contains(HitCheckPosition) && Entity != this)
-									{
-										IsInAir = false;
-										RidingEntity = Entity;
-										break;
-									}
+									IsInAir = false;
+									RidingEntity = Entity;
+									break;
 								}
 							}
 						}

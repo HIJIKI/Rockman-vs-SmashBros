@@ -28,16 +28,16 @@ namespace Rockman_vs_SmashBros
 		public static RenderTarget2D GameScreenBuffer;              // ゲーム画面描画バッファ
 
 		// 各メンバーを宣言
-		public static Player Player;								// プレイヤー
-		public static List<Entity> Entities;						// エンティティ
+		public static Player Player;                                // プレイヤー
+		public static List<Entity> Entities;                        // エンティティ
 
-		public static Scenes Scene;									// シーン管理
+		public static Scenes Scene;                                 // シーン管理
 		public enum Scenes
 		{
 			Play
 		}
 
-		public static Point SpawnPositionOnMap;						// プレイヤーの開始位置 (マップ上のマス数)
+		public static Point SpawnPositionOnMap;                     // プレイヤーの開始位置 (マップ上のマス数)
 
 		#endregion
 
@@ -213,7 +213,7 @@ namespace Rockman_vs_SmashBros
 			Camera.Update(GameTime, Player.GetDrawPosition());
 
 			// プレイヤーが死亡した場合
-			if(!Player.IsAlive)
+			if (!Player.IsAlive)
 			{
 				Entity.DestroyAll();
 				Entities.RemoveAll(E => !E.IsAlive);
@@ -264,12 +264,14 @@ namespace Rockman_vs_SmashBros
 
 				List<string> Messages = new List<string>();
 				//Messages.Add("GameTime: " + GameTime.TotalGameTime);
+				Messages.Add("UpdateTime: " + GameTime.ElapsedGameTime);
 				//Messages.Add("Player.WorldPosition: " + Player.Position);
 				//Messages.Add("Player.WorldPosition(Draw): " + Player.GetDrawPosition());
 				Messages.Add("Player.Health: " + Player.Health);
 				Messages.Add("Player.IsInvincible: " + Player.IsInvincible);
 				//Messages.Add("Player.ScreenPosition: " + (Player.Position - Camera.Position.ToVector2()));
 				Messages.Add("Player.IsInAir: " + Player.IsInAir.ToString());
+				Messages.Add("Player.IsTouchTerrain: " + Player.IsTouchTerrain("Top") + ", " + Player.IsTouchTerrain("Bottom") + ", " + Player.IsTouchTerrain("Left") + ", " + Player.IsTouchTerrain("Right"));
 				Messages.Add("Player.RidingEntity: " + Player.GetRidingEntityString());
 				Messages.Add("Player.FrameCounter: " + Player.FrameCounter);
 				Messages.Add("Player.AnimationPattern: " + Player.AnimationPattern);

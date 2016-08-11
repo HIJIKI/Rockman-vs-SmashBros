@@ -191,25 +191,23 @@ namespace Rockman_vs_SmashBros
 			// セクション移動中および更新停止中は処理を行わない
 			if (!IsInChangeSection && !IsStop)
 			{
-				// 通常移動の処理
-				if (Status == Statuses.Neutral || Status == Statuses.Walk || Status == Statuses.Jump)
+				// 状態に応じて更新処理を場合分け
+				switch (Status)
 				{
-					StandardUpdate();
-				}
-				// スライディング中の処理
-				else if (Status == Statuses.Sliding)
-				{
-					SlidingUpdate();
-				}
-				// ハシゴ掴まり中の処理
-				else if (Status == Statuses.Ladder)
-				{
-					LadderUpdate();
-				}
-				// 被ダメージ中の処理
-				else if (Status == Statuses.Damage)
-				{
-					DamageUpdate();
+					case Statuses.Neutral:		// ニュートラル
+					case Statuses.Walk:			// 歩き
+					case Statuses.Jump:			// ジャンプ
+						StandardUpdate();
+						break;
+					case Statuses.Sliding:		// スライディング
+						SlidingUpdate();
+						break;
+					case Statuses.Ladder:		// はしご掴まり
+						LadderUpdate();
+						break;
+					case Statuses.Damage:		// 被ダメージ
+						DamageUpdate();
+						break;
 				}
 			}
 
@@ -237,7 +235,6 @@ namespace Rockman_vs_SmashBros
 			if (!IsInChangeSection)
 			{
 				FrameCounter++;
-
 			}
 		}
 
@@ -301,7 +298,7 @@ namespace Rockman_vs_SmashBros
 					// 左を向いている場合は中心座標を左右反転
 					if (IsFaceToLeft)
 					{
-						Origin = new Vector2((CurrentlySprite.SourceRectangle.Width) - Origin.X, Origin.Y);
+						//Origin = new Vector2((SourceRectangle.Width) - Origin.X, Origin.Y);
 					}
 					SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
 				}
@@ -355,7 +352,7 @@ namespace Rockman_vs_SmashBros
 				default:                // その他
 					NewHitbox = new Rectangle(-7, -23, 15, 24);
 					break;
-				case Statuses.Sliding:
+				case Statuses.Sliding:  // スライディング
 					NewHitbox = new Rectangle(-7, -15, 15, 16);
 					break;
 			}
@@ -460,12 +457,12 @@ namespace Rockman_vs_SmashBros
 
 			// 左右移動
 			MoveDistance.X = 0;
-			if (Keyboard.GetState().IsKeyDown(Keys.A))
+			if (Controller.IsButtonDown(Controller.Buttons.Left))
 			{
 				MoveDistance.X -= WalkSpeed;
 				IsFaceToLeft = true;
 			}
-			else if (Keyboard.GetState().IsKeyDown(Keys.D))
+			else if (Controller.IsButtonDown(Controller.Buttons.Right))
 			{
 				MoveDistance.X += WalkSpeed;
 				IsFaceToLeft = false;
@@ -542,6 +539,18 @@ namespace Rockman_vs_SmashBros
 				return;
 			}
 
+			// 進行方向に壁があるとキャンセル
+			if (IsFaceToLeft && IsTouchTerrain("Left"))
+			{
+				SetStatus(Statuses.Neutral);
+				return;
+			}
+			else if (!IsFaceToLeft && IsTouchTerrain("Right"))
+			{
+				SetStatus(Statuses.Neutral);
+				return;
+			}
+
 			// 足元に地形がなくなるとキャンセル
 			if (IsInAir)
 			{
@@ -585,7 +594,7 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// ジャンプが押されたらはしごを離す
-			if (Controller.IsButtonPressed(Controller.Buttons.A))
+			if (Controller.IsButtonPressed(Controller.Buttons.A) && Controller.IsButtonUp(Controller.Buttons.Up) && Controller.IsButtonUp(Controller.Buttons.Down))
 			{
 				IsShooting = false;
 				IsInAir = true;

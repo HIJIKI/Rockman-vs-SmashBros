@@ -28,14 +28,14 @@ namespace Rockman_vs_SmashBros
 			BGLayer,                                                    // 背景レイヤー
 			LowerLayer,                                                 // 下層レイヤー
 			Enemy,                                                      // エネミー
-            Player,                                                     // プレイヤー
-            PlayerShot,                                                 // プレイヤーの弾
-            UpperLayer,                                                 // 上層レイヤー
+			Player,                                                     // プレイヤー
+			PlayerShot,                                                 // プレイヤーの弾
+			UpperLayer,                                                 // 上層レイヤー
 			TerrainLayer,                                               // 地形チップレイヤー
 			MAX                                                         // レイヤーの最大数
 		}
 
-		public const int ChangeSectionDuration = 128;					// セクションの移動にかけるフレーム数
+		public const int ChangeSectionDuration = 128;                   // セクションの移動にかけるフレーム数
 
 	}
 }
