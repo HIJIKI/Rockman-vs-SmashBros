@@ -127,7 +127,7 @@ namespace Rockman_vs_SmashBros
 			// ジャンプショット
 			Sprites.JumpShoot = new Sprite(new Rectangle(32 * 7, 32 * 2, 32, 32), new Vector2(15, 24));
 			// スライディング
-			Sprites.Sliding = new Sprite(new Rectangle(0, 32, 32, 32), new Vector2(15, 30));
+			Sprites.Sliding = new Sprite(new Rectangle(0, 32, 32, 32), new Vector2(15, 28));
 			// はしご掴まり
 			Sprites.Ladder = new Sprite[]
 			{
@@ -353,7 +353,7 @@ namespace Rockman_vs_SmashBros
 					NewHitbox = new Rectangle(-7, -23, 15, 24);
 					break;
 				case Statuses.Sliding:  // スライディング
-					NewHitbox = new Rectangle(-7, -15, 15, 16);
+					NewHitbox = new Rectangle(-12, -14, 24, 15);
 					break;
 			}
 
@@ -395,7 +395,7 @@ namespace Rockman_vs_SmashBros
 		private void StandardUpdate()
 		{
 			// ショット開始
-			if (Controller.IsButtonPressed(Controller.Buttons.B) && RockBuster.Count < 3)
+			if (Controller.IsButtonPressed(Controller.Buttons.B) && RockBuster.Count < RockBuster.MaxNumber)
 			{
 				Point ShotPosition = Position.ToPoint() + new Point(0, -10);
 				Main.Entities.Add(new RockBuster(ShotPosition, IsFaceToLeft));
@@ -519,33 +519,40 @@ namespace Rockman_vs_SmashBros
 			MoveDistance.X = IsFaceToLeft ? -SlidingSpeed : SlidingSpeed;
 
 			// 一定時間続くとキャンセル
-			if (FrameCounter >= SlidingDuration)
+			if (FrameCounter >= SlidingDuration && IsSlidingCancelable())
 			{
+				MoveDistance = Vector2.Zero;
 				SetStatus(Statuses.Neutral);
 				return;
 			}
 
 			// 向いている方向と反対方向を押すとキャンセル
-			if (IsFaceToLeft && Controller.IsButtonDown(Controller.Buttons.Right))
+			if (Controller.IsButtonDown(Controller.Buttons.Left))
 			{
-				IsFaceToLeft = false;
-				SetStatus(Statuses.Walk);
-				return;
-			}
-			else if (!IsFaceToLeft && Controller.IsButtonDown(Controller.Buttons.Left))
-			{
+				if (!IsFaceToLeft && IsSlidingCancelable())
+				{
+					SetStatus(Statuses.Walk);
+					return;
+				}
 				IsFaceToLeft = true;
-				SetStatus(Statuses.Walk);
-				return;
+			}
+			else if (Controller.IsButtonDown(Controller.Buttons.Right))
+			{
+				if (IsFaceToLeft && IsSlidingCancelable())
+				{
+					SetStatus(Statuses.Walk);
+					return;
+				}
+				IsFaceToLeft = false;
 			}
 
 			// 進行方向に壁があるとキャンセル
-			if (IsFaceToLeft && IsTouchTerrain("Left"))
+			if (IsFaceToLeft && IsTouchTerrain("Left") && IsSlidingCancelable())
 			{
 				SetStatus(Statuses.Neutral);
 				return;
 			}
-			else if (!IsFaceToLeft && IsTouchTerrain("Right"))
+			else if (!IsFaceToLeft && IsTouchTerrain("Right") && IsSlidingCancelable())
 			{
 				SetStatus(Statuses.Neutral);
 				return;
@@ -554,18 +561,47 @@ namespace Rockman_vs_SmashBros
 			// 足元に地形がなくなるとキャンセル
 			if (IsInAir)
 			{
+				MoveDistance = Vector2.Zero;
 				SetStatus(Statuses.Jump);
 				return;
 			}
 
 			// ジャンプボタンが押されるとジャンプキャンセル
-			if (Controller.IsButtonPressed(Controller.Buttons.A))
+			if (Controller.IsButtonPressed(Controller.Buttons.A) && IsSlidingCancelable())
 			{
 				SetStatus(Statuses.Jump);
 				MoveDistance.Y = JumpSpeed;
 				IsInAir = true;
 				return;
 			}
+		}
+
+		/// <summary>
+		/// スライディングをキャンセル可能かどうかを取得する (頭上に地形がないかどうか)
+		/// </summary>
+		private bool IsSlidingCancelable()
+		{
+			bool Result = false;
+
+			Rectangle RelativeStandingHitbox = new Rectangle(-12, -23, 24, 24);
+			// 左を向いている場合はヒットボックスを左右反転
+			if (IsFaceToLeft)
+			{
+				RelativeStandingHitbox = new Rectangle(1 - (RelativeStandingHitbox.X + RelativeStandingHitbox.Width), RelativeStandingHitbox.Y, RelativeStandingHitbox.Width, RelativeStandingHitbox.Height);
+			}
+
+			Point DrawPosition = GetDrawPosition();
+			Rectangle AbsoluteStandingHitbox = new Rectangle(DrawPosition.X + RelativeStandingHitbox.X, DrawPosition.Y + RelativeStandingHitbox.Y, RelativeStandingHitbox.Width, RelativeStandingHitbox.Height);
+
+			Point HitCheckPoint1 = new Point(AbsoluteStandingHitbox.Left, AbsoluteStandingHitbox.Top);
+			Point HitCheckPoint2 = new Point(AbsoluteStandingHitbox.Right-1, AbsoluteStandingHitbox.Top);
+
+			if (Map.PositionToTerrainType(HitCheckPoint1) != Map.TerrainTypes.Wall &&
+				Map.PositionToTerrainType(HitCheckPoint2) != Map.TerrainTypes.Wall)
+			{
+				Result = true;
+			}
+			return Result;
 		}
 
 		/// <summary>

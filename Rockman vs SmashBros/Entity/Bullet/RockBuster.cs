@@ -30,6 +30,8 @@ namespace Rockman_vs_SmashBros
 			public Sprite[] Charge2;                                // 溜め2
 		}
 
+		// 以下定数
+		public const int MaxNumber = 3;								// 画面内に存在できるロックバスターの最大数
 		#endregion
 
 		/// <summary>
