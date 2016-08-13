@@ -81,6 +81,17 @@ namespace Rockman_vs_SmashBros
 			// エンティティ名による場合分け
 			switch (EntityName)
 			{
+				// ロックバスター
+				case "RockBuster1:Left":
+					Entities.Add(new RockBuster(Position, true));
+					break;
+				case "RockBuster1:Right":
+					Entities.Add(new RockBuster(Position, false));
+					break;
+				// 爆発エフェクト1
+				case "Explosion1":
+					Entities.Add(new Explosion1(Position, IsFromMap, FromMapPosition));
+					break;
 				// 破壊エフェクト
 				case "DestroyEffect1":
 					Entities.Add(new DestroyEffect1(Position, IsFromMap, FromMapPosition));

@@ -56,8 +56,8 @@ namespace Rockman_vs_SmashBros
 					MoveDistance.X += RidingEntity.MoveDistance.X;
 				}
 
-				MoveY();
 				MoveX();
+				MoveY();
 				if (IsInAir && !IsNoclip)
 				{
 					RidingEntity = null;

@@ -100,6 +100,7 @@ namespace Rockman_vs_SmashBros
 			ErrorEntity.LoadContent(Content);
 			CheckPoint.LoadContent(Content);
 			DestroyEffect1.LoadContent(Content);
+			Explosion1.LoadContent(Content);
 
 			// テストフォント
 			Font = Content.Load<SpriteFont>("Font/myfont");
@@ -123,6 +124,7 @@ namespace Rockman_vs_SmashBros
 			ErrorEntity.UnloadContent();
 			CheckPoint.UnloadContent();
 			DestroyEffect1.UnloadContent();
+			Explosion1.UnloadContent();
 		}
 
 		/// <summary>

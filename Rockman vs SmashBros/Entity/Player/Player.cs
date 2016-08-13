@@ -58,6 +58,13 @@ namespace Rockman_vs_SmashBros
 			Damage                                                  // 被ダメージ
 		}
 
+		private HitboxesStruct Hitboxes;                            // 状態ごとの当たり判定ボックス
+		private struct HitboxesStruct                               // 状態ごとの当たり判定ボックス構造体
+		{
+			public Rectangle Neutral;                               // ニュートラル (立ち,  歩き, ジャンプ, はしご掴まり, 被ダメージ)
+			public Rectangle Sliding;                               // スライディング
+		}
+
 		// 以下定数
 		private const float WalkSpeed = 1.35f;                      // 歩行速度
 		private const float JumpSpeed = -4.8f;                      // ジャンプの初速
@@ -87,6 +94,11 @@ namespace Rockman_vs_SmashBros
 			Position.Y = SpawnPositionOnMap.Y * Const.MapchipTileSize + Const.MapchipTileSize - 1;
 			MoveDistance = Vector2.Zero;
 			Map.SetSectionID(0);
+
+			// 当たり判定の定義
+			Hitboxes = new HitboxesStruct();
+			Hitboxes.Neutral = new Rectangle(-5, -23, 12, 24);      // ニュートラル
+			Hitboxes.Sliding = new Rectangle(-5, -14, 12, 15);      // スライディング
 		}
 
 		/// <summary>
@@ -194,18 +206,18 @@ namespace Rockman_vs_SmashBros
 				// 状態に応じて更新処理を場合分け
 				switch (Status)
 				{
-					case Statuses.Neutral:		// ニュートラル
-					case Statuses.Walk:			// 歩き
-					case Statuses.Jump:			// ジャンプ
+					case Statuses.Neutral:      // ニュートラル
+					case Statuses.Walk:         // 歩き
+					case Statuses.Jump:         // ジャンプ
 						StandardUpdate();
 						break;
-					case Statuses.Sliding:		// スライディング
+					case Statuses.Sliding:      // スライディング
 						SlidingUpdate();
 						break;
-					case Statuses.Ladder:		// はしご掴まり
+					case Statuses.Ladder:       // はしご掴まり
 						LadderUpdate();
 						break;
-					case Statuses.Damage:		// 被ダメージ
+					case Statuses.Damage:       // 被ダメージ
 						DamageUpdate();
 						break;
 				}
@@ -298,7 +310,7 @@ namespace Rockman_vs_SmashBros
 					// 左を向いている場合は中心座標を左右反転
 					if (IsFaceToLeft)
 					{
-						//Origin = new Vector2((SourceRectangle.Width) - Origin.X, Origin.Y);
+						Origin = new Vector2((SourceRectangle.Width) - Origin.X, Origin.Y);
 					}
 					SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
 				}
@@ -350,10 +362,10 @@ namespace Rockman_vs_SmashBros
 				case Statuses.Ladder:   // はしご掴まり
 				case Statuses.Damage:   // 被ダメージ
 				default:                // その他
-					NewHitbox = new Rectangle(-7, -23, 15, 24);
+					NewHitbox = Hitboxes.Neutral;
 					break;
 				case Statuses.Sliding:  // スライディング
-					NewHitbox = new Rectangle(-12, -14, 24, 15);
+					NewHitbox = Hitboxes.Sliding;
 					break;
 			}
 
@@ -397,8 +409,16 @@ namespace Rockman_vs_SmashBros
 			// ショット開始
 			if (Controller.IsButtonPressed(Controller.Buttons.B) && RockBuster.Count < RockBuster.MaxNumber)
 			{
-				Point ShotPosition = Position.ToPoint() + new Point(0, -10);
-				Main.Entities.Add(new RockBuster(ShotPosition, IsFaceToLeft));
+				if (IsFaceToLeft)
+				{
+					Point ShotPosition = GetDrawPosition() + new Point(-16, -11);
+					Entity.AddReserv("RockBuster1:Left", ShotPosition);
+				}
+				else
+				{
+					Point ShotPosition = GetDrawPosition() + new Point(16, -11);
+					Entity.AddReserv("RockBuster1:Right", ShotPosition);
+				}
 				IsShooting = true;
 				ShootingFrameCounter = 0;
 			}
@@ -409,9 +429,15 @@ namespace Rockman_vs_SmashBros
 				// スライディング開始
 				if (Controller.IsButtonDown(Controller.Buttons.Down) && Controller.IsButtonPressed(Controller.Buttons.A))
 				{
-					IsShooting = false;
-					SetStatus(Statuses.Sliding);
-					return;
+					// 目の前に壁がないかチェック
+					Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
+					Point HitCheckPosition = IsFaceToLeft ? new Point(AbsoluteHitbox.Left - 1, AbsoluteHitbox.Bottom - 1) : new Point(AbsoluteHitbox.Right, AbsoluteHitbox.Bottom - 1);
+					if (Map.PositionToTerrainType(HitCheckPosition) != Map.TerrainTypes.Wall)
+					{
+						IsShooting = false;
+						SetStatus(Statuses.Sliding);
+						return;
+					}
 				}
 				// ジャンプ開始
 				else if (Controller.IsButtonPressed(Controller.Buttons.A))
@@ -583,7 +609,7 @@ namespace Rockman_vs_SmashBros
 		{
 			bool Result = false;
 
-			Rectangle RelativeStandingHitbox = new Rectangle(-12, -23, 24, 24);
+			Rectangle RelativeStandingHitbox = Hitboxes.Neutral;
 			// 左を向いている場合はヒットボックスを左右反転
 			if (IsFaceToLeft)
 			{
@@ -594,7 +620,7 @@ namespace Rockman_vs_SmashBros
 			Rectangle AbsoluteStandingHitbox = new Rectangle(DrawPosition.X + RelativeStandingHitbox.X, DrawPosition.Y + RelativeStandingHitbox.Y, RelativeStandingHitbox.Width, RelativeStandingHitbox.Height);
 
 			Point HitCheckPoint1 = new Point(AbsoluteStandingHitbox.Left, AbsoluteStandingHitbox.Top);
-			Point HitCheckPoint2 = new Point(AbsoluteStandingHitbox.Right-1, AbsoluteStandingHitbox.Top);
+			Point HitCheckPoint2 = new Point(AbsoluteStandingHitbox.Right - 1, AbsoluteStandingHitbox.Top);
 
 			if (Map.PositionToTerrainType(HitCheckPoint1) != Map.TerrainTypes.Wall &&
 				Map.PositionToTerrainType(HitCheckPoint2) != Map.TerrainTypes.Wall)
@@ -623,8 +649,16 @@ namespace Rockman_vs_SmashBros
 				{
 					IsFaceToLeft = false;
 				}
-				Point ShotPosition = Position.ToPoint() + new Point(0, -16);
-				Main.Entities.Add(new RockBuster(ShotPosition, IsFaceToLeft));
+				if (IsFaceToLeft)
+				{
+					Point ShotPosition = Position.ToPoint() + new Point(-8, -10);
+					Entity.AddReserv("RockBuster1:Left", ShotPosition);
+				}
+				else
+				{
+					Point ShotPosition = Position.ToPoint() + new Point(8, -10);
+					Entity.AddReserv("RockBuster1:Right", ShotPosition);
+				}
 				IsShooting = true;
 				ShootingFrameCounter = 0;
 			}
