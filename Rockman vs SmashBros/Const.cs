@@ -30,6 +30,7 @@ namespace Rockman_vs_SmashBros
 			Enemy,                                                      // エネミー
 			Player,                                                     // プレイヤー
 			PlayerShot,                                                 // プレイヤーの弾
+			Effect,														// エフェクト
 			UpperLayer,                                                 // 上層レイヤー
 			TerrainLayer,                                               // 地形チップレイヤー
 			MAX                                                         // レイヤーの最大数

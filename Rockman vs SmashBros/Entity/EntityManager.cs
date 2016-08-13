@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Design;
@@ -14,17 +15,76 @@ namespace Rockman_vs_SmashBros
 	/// </summary>
 	public partial class Entity
 	{
+		#region メンバーの宣言
+
+		private static List<ReservData> ReservDatas = new List<ReservData>();   // エンティティの追加予約
+		private struct ReservData                                               // エンティティの追加予約データ構造体
+		{
+			public string EntityName;
+			public Point Position;
+			public bool IsFromMap;
+			public Point FromMapPosition;
+			public ReservData(string EntityName, Point Position, bool IsFromMap, Point FromMapPosition)
+			{
+				this.EntityName = EntityName;
+				this.Position = Position;
+				this.IsFromMap = IsFromMap;
+				this.FromMapPosition = FromMapPosition;
+			}
+		}
+
+		#endregion
+
+		/// <summary>
+		/// エンティティの追加を予約
+		/// </summary>
+		/// <param name="EntityName">エンティティの名前</param>
+		/// <param name="Position">エンティティの座標</param>
+		/// <param name="IsFromMap">エンティティがマップにより作成されたかどうか</param>
+		/// <param name="FromMapPosition">エンティティがマップにより作成された場合の作成元の座標 (マップ上のマス数)</param>
+		public static void AddReserv(string EntityName, Point Position, bool IsFromMap = false, Point FromMapPosition = new Point())
+		{
+			ReservDatas.Add(new ReservData(EntityName, Position, IsFromMap, FromMapPosition));
+		}
+
+		/// <summary>
+		/// 予約されたエンティティ追加を実行
+		/// </summary>
+		public static void ExecuteReserv()
+		{
+			foreach (var Reserv in ReservDatas)
+			{
+				Create(Reserv.EntityName, Reserv.Position, Reserv.IsFromMap, Reserv.FromMapPosition);
+			}
+
+			ClearReserv();
+		}
+
+		/// <summary>
+		/// エンティティの追加予約をクリア
+		/// </summary>
+		private static void ClearReserv()
+		{
+			ReservDatas.Clear();
+		}
+
 		/// <summary>
 		/// エンティティを作成
 		/// </summary>
-		/// <param name="EntityName">作成するエンティティの名前</param>
-		/// <param name="Positiuon">作成する座標</param>
-		public static void Create(string EntityName, Point Position, bool IsFromMap, Point FromMapPosition)
+		/// <param name="EntityName">エンティティの名前</param>
+		/// <param name="Positiuon">エンティティの座標</param>
+		/// <param name="IsFromMap">エンティティがマップにより作成されたかどうか</param>
+		/// <param name="Position">エンティティがマップにより作成された場合の作成元の座標 (マップ上のマス数)</param>
+		public static void Create(string EntityName, Point Position, bool IsFromMap = false, Point FromMapPosition = new Point())
 		{
 			var Entities = Main.Entities;
 			// エンティティ名による場合分け
 			switch (EntityName)
 			{
+				// 破壊エフェクト
+				case "DestroyEffect1":
+					Entities.Add(new DestroyEffect1(Position, IsFromMap, FromMapPosition));
+					break;
 				// チェックポイント
 				case "CheckPoint":
 					Entities.Add(new CheckPoint(Position, IsFromMap, FromMapPosition));
@@ -50,10 +110,6 @@ namespace Rockman_vs_SmashBros
 					Entities.Add(new ErrorEntity(Position, IsFromMap, FromMapPosition));
 					break;
 			}
-		}
-		public static void Create(string EntityName, Point Position)
-		{
-			Create(EntityName, Position, false, new Point());
 		}
 
 		/// <summary>

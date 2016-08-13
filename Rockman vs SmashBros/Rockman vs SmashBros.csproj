@@ -44,6 +44,7 @@
     <Compile Include="Controller.cs" />
     <Compile Include="DamageDetail.cs" />
     <Compile Include="Entity\Bullet\RockBuster.cs" />
+    <Compile Include="Entity\Effect\DestroyEffect1.cs" />
     <Compile Include="Entity\EntityManager.cs" />
     <Compile Include="Entity\Enemy\HyruleSoldier.cs" />
     <Compile Include="Entity\Entity.cs" />
@@ -78,6 +79,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
     <Content Include="Content\Image\CheckPoint.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Image\DestroyEffect.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Image\TerrainTypes.png">

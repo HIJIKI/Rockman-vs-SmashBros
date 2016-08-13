@@ -21,6 +21,7 @@ namespace Rockman_vs_SmashBros
 			Player,
 			Enemy,
 			Platform,
+			Effect,
 			Other
 		}
 		public Types Type;                                          // エンティティの種類

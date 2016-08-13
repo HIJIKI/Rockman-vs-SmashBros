@@ -99,6 +99,7 @@ namespace Rockman_vs_SmashBros
 			RockBuster.LoadContent(Content);
 			ErrorEntity.LoadContent(Content);
 			CheckPoint.LoadContent(Content);
+			DestroyEffect1.LoadContent(Content);
 
 			// テストフォント
 			Font = Content.Load<SpriteFont>("Font/myfont");
@@ -121,6 +122,7 @@ namespace Rockman_vs_SmashBros
 			RockBuster.UnloadContent();
 			ErrorEntity.UnloadContent();
 			CheckPoint.UnloadContent();
+			DestroyEffect1.UnloadContent();
 		}
 
 		/// <summary>
@@ -209,6 +211,9 @@ namespace Rockman_vs_SmashBros
 			// 不要になったエンティティを削除
 			Entities.RemoveAll(E => !E.IsAlive);
 
+			// 追加予約されたエンティティを追加
+			Entity.ExecuteReserv();
+
 			// カメラを更新
 			Camera.Update(GameTime, Player.GetDrawPosition());
 
@@ -277,7 +282,7 @@ namespace Rockman_vs_SmashBros
 				Messages.Add("Player.AnimationPattern: " + Player.AnimationPattern);
 				//Messages.Add("CameraPosition: " + (Camera.Position));
 				Messages.Add("AllEntities: " + Entities.Count);
-				Messages.Add("RockBuster: " + RockBuster.Count);
+				//Messages.Add("RockBuster: " + RockBuster.Count);
 				SpriteBatch.DrawRectangle(new Rectangle(0, 0, Const.GameScreenWidth, 8 * Messages.Count), new Color(Color.Black, 0.5f), true);
 				for (int i = 0; i < Messages.Count; i++)
 				{
