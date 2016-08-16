@@ -44,7 +44,7 @@ namespace Rockman_vs_SmashBros
 		public static void LoadContent(ContentManager Content)
 		{
 			// テクスチャの読み込み
-			Texture = Content.Load<Texture2D>("Image/ErrorEntity.png");
+			Texture = Content.Load<Texture2D>("Image/Common/ErrorEntity.png");
 		}
 
 		/// <summary>

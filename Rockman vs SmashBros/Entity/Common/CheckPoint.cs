@@ -44,7 +44,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void LoadContent(ContentManager Content)
 		{
-			Texture = Content.Load<Texture2D>("Image/CheckPoint.png");
+			Texture = Content.Load<Texture2D>("Image/Common/CheckPoint.png");
 		}
 
 		/// <summary>

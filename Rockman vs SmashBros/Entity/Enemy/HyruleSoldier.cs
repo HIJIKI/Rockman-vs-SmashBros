@@ -78,7 +78,7 @@ namespace Rockman_vs_SmashBros
 		public static void LoadContent(ContentManager Content)
 		{
 			// テクスチャの読み込み
-			Texture = Content.Load<Texture2D>("Image/HyruleSoldier.png");
+			Texture = Content.Load<Texture2D>("Image/Enemy/HyruleSoldier.png");
 
 			// 各スプライトの定義
 			SearchingSprite = new Sprite(new Rectangle(0, 0, 32, 32), new Vector2(15, 28));

@@ -106,7 +106,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void LoadContent(ContentManager Content)
 		{
-			Texture = Content.Load<Texture2D>("Image/Player.png");
+			Texture = Content.Load<Texture2D>("Image/Player/Player.png");
 
 			#region 各スプライトの定義
 
@@ -209,16 +209,16 @@ namespace Rockman_vs_SmashBros
 					case Statuses.Neutral:      // ニュートラル
 					case Statuses.Walk:         // 歩き
 					case Statuses.Jump:         // ジャンプ
-						StandardUpdate();
+						UpdateStandard();
 						break;
 					case Statuses.Sliding:      // スライディング
-						SlidingUpdate();
+						UpdateSliding();
 						break;
 					case Statuses.Ladder:       // はしご掴まり
-						LadderUpdate();
+						UpdateLadder();
 						break;
 					case Statuses.Damage:       // 被ダメージ
-						DamageUpdate();
+						UpdateDamage();
 						break;
 				}
 			}
@@ -241,7 +241,7 @@ namespace Rockman_vs_SmashBros
 			// セクション移動中の処理
 			else
 			{
-				ChangeSectionCalc();
+				UpdateChangeSection();
 			}
 
 			if (!IsInChangeSection)
@@ -404,7 +404,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 通常の更新処理
 		/// </summary>
-		private void StandardUpdate()
+		private void UpdateStandard()
 		{
 			// ショット開始
 			if (Controller.IsButtonPressed(Controller.Buttons.B) && RockBuster.Count < RockBuster.MaxNumber)
@@ -434,6 +434,17 @@ namespace Rockman_vs_SmashBros
 					Point HitCheckPosition = IsFaceToLeft ? new Point(AbsoluteHitbox.Left - 1, AbsoluteHitbox.Bottom - 1) : new Point(AbsoluteHitbox.Right, AbsoluteHitbox.Bottom - 1);
 					if (Map.PositionToTerrainType(HitCheckPosition) != Map.TerrainTypes.Wall)
 					{
+						// 煙エフェクトを発生させる
+						if (IsFaceToLeft)
+						{
+							Point EffectPosition = GetDrawPosition() + new Point(6, 0);
+							Entity.AddReserv("SlidingSmoke:Left", EffectPosition);
+						}
+						else
+						{
+							Point EffectPosition = GetDrawPosition() + new Point(-6, 0);
+							Entity.AddReserv("SlidingSmoke:Right", EffectPosition);
+						}
 						IsShooting = false;
 						SetStatus(Statuses.Sliding);
 						return;
@@ -539,7 +550,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// スライディング中の更新処理
 		/// </summary>
-		private void SlidingUpdate()
+		private void UpdateSliding()
 		{
 			// 向いている方向に前進する
 			MoveDistance.X = IsFaceToLeft ? -SlidingSpeed : SlidingSpeed;
@@ -603,37 +614,9 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// スライディングをキャンセル可能かどうかを取得する (頭上に地形がないかどうか)
-		/// </summary>
-		private bool IsSlidingCancelable()
-		{
-			bool Result = false;
-
-			Rectangle RelativeStandingHitbox = Hitboxes.Neutral;
-			// 左を向いている場合はヒットボックスを左右反転
-			if (IsFaceToLeft)
-			{
-				RelativeStandingHitbox = new Rectangle(1 - (RelativeStandingHitbox.X + RelativeStandingHitbox.Width), RelativeStandingHitbox.Y, RelativeStandingHitbox.Width, RelativeStandingHitbox.Height);
-			}
-
-			Point DrawPosition = GetDrawPosition();
-			Rectangle AbsoluteStandingHitbox = new Rectangle(DrawPosition.X + RelativeStandingHitbox.X, DrawPosition.Y + RelativeStandingHitbox.Y, RelativeStandingHitbox.Width, RelativeStandingHitbox.Height);
-
-			Point HitCheckPoint1 = new Point(AbsoluteStandingHitbox.Left, AbsoluteStandingHitbox.Top);
-			Point HitCheckPoint2 = new Point(AbsoluteStandingHitbox.Right - 1, AbsoluteStandingHitbox.Top);
-
-			if (Map.PositionToTerrainType(HitCheckPoint1) != Map.TerrainTypes.Wall &&
-				Map.PositionToTerrainType(HitCheckPoint2) != Map.TerrainTypes.Wall)
-			{
-				Result = true;
-			}
-			return Result;
-		}
-
-		/// <summary>
 		/// はしご掴まり中の処理
 		/// </summary>
-		private void LadderUpdate()
+		private void UpdateLadder()
 		{
 			MoveDistance = Vector2.Zero;
 
@@ -740,7 +723,7 @@ namespace Rockman_vs_SmashBros
 		/// <summary>
 		/// 被ダメージ中の処理
 		/// </summary>
-		private void DamageUpdate()
+		private void UpdateDamage()
 		{
 			float Speed = 0.5f;
 			MoveDistance.X = IsFaceToLeft ? Speed : -Speed;
@@ -762,6 +745,81 @@ namespace Rockman_vs_SmashBros
 					SetStatus(Statuses.Jump);
 				}
 			}
+		}
+
+		/// <summary>
+		/// 足元の掴める位置に梯子があるかどうかを調べる
+		/// </summary>
+		/// <param name="Map"></param>
+		/// <returns></returns>
+		private bool CheckBottomLadder()
+		{
+			Point DrawPosition = GetDrawPosition();
+			Point CheckPoint = DrawPosition; CheckPoint.Y += 1;   // プレイヤーの足元の1ドット下
+			if (Map.PositionToTerrainType(CheckPoint) == Map.TerrainTypes.Ladder)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// 掴める範囲に梯子があるかどうかを調べる
+		/// </summary>
+		private bool CheckGrabLadder()
+		{
+			Point DrawPosition = GetDrawPosition();
+			Point Top = DrawPosition; Top.Y += RelativeHitbox.Y;                    // 上辺
+			Point Middle = DrawPosition; Middle.Y -= RelativeHitbox.Height / 2;     // 中心
+			Point Bottom = DrawPosition;                                            // 下辺
+			if (Map.PositionToTerrainType(Top) == Map.TerrainTypes.Ladder ||
+				Map.PositionToTerrainType(Middle) == Map.TerrainTypes.Ladder ||
+				Map.PositionToTerrainType(Bottom) == Map.TerrainTypes.Ladder)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// はしごに捕まる
+		/// </summary>
+		/// <param name="AfterPosition">はしごを掴んだあとの座標</param>
+		private void GrabLadder(Vector2 AfterPosition)
+		{
+			IsShooting = false;
+			SetPosition(AfterPosition);
+			MoveDistance = Vector2.Zero;
+			SetStatus(Statuses.Ladder);
+			IsInAir = true;
+		}
+
+		/// <summary>
+		/// スライディングをキャンセル可能かどうかを取得する (頭上に地形がないかどうか)
+		/// </summary>
+		private bool IsSlidingCancelable()
+		{
+			bool Result = false;
+
+			Rectangle RelativeStandingHitbox = Hitboxes.Neutral;
+			// 左を向いている場合はヒットボックスを左右反転
+			if (IsFaceToLeft)
+			{
+				RelativeStandingHitbox = new Rectangle(1 - (RelativeStandingHitbox.X + RelativeStandingHitbox.Width), RelativeStandingHitbox.Y, RelativeStandingHitbox.Width, RelativeStandingHitbox.Height);
+			}
+
+			Point DrawPosition = GetDrawPosition();
+			Rectangle AbsoluteStandingHitbox = new Rectangle(DrawPosition.X + RelativeStandingHitbox.X, DrawPosition.Y + RelativeStandingHitbox.Y, RelativeStandingHitbox.Width, RelativeStandingHitbox.Height);
+
+			Point HitCheckPoint1 = new Point(AbsoluteStandingHitbox.Left, AbsoluteStandingHitbox.Top);
+			Point HitCheckPoint2 = new Point(AbsoluteStandingHitbox.Right - 1, AbsoluteStandingHitbox.Top);
+
+			if (Map.PositionToTerrainType(HitCheckPoint1) != Map.TerrainTypes.Wall &&
+				Map.PositionToTerrainType(HitCheckPoint2) != Map.TerrainTypes.Wall)
+			{
+				Result = true;
+			}
+			return Result;
 		}
 
 		/// <summary>
@@ -839,56 +897,9 @@ namespace Rockman_vs_SmashBros
 		}
 
 		/// <summary>
-		/// 足元の掴める位置に梯子があるかどうかを調べる
-		/// </summary>
-		/// <param name="Map"></param>
-		/// <returns></returns>
-		private bool CheckBottomLadder()
-		{
-			Point DrawPosition = GetDrawPosition();
-			Point CheckPoint = DrawPosition; CheckPoint.Y += 1;   // プレイヤーの足元の1ドット下
-			if (Map.PositionToTerrainType(CheckPoint) == Map.TerrainTypes.Ladder)
-			{
-				return true;
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// 掴める範囲に梯子があるかどうかを調べる
-		/// </summary>
-		private bool CheckGrabLadder()
-		{
-			Point DrawPosition = GetDrawPosition();
-			Point Top = DrawPosition; Top.Y += RelativeHitbox.Y;                    // 上辺
-			Point Middle = DrawPosition; Middle.Y -= RelativeHitbox.Height / 2;     // 中心
-			Point Bottom = DrawPosition;                                            // 下辺
-			if (Map.PositionToTerrainType(Top) == Map.TerrainTypes.Ladder ||
-				Map.PositionToTerrainType(Middle) == Map.TerrainTypes.Ladder ||
-				Map.PositionToTerrainType(Bottom) == Map.TerrainTypes.Ladder)
-			{
-				return true;
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// はしごに捕まる
-		/// </summary>
-		/// <param name="AfterPosition">はしごを掴んだあとの座標</param>
-		private void GrabLadder(Vector2 AfterPosition)
-		{
-			IsShooting = false;
-			SetPosition(AfterPosition);
-			MoveDistance = Vector2.Zero;
-			SetStatus(Statuses.Ladder);
-			IsInAir = true;
-		}
-
-		/// <summary>
 		/// セクション移動中の処理
 		/// </summary>
-		private void ChangeSectionCalc()
+		private void UpdateChangeSection()
 		{
 			Vector2 Source = ChangeSectionSourcePosition;
 			Vector2 Destination = ChangeSectionDestinationPosition;

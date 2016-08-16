@@ -78,9 +78,12 @@ namespace Rockman_vs_SmashBros
 		public static void Create(string EntityName, Point Position, bool IsFromMap = false, Point FromMapPosition = new Point())
 		{
 			var Entities = Main.Entities;
+
 			// エンティティ名による場合分け
 			switch (EntityName)
 			{
+				#region プレイヤー関連
+
 				// ロックバスター
 				case "RockBuster1:Left":
 					Entities.Add(new RockBuster(Position, true));
@@ -88,18 +91,18 @@ namespace Rockman_vs_SmashBros
 				case "RockBuster1:Right":
 					Entities.Add(new RockBuster(Position, false));
 					break;
-				// 爆発エフェクト1
-				case "Explosion1":
-					Entities.Add(new Explosion1(Position, IsFromMap, FromMapPosition));
+				// スライディングエフェクト
+				case "SlidingSmoke:Left":
+					Entities.Add(new SlidingSmoke(Position, true));
 					break;
-				// 破壊エフェクト
-				case "DestroyEffect1":
-					Entities.Add(new DestroyEffect1(Position, IsFromMap, FromMapPosition));
+				case "SlidingSmoke:Right":
+					Entities.Add(new SlidingSmoke(Position, false));
 					break;
-				// チェックポイント
-				case "CheckPoint":
-					Entities.Add(new CheckPoint(Position, IsFromMap, FromMapPosition));
-					break;
+
+				#endregion
+
+				#region ザコ敵キャラクター
+
 				// ハイラル兵
 				case "HyruleSoldier":
 					Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition));
@@ -108,6 +111,11 @@ namespace Rockman_vs_SmashBros
 				case "HyruleSoldier:Attacking":
 					Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition, true));
 					break;
+
+				#endregion
+
+				#region ステージギミック
+
 				// 足場1
 				case "Platform1":
 					Entities.Add(new Platform1(Position, IsFromMap, FromMapPosition));
@@ -116,10 +124,35 @@ namespace Rockman_vs_SmashBros
 				case "Platform2":
 					Entities.Add(new Platform2(Position, IsFromMap, FromMapPosition));
 					break;
+
+				#endregion
+
+				#region エフェクト
+
+				// 爆発エフェクト1
+				case "Explosion1":
+					Entities.Add(new Explosion1(Position, IsFromMap, FromMapPosition));
+					break;
+				// 破壊エフェクト
+				case "DestroyEffect1":
+					Entities.Add(new DestroyEffect1(Position, IsFromMap, FromMapPosition));
+					break;
+
+				#endregion
+
+				#region その他
+
+				// チェックポイント
+				case "CheckPoint":
+					Entities.Add(new CheckPoint(Position, IsFromMap, FromMapPosition));
+					break;
+
 				// エラーエンティティ
 				default:
 					Entities.Add(new ErrorEntity(Position, IsFromMap, FromMapPosition));
 					break;
+
+					#endregion
 			}
 		}
 

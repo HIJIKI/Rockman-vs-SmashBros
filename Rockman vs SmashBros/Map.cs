@@ -622,8 +622,8 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void LoadContent(ContentManager Content)
 		{
-			Texture = Content.Load<Texture2D>("Image/link_stage_mapchip.png");
-			TerrainTexture = Content.Load<Texture2D>("Image/TerrainTypes.png");
+			Texture = Content.Load<Texture2D>("Image/Mapchip/LinkStage.png");
+			TerrainTexture = Content.Load<Texture2D>("Image/Mapchip/TerrainTypes.png");
 		}
 
 		/// <summary>

@@ -63,7 +63,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void LoadContent(ContentManager Content)
 		{
-			Texture = Content.Load<Texture2D>("Image/Player_RockBuster.png");
+			Texture = Content.Load<Texture2D>("Image/Bullet/RockBuster.png");
 
 			#region 各スプライトの定義
 			Sprites.Normal = new Sprite(new Rectangle(0, 0, 8, 8), new Vector2(4, 4));

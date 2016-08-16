@@ -51,7 +51,7 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public static void LoadContent(ContentManager Content)
 		{
-			Texture = Content.Load<Texture2D>("Image/Explosion1.png");
+			Texture = Content.Load<Texture2D>("Image/Effect/Explosion1.png");
 		}
 
 		/// <summary>

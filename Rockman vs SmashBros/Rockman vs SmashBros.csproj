@@ -44,13 +44,14 @@
     <Compile Include="Controller.cs" />
     <Compile Include="DamageDetail.cs" />
     <Compile Include="Entity\Bullet\RockBuster.cs" />
+    <Compile Include="Entity\Effect\SlidingSmoke.cs" />
     <Compile Include="Entity\Effect\Explosion1.cs" />
     <Compile Include="Entity\Effect\DestroyEffect1.cs" />
     <Compile Include="Entity\EntityManager.cs" />
     <Compile Include="Entity\Enemy\HyruleSoldier.cs" />
     <Compile Include="Entity\Entity.cs" />
-    <Compile Include="Entity\ErrorEntity.cs" />
-    <Compile Include="Entity\Gimmick\CheckPoint.cs" />
+    <Compile Include="Entity\Common\ErrorEntity.cs" />
+    <Compile Include="Entity\Common\CheckPoint.cs" />
     <Compile Include="Entity\Gimmick\Platform2.cs" />
     <Compile Include="Entity\Gimmick\Platform1.cs" />
     <Compile Include="Library\Primitives2DWrapper.cs" />
@@ -79,34 +80,37 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
-    <Content Include="Content\Image\CheckPoint.png">
+    <Content Include="Content\Image\Common\CheckPoint.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\DestroyEffect.png">
+    <Content Include="Content\Image\Effect\DestroyEffect.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\Explosion1.png">
+    <Content Include="Content\Image\Effect\Explosion1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\TerrainTypes.png">
+    <Content Include="Content\Image\Effect\SlidingSmoke.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\ErrorEntity.png">
+    <Content Include="Content\Image\Mapchip\TerrainTypes.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\HyruleSoldier.png">
+    <Content Include="Content\Image\Common\ErrorEntity.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\link_stage_mapchip.png">
+    <Content Include="Content\Image\Enemy\HyruleSoldier.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\Player.png">
+    <Content Include="Content\Image\Mapchip\LinkStage.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\mario_stage_mapchip.png">
+    <Content Include="Content\Image\Player\Player.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Image\Player_Rockbuster.png">
+    <Content Include="Content\Image\Mapchip\MarioStage.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Image\Bullet\RockBuster.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="OpenTK.dll.config">
@@ -118,6 +122,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Font\" />
+    <Folder Include="Content\Image\Enemy\Boss\" />
+    <Folder Include="Content\Image\Gimmick\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
