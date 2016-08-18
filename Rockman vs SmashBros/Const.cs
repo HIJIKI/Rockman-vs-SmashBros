@@ -12,8 +12,8 @@ namespace Rockman_vs_SmashBros
 	/// <summary>
 	/// Const クラス
 	/// </summary>
-	/// グローバルな定数を定義するクラス
-	static class Const
+	/// グローバルな定数を宣言 / 定義するクラス
+	public static class Const
 	{
 		/// <summary>
 		/// 定数定義

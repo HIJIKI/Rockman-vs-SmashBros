@@ -24,7 +24,7 @@ namespace Rockman_vs_SmashBros
 			Effect,
 			Other
 		}
-		public Types Type;                                          // エンティティの種類
+		public Types Type;                                          // エンティティの種類 (Player, Enemy などの抽象的なもの)
 		public bool IsAlive;                                        // 生存フラグ
 		public bool IsNoclip;                                       // 地形を貫通するかどうか
 		public bool IsInAir;                                        // 空中にいるかどうか

@@ -15,7 +15,8 @@ namespace Rockman_vs_SmashBros
 	public class ErrorEntity : Entity
 	{
 		#region メンバーの宣言
-		public static Texture2D Texture;                            // テクスチャ
+		private static Texture2D Texture;                           // テクスチャ
+		private static Sprite Sprite;                               // スプライト定義
 		#endregion
 
 		/// <summary>
@@ -28,7 +29,6 @@ namespace Rockman_vs_SmashBros
 			this.FromMapPosition = FromMapPosition;
 			Type = Types.Other;
 			IsAlive = true;
-			RelativeHitbox = new Rectangle(-8, -15, 16, 16);
 		}
 
 		/// <summary>
@@ -45,6 +45,8 @@ namespace Rockman_vs_SmashBros
 		{
 			// テクスチャの読み込み
 			Texture = Content.Load<Texture2D>("Image/Common/ErrorEntity.png");
+
+			Sprite = new Sprite(new Rectangle(0, 0, 16, 16), new Vector2(8, 15));
 		}
 
 		/// <summary>
@@ -68,11 +70,11 @@ namespace Rockman_vs_SmashBros
 		public override void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
 			Vector2 Position = GetDrawPosition().ToVector2();
-			Rectangle SourceRectangle = new Rectangle(0, 0, 16, 16);
-			Vector2 Origin = new Vector2(8, 15);
+			Rectangle SourceRectangle = Sprite.SourceRectangle;
+			Vector2 Origin = Sprite.Origin;
 			SpriteEffects SpriteEffect = SpriteEffects.None;
-			float layerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
-			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
+			float LayerDepth = Const.DrawOrder.Enemy.ToLayerDepth();
+			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
 			base.Draw(GameTime, SpriteBatch);
 		}
 

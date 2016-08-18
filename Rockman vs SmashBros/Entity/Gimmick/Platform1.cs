@@ -15,12 +15,10 @@ namespace Rockman_vs_SmashBros
 	public class Platform1 : Entity
 	{
 		#region メンバーの宣言
-		public static Texture2D Texture;                            // テクスチャ
-
-		private Sprite Sprite = new Sprite(new Rectangle(48, 160, 32, 16), new Vector2());
-
-		bool IsGoingRight;
-		int FrameCounter;
+		private static Texture2D Texture;                           // テクスチャ
+		private static Sprite Sprite;                               // スプライト定義
+		bool IsGoingRight;                                          // 右方向へ移動中かどうか
+		int FrameCounter;                                           // フレームカウンター
 		#endregion
 
 		/// <summary>
@@ -53,6 +51,10 @@ namespace Rockman_vs_SmashBros
 		public static void LoadContent(ContentManager Content)
 		{
 			Texture = Content.Load<Texture2D>("Image/Mapchip/LinkStage.png");
+
+			#region 各スプライトの定義
+			Sprite = new Sprite(new Rectangle(48, 160, 32, 16), new Vector2());
+			#endregion
 		}
 
 		/// <summary>
@@ -95,7 +97,7 @@ namespace Rockman_vs_SmashBros
 			Vector2 Position = GetDrawPosition().ToVector2();
 			Rectangle SourceRectangle = Sprite.SourceRectangle;
 			Vector2 Origin = Sprite.Origin;
-			float LayerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
+			float LayerDepth = Const.DrawOrder.Enemy.ToLayerDepth();
 
 			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Sprite.Origin, 1.0f, SpriteEffects.None, LayerDepth);
 

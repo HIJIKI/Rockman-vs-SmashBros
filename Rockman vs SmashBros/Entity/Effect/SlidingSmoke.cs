@@ -96,13 +96,13 @@ namespace Rockman_vs_SmashBros
 				Rectangle SourceRectangle = Sprites[AnimationPattern].SourceRectangle;
 				Vector2 Origin = Sprites[AnimationPattern].Origin;
 				SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-				float layerDepth = (float)Const.DrawOrder.Effect / (float)Const.DrawOrder.MAX;
+				float LayerDepth = Const.DrawOrder.Effect.ToLayerDepth();
 				// 左を向いている場合は中心座標を左右反転
 				if (IsFaceToLeft)
 				{
 					Origin = new Vector2((SourceRectangle.Width) - Origin.X, Origin.Y);
 				}
-				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
+				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
 			}
 
 			base.Draw(GameTime, SpriteBatch);

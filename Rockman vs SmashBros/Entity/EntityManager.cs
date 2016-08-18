@@ -91,13 +91,6 @@ namespace Rockman_vs_SmashBros
 				case "RockBuster1:Right":
 					Entities.Add(new RockBuster(Position, false));
 					break;
-				// スライディングエフェクト
-				case "SlidingSmoke:Left":
-					Entities.Add(new SlidingSmoke(Position, true));
-					break;
-				case "SlidingSmoke:Right":
-					Entities.Add(new SlidingSmoke(Position, false));
-					break;
 
 				#endregion
 
@@ -137,6 +130,14 @@ namespace Rockman_vs_SmashBros
 				case "DestroyEffect1":
 					Entities.Add(new DestroyEffect1(Position, IsFromMap, FromMapPosition));
 					break;
+				// スライディングエフェクト
+				case "SlidingSmoke:Left":
+					Entities.Add(new SlidingSmoke(Position, true));
+					break;
+				case "SlidingSmoke:Right":
+					Entities.Add(new SlidingSmoke(Position, false));
+					break;
+
 
 				#endregion
 

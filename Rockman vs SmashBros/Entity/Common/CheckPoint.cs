@@ -15,7 +15,8 @@ namespace Rockman_vs_SmashBros
 	public class CheckPoint : Entity
 	{
 		#region メンバーの宣言
-		private static Texture2D Texture;
+		private static Texture2D Texture;							// テクスチャ
+		private static Sprite Sprite;								// スプライト定義
 		#endregion
 
 		/// <summary>
@@ -27,7 +28,6 @@ namespace Rockman_vs_SmashBros
 			this.Position = Position.ToVector2();
 			this.IsFromMap = IsFromMap;
 			this.FromMapPosition = FromMapPosition;
-			RelativeHitbox = new Rectangle(-8, -15, 16, 16);
 			Type = Types.Other;
 
 			Main.SetSpawnPoint(FromMapPosition);
@@ -45,6 +45,8 @@ namespace Rockman_vs_SmashBros
 		public static void LoadContent(ContentManager Content)
 		{
 			Texture = Content.Load<Texture2D>("Image/Common/CheckPoint.png");
+
+			Sprite = new Sprite(new Rectangle(0, 0, 16, 16), new Vector2(8, 15));
 		}
 
 		/// <summary>
@@ -70,11 +72,11 @@ namespace Rockman_vs_SmashBros
 			if (Global.Debug)
 			{
 				Vector2 Position = GetDrawPosition().ToVector2();
-				Rectangle SourceRectangle = new Rectangle(0, 0, 16, 16);
-				Vector2 Origin = new Vector2(8, 15);
+				Rectangle SourceRectangle = Sprite.SourceRectangle;
+				Vector2 Origin = Sprite.Origin;
 				SpriteEffects SpriteEffect = SpriteEffects.None;
-				float layerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
-				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
+				float LayerDepth = Const.DrawOrder.Enemy.ToLayerDepth();
+				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
 			}
 			base.Draw(GameTime, SpriteBatch);
 		}

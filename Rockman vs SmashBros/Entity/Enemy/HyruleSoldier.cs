@@ -25,7 +25,7 @@ namespace Rockman_vs_SmashBros
 		private int AnimationPattern;                               // アニメーションのパターン
 
 		private static Sprite SearchingSprite;                      // プレイヤー捜索中のスプライト
-		private static Sprite[] AttackSprites = new Sprite[3];      // 突撃中のスプライト
+		private static Sprite[] AttackSprites;                      // 突撃中のスプライト
 		private static int[] AttackAnimationTable;                  // 突撃中のアニメーションの順番
 
 		private Statuses Status;                                    // プレイヤーの状態
@@ -80,12 +80,16 @@ namespace Rockman_vs_SmashBros
 			// テクスチャの読み込み
 			Texture = Content.Load<Texture2D>("Image/Enemy/HyruleSoldier.png");
 
-			// 各スプライトの定義
+			#region 各スプライトの定義
 			SearchingSprite = new Sprite(new Rectangle(0, 0, 32, 32), new Vector2(15, 28));
-			AttackSprites[0] = new Sprite(new Rectangle(48 * 0, 32, 48, 32), new Vector2(15, 28));
-			AttackSprites[1] = new Sprite(new Rectangle(48 * 1, 32, 48, 32), new Vector2(15, 28));
-			AttackSprites[2] = new Sprite(new Rectangle(48 * 2, 32, 48, 32), new Vector2(15, 28));
+			AttackSprites = new Sprite[]
+			{
+				new Sprite(new Rectangle(48 * 0, 32, 48, 32), new Vector2(15, 28)),
+				new Sprite(new Rectangle(48 * 1, 32, 48, 32), new Vector2(15, 28)),
+				new Sprite(new Rectangle(48 * 2, 32, 48, 32), new Vector2(15, 28))
+			};
 			AttackAnimationTable = new int[] { 0, 1, 2, 1 };
+			#endregion
 		}
 
 		/// <summary>
@@ -185,13 +189,13 @@ namespace Rockman_vs_SmashBros
 			Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
 			Vector2 Origin = CurrentlySprite.Origin;
 			SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-			float layerDepth = (float)Const.DrawOrder.Enemy / (float)Const.DrawOrder.MAX;
+			float LayerDepth = Const.DrawOrder.Enemy.ToLayerDepth();
 			// 左を向いている場合は中心座標を反転
 			if (IsFaceToLeft)
 			{
-				Origin = new Vector2((CurrentlySprite.SourceRectangle.Width) - Origin.X, Origin.Y);
+				Origin = new Vector2(SourceRectangle.Width - 1 - Origin.X, Origin.Y);
 			}
-			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
+			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
 
 			// デバッグ描画
 			if (Global.Debug && Status == Statuses.Searching)

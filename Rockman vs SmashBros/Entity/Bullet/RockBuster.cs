@@ -22,8 +22,8 @@ namespace Rockman_vs_SmashBros
 		public DamageDetail DamageDetail;                           // 敵に接触した時に与えるダメージ
 		public static int Count;                                    // 画面内に存在するロックバスターの数
 
-		private static SpritesStruct Sprites;                       // 各スプライト
-		private struct SpritesStruct                                // 各スプライト管理構造体
+		private static sprites Sprites;								// 各スプライト
+		private struct sprites										// 各スプライト管理構造体
 		{
 			public Sprite Normal;                                   // 豆玉
 			public Sprite[] Charge1;                                // 溜め1
@@ -143,13 +143,13 @@ namespace Rockman_vs_SmashBros
 				Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
 				Vector2 Origin = CurrentlySprite.Origin;
 				SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-				float layerDepth = (float)Const.DrawOrder.PlayerShot / (float)Const.DrawOrder.MAX;
+				float LayerDepth = Const.DrawOrder.PlayerShot.ToLayerDepth();
 				// 左を向いている場合は中心座標を反転
 				if (IsFaceToLeft)
 				{
 					Origin = new Vector2((CurrentlySprite.SourceRectangle.Width) - Origin.X, Origin.Y);
 				}
-				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
+				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
 
 			}
 

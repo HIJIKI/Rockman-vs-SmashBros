@@ -709,9 +709,9 @@ namespace Rockman_vs_SmashBros
 						Point Position = new Point(x * Const.MapchipTileSize, y * Const.MapchipTileSize);
 
 						//各レイヤーを描画
-						DrawTile(SpriteBatch, BGLayer[x, y], Position, (float)Const.DrawOrder.BGLayer / (float)Const.DrawOrder.MAX);
-						DrawTile(SpriteBatch, LowerLayer[x, y], Position, (float)Const.DrawOrder.LowerLayer / (float)Const.DrawOrder.MAX);
-						DrawTile(SpriteBatch, UpperLayer[x, y], Position, (float)Const.DrawOrder.UpperLayer / (float)Const.DrawOrder.MAX);
+						DrawTile(SpriteBatch, BGLayer[x, y], Position, Const.DrawOrder.BGLayer.ToLayerDepth());
+						DrawTile(SpriteBatch, LowerLayer[x, y], Position, Const.DrawOrder.LowerLayer.ToLayerDepth());
+						DrawTile(SpriteBatch, UpperLayer[x, y], Position, Const.DrawOrder.UpperLayer.ToLayerDepth());
 
 						// デバッグ描画 (地形判定)
 						if (Global.Debug)
@@ -970,7 +970,7 @@ namespace Rockman_vs_SmashBros
 			Rectangle SourceRect = new Rectangle((TerrainTypeInt % MapchipSize.Width) * Const.MapchipTileSize, (TerrainTypeInt / MapchipSize.Width) * Const.MapchipTileSize, Const.MapchipTileSize, Const.MapchipTileSize);
 
 			// マップチップを描画
-			SpriteBatch.Draw(TerrainTexture, new Vector2(Position.X, Position.Y), SourceRect, Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, (float)Const.DrawOrder.TerrainLayer / (float)Const.DrawOrder.MAX);
+			SpriteBatch.Draw(TerrainTexture, new Vector2(Position.X, Position.Y), SourceRect, Color.White, 0.0f, new Vector2(0, 0), 1.0f, SpriteEffects.None, Const.DrawOrder.TerrainLayer.ToLayerDepth());
 		}
 
 		#endregion

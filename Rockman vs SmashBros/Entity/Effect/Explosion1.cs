@@ -17,8 +17,9 @@ namespace Rockman_vs_SmashBros
 		#region メンバーの宣言
 
 		private static Texture2D Texture;                           // テクスチャ
-		public int FrameCounter;                                    // フレームカウンター
-		public int AnimationPattern;                                // アニメーションのパターン
+		private static Sprite[] Sprites;                            // 各スプライト定義
+		private int FrameCounter;                                   // フレームカウンター
+		private int AnimationPattern;                               // アニメーションのパターン
 
 		#endregion
 
@@ -52,6 +53,17 @@ namespace Rockman_vs_SmashBros
 		public static void LoadContent(ContentManager Content)
 		{
 			Texture = Content.Load<Texture2D>("Image/Effect/Explosion1.png");
+
+			#region 各スプライトの定義
+			Sprites = new Sprite[]
+			{
+				new Sprite(new Rectangle(24 * 0, 0, 24, 24), new Vector2(12, 12)),
+				new Sprite(new Rectangle(24 * 1, 0, 24, 24), new Vector2(12, 12)),
+				new Sprite(new Rectangle(24 * 2, 0, 24, 24), new Vector2(12, 12)),
+				new Sprite(new Rectangle(24 * 3, 0, 24, 24), new Vector2(12, 12)),
+				new Sprite(new Rectangle(24 * 4, 0, 24, 24), new Vector2(12, 12))
+			};
+			#endregion
 		}
 
 		/// <summary>
@@ -70,7 +82,7 @@ namespace Rockman_vs_SmashBros
 			if (FrameCounter % 3 == 0 && FrameCounter != 0)
 			{
 				AnimationPattern++;
-				if (AnimationPattern >= 5)
+				if (AnimationPattern >= Sprites.Length)
 				{
 					Destroy();
 				}
@@ -86,13 +98,16 @@ namespace Rockman_vs_SmashBros
 		{
 			if (IsAlive)
 			{
+				// 現在のスプライトを取得
+				var CurrentlySprite = Sprites[AnimationPattern];
+
 				// 描画
 				Vector2 Position = GetDrawPosition().ToVector2();
-				Rectangle SourceRectangle = new Rectangle(24 * AnimationPattern, 0, 24, 24);
-				Vector2 Origin = new Vector2(12, 12);
+				Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
+				Vector2 Origin = CurrentlySprite.Origin;
 				SpriteEffects SpriteEffect = SpriteEffects.None;
-				float layerDepth = (float)Const.DrawOrder.Effect / (float)Const.DrawOrder.MAX;
-				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, layerDepth);
+				float LayerDepth = Const.DrawOrder.Effect.ToLayerDepth();
+				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
 			}
 
 			base.Draw(GameTime, SpriteBatch);
