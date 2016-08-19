@@ -38,6 +38,13 @@ namespace Rockman_vs_SmashBros
 		public bool IsIgnoreGravity;                                // このエンティティが重力を無視するかどうか
 		public Entity RidingEntity;                                 // このエンティティが乗っているエンティティ
 		public int Health;                                          // このエンティティの体力
+		public bool IsDamageBlink;                                  // 被ダメージ時の点滅中かどうか
+		public bool IsDamageStopDrawing;							// 被ダメージ時の点滅中に、描画しないフレームかどうか
+		public int DamageBlinkFrameCounter;                         // 被ダメージ時の点滅フレームカウンター
+		private bool[] DamageBlinkStopDrawingTable = new bool[]     // 被ダメージ点滅中の描画しないフレームのテーブル
+		{
+			true, true, false, false, true, true
+		};
 		#endregion
 
 		/// <summary>
@@ -74,6 +81,9 @@ namespace Rockman_vs_SmashBros
 
 			// OldPosition を更新
 			OldPosition = Position;
+
+			// 被ダメージ時の点滅を管理
+			DamageBlinkManagement();
 		}
 
 		/// <summary>
@@ -111,6 +121,8 @@ namespace Rockman_vs_SmashBros
 		/// <returns>ダメージが有効であったかどうかを返す。</returns>
 		public virtual bool GiveDamage(DamageDetail DamageDetail)
 		{
+			IsDamageBlink = true;
+			DamageBlinkFrameCounter = 0;
 			Health -= DamageDetail.Damage;
 			if (Health <= 0)
 			{
@@ -696,7 +708,7 @@ namespace Rockman_vs_SmashBros
 						}
 						// すり抜け床に対する接地判定
 						Map.TerrainTypes TerrainType = Map.PositionToTerrainType(HitCheckPosition);
-						if (TerrainType == Map.TerrainTypes.OneWay || Map.CheckPositionLadderTop(HitCheckPosition) )
+						if (TerrainType == Map.TerrainTypes.OneWay || Map.CheckPositionLadderTop(HitCheckPosition))
 						{
 							IsInAir = false;
 						}
@@ -716,6 +728,26 @@ namespace Rockman_vs_SmashBros
 						}
 					}
 				}
+			}
+		}
+
+		/// <summary>
+		/// 被ダメージ時の点滅を管理
+		/// </summary>
+		private void DamageBlinkManagement()
+		{
+			if (IsDamageBlink)
+			{
+				if (DamageBlinkFrameCounter >= DamageBlinkStopDrawingTable.Length)
+				{
+					IsDamageStopDrawing = false;
+					IsDamageBlink = false;
+				}
+				else
+				{
+					IsDamageStopDrawing = DamageBlinkStopDrawingTable[DamageBlinkFrameCounter];
+				}
+				DamageBlinkFrameCounter++;
 			}
 		}
 

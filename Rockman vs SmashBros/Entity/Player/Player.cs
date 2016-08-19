@@ -58,7 +58,7 @@ namespace Rockman_vs_SmashBros
 			Damage                                                  // 被ダメージ
 		}
 
-		private HitboxesStruct Hitboxes;                            // 状態ごとの当たり判定ボックス
+		private HitboxesStruct Hitboxes;                            // 状態ごとの当たり判定ボックス (右向き, 相対)
 		private struct HitboxesStruct                               // 状態ごとの当たり判定ボックス構造体
 		{
 			public Rectangle Neutral;                               // ニュートラル (立ち,  歩き, ジャンプ, はしご掴まり, 被ダメージ)
@@ -229,11 +229,11 @@ namespace Rockman_vs_SmashBros
 				}
 			}
 
-			// ベースを更新
-			base.Update(GameTime);
-
 			// 当たり判定を更新
 			HitboxManagement();
+
+			// ベースを更新
+			base.Update(GameTime);
 
 			// 無敵時間の管理
 			InvincibleDurationManager();

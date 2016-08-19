@@ -35,6 +35,8 @@ namespace Rockman_vs_SmashBros
 			Attack                                                  // 突撃
 		}
 
+		private Rectangle Hitbox;                                   // 右向き時の相対的なヒットボックス
+		private Rectangle AttackHitbox;                             // 右向き時の槍部分の攻撃判定ボックス (相対)
 		#endregion
 
 		/// <summary>
@@ -61,8 +63,9 @@ namespace Rockman_vs_SmashBros
 			IsAlive = true;
 			MoveDistance = Vector2.Zero;
 
-			RelativeHitbox = new Rectangle(-7, -23, 14, 24);
+			Hitbox = new Rectangle(-7, -23, 14, 24);
 			SearchRange = new Rectangle(-80, -63, 160, 64);
+			AttackHitbox = new Rectangle(7, -9, 21, 5);
 		}
 
 		/// <summary>
@@ -142,7 +145,7 @@ namespace Rockman_vs_SmashBros
 					}
 				}
 				// アニメーションを管理
-				if (FrameCounter % 16 == 0)
+				if (FrameCounter % 10 == 0)
 				{
 					AnimationPattern++;
 					AnimationPattern = AnimationPattern % AttackAnimationTable.Length;
@@ -150,20 +153,26 @@ namespace Rockman_vs_SmashBros
 			}
 
 			// プレイヤーにダメージを与える
-			Rectangle AbsoluteHitbox = GetAbsoluteHitbox();
-			if (AbsoluteHitbox.Intersects(Player.GetAbsoluteHitbox()))
+			Rectangle AbsoluteHitbox = GetAbsoluteHitbox();                 // 本体のヒットボックス
+			Rectangle AbsoluteAttackHitbox = GetAbsoluteAttackHitbox();     // 槍部分のヒットボックス
+			if (AbsoluteHitbox.Intersects(Player.GetAbsoluteHitbox()) ||
+				AbsoluteAttackHitbox.Intersects(Player.GetAbsoluteHitbox()) && Status == Statuses.Attack && AttackAnimationTable[AnimationPattern] != 1)
 			{
 				Player.GiveDamage(DamageDetail);
 			}
-
 			// 落下時にデスポーン
 			if (Position.Y > Map.Size.Height * Const.MapchipTileSize)
 			{
 				Destroy();
 			}
 
-			FrameCounter++;
+			// 当たり判定を更新
+			HitboxManagement();
+
+			// ベースを更新
 			base.Update(GameTime);
+
+			FrameCounter++;
 		}
 
 		/// <summary>
@@ -171,31 +180,36 @@ namespace Rockman_vs_SmashBros
 		/// </summary>
 		public override void Draw(GameTime GameTime, SpriteBatch SpriteBatch)
 		{
-			// 描画するスプライト
-			Sprite CurrentlySprite = new Sprite();
+			// 被ダメージ点滅中は点滅させる
+			if (!IsDamageStopDrawing)
+			{
+				// 描画するスプライト
+				Sprite CurrentlySprite = new Sprite();
 
-			// 捜索中
-			if (Status == Statuses.Searching)
-			{
-				CurrentlySprite = SearchingSprite;
-			}
-			else if (Status == Statuses.Attack)
-			{
-				CurrentlySprite = AttackSprites[AttackAnimationTable[AnimationPattern]];
-			}
+				// 捜索中
+				if (Status == Statuses.Searching)
+				{
+					CurrentlySprite = SearchingSprite;
+				}
+				else if (Status == Statuses.Attack)
+				{
+					CurrentlySprite = AttackSprites[AttackAnimationTable[AnimationPattern]];
+				}
 
-			// 描画
-			Vector2 Position = GetDrawPosition().ToVector2();
-			Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
-			Vector2 Origin = CurrentlySprite.Origin;
-			SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-			float LayerDepth = Const.DrawOrder.Enemy.ToLayerDepth();
-			// 左を向いている場合は中心座標を反転
-			if (IsFaceToLeft)
-			{
-				Origin = new Vector2(SourceRectangle.Width - 1 - Origin.X, Origin.Y);
+				// 描画
+				Vector2 Position = GetDrawPosition().ToVector2();
+				Rectangle SourceRectangle = CurrentlySprite.SourceRectangle;
+				Vector2 Origin = CurrentlySprite.Origin;
+				SpriteEffects SpriteEffect = IsFaceToLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+				float LayerDepth = Const.DrawOrder.Enemy.ToLayerDepth();
+				// 左を向いている場合は中心座標を反転
+				if (IsFaceToLeft)
+				{
+					Origin = new Vector2(SourceRectangle.Width - 1 - Origin.X, Origin.Y);
+				}
+				SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
+
 			}
-			SpriteBatch.Draw(Texture, Position, SourceRectangle, Color.White, 0.0f, Origin, 1.0f, SpriteEffect, LayerDepth);
 
 			// デバッグ描画
 			if (Global.Debug && Status == Statuses.Searching)
@@ -203,6 +217,11 @@ namespace Rockman_vs_SmashBros
 				Point DrawPosition = GetDrawPosition();
 				Rectangle AbsoluteSearchRange = new Rectangle(DrawPosition.X + SearchRange.X, DrawPosition.Y + SearchRange.Y, SearchRange.Width, SearchRange.Height);
 				SpriteBatch.DrawRectangle(AbsoluteSearchRange, Color.Red * 0.15f, true);
+			}
+			else if (Global.Debug && Status == Statuses.Attack && AttackAnimationTable[AnimationPattern] != 1)
+			{
+				Rectangle AbsoluteAttackHitbox = GetAbsoluteAttackHitbox();
+				SpriteBatch.DrawRectangle(AbsoluteAttackHitbox, Color.Red);
 			}
 
 			base.Draw(GameTime, SpriteBatch);
@@ -224,5 +243,40 @@ namespace Rockman_vs_SmashBros
 			}
 			return true;
 		}
+
+		#region プライベート関数
+
+		/// <summary>
+		/// 当たり判定ボックスの管理
+		/// </summary>
+		private void HitboxManagement()
+		{
+			Rectangle NewHitbox = Hitbox;
+			// 左を向いている場合はヒットボックスを左右反転
+			if (IsFaceToLeft)
+			{
+				NewHitbox = new Rectangle(1 - (NewHitbox.X + NewHitbox.Width), NewHitbox.Y, NewHitbox.Width, NewHitbox.Height);
+			}
+			RelativeHitbox = NewHitbox;
+		}
+
+		/// <summary>
+		/// 絶対座標で槍部分の攻撃判定ボックスを取得
+		/// </summary>
+		private Rectangle GetAbsoluteAttackHitbox()
+		{
+			Rectangle RelativeAttackHitbox = AttackHitbox;
+			// 左を向いている場合は攻撃ヒットボックスを左右反転
+			if (IsFaceToLeft)
+			{
+				RelativeAttackHitbox = new Rectangle(1 - (RelativeAttackHitbox.X + RelativeAttackHitbox.Width), RelativeAttackHitbox.Y, RelativeAttackHitbox.Width, RelativeAttackHitbox.Height);
+			}
+
+			Point DrawPosition = GetDrawPosition();
+			Rectangle AbsoluteAttackHitbox = new Rectangle(DrawPosition.X + RelativeAttackHitbox.X, DrawPosition.Y + RelativeAttackHitbox.Y, RelativeAttackHitbox.Width, RelativeAttackHitbox.Height);
+			return AbsoluteAttackHitbox;
+		}
+
+		#endregion
 	}
 }
