@@ -33,6 +33,46 @@ namespace Rockman_vs_SmashBros
 			}
 		}
 
+		// エンティティ名の登録
+		public struct Names
+		{
+			#region プレイヤー関連
+
+			public const string RockBuster1_Left = "RockBuster1_Left";
+			public const string RockBuster1_Right = "RockBuster1_Right";
+
+			#endregion ----------------------------------------------
+
+			#region ザコ敵キャラクター
+
+			public const string HyruleSoldier = "HyruleSoldier";
+			public const string HyruleSoldier_Attacking = "HyruleSoldier_Attacking";
+
+			#endregion----------------------------------------------
+
+			#region ステージギミック
+
+			public const string Platform1 = "Platform1";
+			public const string Platform2 = "Platform2";
+
+			#endregion----------------------------------------------
+
+			#region エフェクト
+
+			public const string Explosion1 = "Explosion1";
+			public const string DestroyEffect1 = "DestroyEffect1";
+			public const string SlidingSmoke_Left = "SlidingSmoke_Left";
+			public const string SlidingSmoke_Right = "SlidingSmoke_Right";
+
+			#endregion----------------------------------------------
+
+			#region その他
+
+			public const string CheckPoint = "CheckPoint";
+
+			#endregion----------------------------------------------
+		}
+
 		#endregion
 
 		/// <summary>
@@ -85,10 +125,10 @@ namespace Rockman_vs_SmashBros
 				#region プレイヤー関連
 
 				// ロックバスター
-				case "RockBuster1:Left":
+				case Names.RockBuster1_Left:
 					Entities.Add(new RockBuster(Position, true));
 					break;
-				case "RockBuster1:Right":
+				case Names.RockBuster1_Right:
 					Entities.Add(new RockBuster(Position, false));
 					break;
 
@@ -97,11 +137,11 @@ namespace Rockman_vs_SmashBros
 				#region ザコ敵キャラクター
 
 				// ハイラル兵
-				case "HyruleSoldier":
+				case Names.HyruleSoldier:
 					Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition));
 					break;
 				// ハイラル兵 (攻撃モード)
-				case "HyruleSoldier:Attacking":
+				case Names.HyruleSoldier_Attacking:
 					Entities.Add(new HyruleSoldier(Position, IsFromMap, FromMapPosition, true));
 					break;
 
@@ -110,11 +150,11 @@ namespace Rockman_vs_SmashBros
 				#region ステージギミック
 
 				// 足場1
-				case "Platform1":
+				case Names.Platform1:
 					Entities.Add(new Platform1(Position, IsFromMap, FromMapPosition));
 					break;
 				// 足場2
-				case "Platform2":
+				case Names.Platform2:
 					Entities.Add(new Platform2(Position, IsFromMap, FromMapPosition));
 					break;
 
@@ -123,28 +163,27 @@ namespace Rockman_vs_SmashBros
 				#region エフェクト
 
 				// 爆発エフェクト1
-				case "Explosion1":
+				case Names.Explosion1:
 					Entities.Add(new Explosion1(Position, IsFromMap, FromMapPosition));
 					break;
 				// 破壊エフェクト
-				case "DestroyEffect1":
+				case Names.DestroyEffect1:
 					Entities.Add(new DestroyEffect1(Position, IsFromMap, FromMapPosition));
 					break;
 				// スライディングエフェクト
-				case "SlidingSmoke:Left":
+				case Names.SlidingSmoke_Left:
 					Entities.Add(new SlidingSmoke(Position, true));
 					break;
-				case "SlidingSmoke:Right":
+				case Names.SlidingSmoke_Right:
 					Entities.Add(new SlidingSmoke(Position, false));
 					break;
-
 
 				#endregion
 
 				#region その他
 
 				// チェックポイント
-				case "CheckPoint":
+				case Names.CheckPoint:
 					Entities.Add(new CheckPoint(Position, IsFromMap, FromMapPosition));
 					break;
 

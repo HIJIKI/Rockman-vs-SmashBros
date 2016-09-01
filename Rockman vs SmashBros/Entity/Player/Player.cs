@@ -418,12 +418,12 @@ namespace Rockman_vs_SmashBros
 				if (IsFaceToLeft)
 				{
 					Point ShotPosition = GetDrawPosition() + new Point(-16, -11);
-					Entity.AddReserv("RockBuster1:Left", ShotPosition);
+					Entity.AddReserv(Entity.Names.RockBuster1_Left, ShotPosition);
 				}
 				else
 				{
 					Point ShotPosition = GetDrawPosition() + new Point(16, -11);
-					Entity.AddReserv("RockBuster1:Right", ShotPosition);
+					Entity.AddReserv(Entity.Names.RockBuster1_Right, ShotPosition);
 				}
 				IsShooting = true;
 				ShootingFrameCounter = 0;
@@ -444,12 +444,12 @@ namespace Rockman_vs_SmashBros
 						if (IsFaceToLeft)
 						{
 							Point EffectPosition = GetDrawPosition() + new Point(6, 0);
-							Entity.AddReserv("SlidingSmoke:Left", EffectPosition);
+							Entity.AddReserv(Entity.Names.SlidingSmoke_Left, EffectPosition);
 						}
 						else
 						{
 							Point EffectPosition = GetDrawPosition() + new Point(-6, 0);
-							Entity.AddReserv("SlidingSmoke:Right", EffectPosition);
+							Entity.AddReserv(Entity.Names.SlidingSmoke_Right, EffectPosition);
 						}
 						IsShooting = false;
 						SetStatus(Statuses.Sliding);
@@ -641,12 +641,12 @@ namespace Rockman_vs_SmashBros
 				if (IsFaceToLeft)
 				{
 					Point ShotPosition = Position.ToPoint() + new Point(-8, -10);
-					Entity.AddReserv("RockBuster1:Left", ShotPosition);
+					Entity.AddReserv(Entity.Names.RockBuster1_Left, ShotPosition);
 				}
 				else
 				{
 					Point ShotPosition = Position.ToPoint() + new Point(8, -10);
-					Entity.AddReserv("RockBuster1:Right", ShotPosition);
+					Entity.AddReserv(Entity.Names.RockBuster1_Right, ShotPosition);
 				}
 				IsShooting = true;
 				ShootingFrameCounter = 0;

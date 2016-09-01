@@ -239,7 +239,7 @@ namespace Rockman_vs_SmashBros
 			if (Health <= 0)
 			{
 				Point EffectPosition = new Point((int)Position.X, (int)Position.Y - 12);
-				AddReserv("Explosion1", EffectPosition);
+				AddReserv(Entity.Names.Explosion1, EffectPosition);
 			}
 			return true;
 		}

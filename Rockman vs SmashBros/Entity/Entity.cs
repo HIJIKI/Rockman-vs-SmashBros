@@ -16,7 +16,7 @@ namespace Rockman_vs_SmashBros
 	public partial class Entity
 	{
 		#region メンバーの宣言
-		public enum Types                                           // エンティティの種類構造体
+		public enum Types                                               // エンティティの種類構造体
 		{
 			Player,
 			Enemy,
@@ -24,24 +24,24 @@ namespace Rockman_vs_SmashBros
 			Effect,
 			Other
 		}
-		public Types Type;                                          // エンティティの種類 (Player, Enemy などの抽象的なもの)
-		public bool IsAlive;                                        // 生存フラグ
-		public bool IsNoclip;                                       // 地形を貫通するかどうか
-		public bool IsInAir;                                        // 空中にいるかどうか
-		public bool IsStop;                                         // 更新停止フラグ
-		public Vector2 Position;                                    // 内部座標
-		public Vector2 OldPosition;                                 // 1フレーム前の内部座標
-		public Vector2 MoveDistance;                                // 現在のフレームで移動する量
-		public Rectangle RelativeHitbox;                            // 当たり判定ボックス (相対)
-		public bool IsFromMap;                                      // マップにより作成されたかどうか
-		public Point FromMapPosition;                               // マップにより作成された場合に、その座標を保持
-		public bool IsIgnoreGravity;                                // このエンティティが重力を無視するかどうか
-		public Entity RidingEntity;                                 // このエンティティが乗っているエンティティ
-		public int Health;                                          // このエンティティの体力
-		public bool IsDamageBlink;                                  // 被ダメージ時の点滅中かどうか
-		public bool IsDamageStopDrawing;							// 被ダメージ時の点滅中に、描画しないフレームかどうか
-		public int DamageBlinkFrameCounter;                         // 被ダメージ時の点滅フレームカウンター
-		private bool[] DamageBlinkStopDrawingTable = new bool[]     // 被ダメージ点滅中の描画しないフレームのテーブル
+		public Types Type;                                              // エンティティの種類 (Player, Enemy などの抽象的なもの)
+		public bool IsAlive;                                            // 生存フラグ
+		public bool IsNoclip;                                           // 地形を貫通するかどうか
+		public bool IsInAir;                                            // 空中にいるかどうか
+		public bool IsStop;                                             // 更新停止フラグ
+		public Vector2 Position;                                        // 内部座標
+		public Vector2 OldPosition;                                     // 1フレーム前の内部座標
+		public Vector2 MoveDistance;                                    // 現在のフレームで移動する量
+		public Rectangle RelativeHitbox;                                // 当たり判定ボックス (相対)
+		public bool IsFromMap;                                          // マップにより作成されたかどうか
+		public Point FromMapPosition;                                   // マップにより作成された場合に、その座標を保持
+		public bool IsIgnoreGravity;                                    // このエンティティが重力を無視するかどうか
+		public Entity RidingEntity;                                     // このエンティティが乗っているエンティティ
+		public int Health;                                              // このエンティティの体力
+		public bool IsDamageBlink;                                      // 被ダメージ時の点滅中かどうか
+		public bool IsDamageStopDrawing;                                // 被ダメージ時の点滅中に、描画しないフレームかどうか
+		public int DamageBlinkFrameCounter;                             // 被ダメージ時の点滅フレームカウンター
+		private static bool[] DamageBlinkStopDrawingTable = new bool[]  // 被ダメージ点滅中の描画しないフレームのテーブル
 		{
 			true, true, false, false, true, true
 		};
