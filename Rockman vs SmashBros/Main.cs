@@ -12,7 +12,7 @@ using System;
 namespace Rockman_vs_SmashBros
 {
 	/// <summary>
-	/// ゲームクラス
+	/// メインクラス
 	/// </summary>
 	public class Main : Game
 	{

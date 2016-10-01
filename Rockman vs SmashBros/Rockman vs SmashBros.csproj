@@ -59,6 +59,7 @@
     <Compile Include="Library\Primitives2D.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Entity\Player\Player.cs" />
+    <Compile Include="MapFile.cs" />
     <Compile Include="Struct.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Main.cs" />
